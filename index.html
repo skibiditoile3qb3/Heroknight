@@ -78,6 +78,10 @@
             background: #252525;
             border-color: #555;
         }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
         #gameList {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -137,6 +141,71 @@
             outline: none;
             width: 200px;
         }
+        .trade-section {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #333;
+        }
+        .trade-section h2 {
+            font-size: 18px;
+            font-weight: 300;
+            margin-bottom: 20px;
+            letter-spacing: 1px;
+        }
+        .trade-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        .trade-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .trade-input {
+            flex: 1;
+            min-width: 200px;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+        .trade-status {
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+        .trade-status.connected {
+            color: #4a4;
+            border-color: #4a4;
+        }
+        .trade-code-display {
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #555;
+            border-radius: 6px;
+            font-size: 11px;
+            font-family: monospace;
+            word-break: break-all;
+            color: #aaa;
+            cursor: pointer;
+            margin-bottom: 5px;
+        }
+        .trade-code-display:hover {
+            background: #252525;
+        }
+        small {
+            color: #666;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -151,6 +220,31 @@
             <div id="gameList"></div>
             <div class="dev-section">
                 <input type="text" id="devInput" placeholder="Dev code">
+            </div>
+
+            <div class="trade-section">
+                <h2>P2P COIN TRADING</h2>
+                <div class="trade-status" id="tradeStatus">Disconnected</div>
+                <div class="trade-controls">
+                    <div class="trade-row">
+                        <button id="createTradeBtn">CREATE TRADE</button>
+                        <button id="cancelTradeBtn" style="display:none;">CANCEL</button>
+                    </div>
+                    <div id="tradeCodeContainer" style="display:none;">
+                        <div class="trade-code-display" id="tradeCodeDisplay">Loading...</div>
+                        <small>Click to copy • Share this code with another player</small>
+                    </div>
+                    <div class="trade-row">
+                        <input type="text" id="joinTradeInput" class="trade-input" placeholder="Enter trade code to connect">
+                        <button id="joinTradeBtn">JOIN</button>
+                    </div>
+                    <div id="sendCoinsContainer" style="display:none;">
+                        <div class="trade-row">
+                            <input type="number" id="coinAmountInput" class="trade-input" placeholder="Amount" min="1" style="flex: 0 0 150px;">
+                            <button id="sendCoinsBtn">SEND COINS</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -347,6 +441,270 @@
                 setCoins(coins);
                 updateCoinDisplay();
                 e.target.value = '';
+            }
+        });
+
+        // ===== P2P TRADING WITH WEBRTC =====
+        let peerConnection = null;
+        let dataChannel = null;
+        let isCreator = false;
+
+        const configuration = {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' }
+            ]
+        };
+
+        function updateTradeStatus(msg, connected = false) {
+            const status = document.getElementById('tradeStatus');
+            status.textContent = msg;
+            if (connected) {
+                status.classList.add('connected');
+            } else {
+                status.classList.remove('connected');
+            }
+        }
+
+        function setupDataChannel(channel) {
+            dataChannel = channel;
+            
+            dataChannel.onopen = () => {
+                updateTradeStatus('Connected to peer!', true);
+                document.getElementById('sendCoinsContainer').style.display = 'block';
+                document.getElementById('createTradeBtn').disabled = true;
+                document.getElementById('joinTradeBtn').disabled = true;
+            };
+            
+            dataChannel.onclose = () => {
+                updateTradeStatus('Disconnected');
+                document.getElementById('sendCoinsContainer').style.display = 'none';
+                document.getElementById('createTradeBtn').disabled = false;
+                document.getElementById('joinTradeBtn').disabled = false;
+                resetTrade();
+            };
+            
+            dataChannel.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'coins') {
+                        coins += data.amount;
+                        setCoins(coins);
+                        updateCoinDisplay();
+                        updateTradeStatus(`Received ${data.amount} coins!`, true);
+                        setTimeout(() => updateTradeStatus('Connected to peer!', true), 2000);
+                    }
+                } catch(e) {
+                    console.error('Error parsing message:', e);
+                }
+            };
+        }
+
+        async function createTrade() {
+            try {
+                isCreator = true;
+                updateTradeStatus('Creating trade...');
+                
+                peerConnection = new RTCPeerConnection(configuration);
+                
+                // Create data channel
+                const channel = peerConnection.createDataChannel('coins');
+                setupDataChannel(channel);
+                
+                // Handle ICE candidates
+                const iceCandidates = [];
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        iceCandidates.push(event.candidate);
+                    }
+                };
+                
+                // Create offer
+                const offer = await peerConnection.createOffer();
+                await peerConnection.setLocalDescription(offer);
+                
+                // Wait for ICE gathering to complete
+                await new Promise((resolve) => {
+                    if (peerConnection.iceGatheringState === 'complete') {
+                        resolve();
+                    } else {
+                        peerConnection.onicegatheringstatechange = () => {
+                            if (peerConnection.iceGatheringState === 'complete') {
+                                resolve();
+                            }
+                        };
+                    }
+                });
+                
+                // Create trade code
+                const tradeData = {
+                    offer: peerConnection.localDescription
+                };
+                const tradeCode = btoa(JSON.stringify(tradeData));
+                
+                // Display code
+                document.getElementById('tradeCodeDisplay').textContent = tradeCode;
+                document.getElementById('tradeCodeContainer').style.display = 'block';
+                document.getElementById('cancelTradeBtn').style.display = 'inline-block';
+                document.getElementById('createTradeBtn').style.display = 'none';
+                
+                updateTradeStatus('Waiting for peer to join...');
+                
+            } catch(e) {
+                console.error('Error creating trade:', e);
+                updateTradeStatus('Error creating trade');
+                resetTrade();
+            }
+        }
+
+        async function joinTrade() {
+            try {
+                const code = document.getElementById('joinTradeInput').value.trim();
+                if (!code) {
+                    alert('Please enter a trade code');
+                    return;
+                }
+                
+                updateTradeStatus('Joining trade...');
+                
+                const tradeData = JSON.parse(atob(code));
+                
+                peerConnection = new RTCPeerConnection(configuration);
+                
+                // Handle data channel from creator
+                peerConnection.ondatachannel = (event) => {
+                    setupDataChannel(event.channel);
+                };
+                
+                // Set remote description
+                await peerConnection.setRemoteDescription(tradeData.offer);
+                
+                // Create answer
+                const answer = await peerConnection.createAnswer();
+                await peerConnection.setLocalDescription(answer);
+                
+                // Wait for ICE gathering
+                await new Promise((resolve) => {
+                    if (peerConnection.iceGatheringState === 'complete') {
+                        resolve();
+                    } else {
+                        peerConnection.onicegatheringstatechange = () => {
+                            if (peerConnection.iceGatheringState === 'complete') {
+                                resolve();
+                            }
+                        };
+                    }
+                });
+                
+                // Create answer code for creator
+                const answerData = {
+                    answer: peerConnection.localDescription
+                };
+                const answerCode = btoa(JSON.stringify(answerData));
+                
+                // Show answer code
+                prompt('Send this code back to the creator:', answerCode);
+                
+                updateTradeStatus('Waiting for creator to complete connection...');
+                
+            } catch(e) {
+                console.error('Error joining trade:', e);
+                updateTradeStatus('Error joining trade. Invalid code?');
+                resetTrade();
+            }
+        }
+
+        async function completeConnection() {
+            try {
+                const answerCode = prompt('Enter the answer code from the joiner:');
+                if (!answerCode) return;
+                
+                const answerData = JSON.parse(atob(answerCode));
+                await peerConnection.setRemoteDescription(answerData.answer);
+                
+                updateTradeStatus('Connecting...');
+                
+            } catch(e) {
+                console.error('Error completing connection:', e);
+                updateTradeStatus('Error completing connection');
+            }
+        }
+
+        function sendCoins() {
+            if (!dataChannel || dataChannel.readyState !== 'open') {
+                alert('Not connected to a peer');
+                return;
+            }
+            
+            const amount = parseInt(document.getElementById('coinAmountInput').value);
+            if (!amount || amount < 1) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (amount > coins) {
+                alert('Not enough coins!');
+                return;
+            }
+            
+            // Deduct coins
+            coins -= amount;
+            setCoins(coins);
+            updateCoinDisplay();
+            
+            // Send to peer
+            dataChannel.send(JSON.stringify({
+                type: 'coins',
+                amount: amount
+            }));
+            
+            updateTradeStatus(`Sent ${amount} coins!`, true);
+            document.getElementById('coinAmountInput').value = '';
+            
+            setTimeout(() => updateTradeStatus('Connected to peer!', true), 2000);
+        }
+
+        function resetTrade() {
+            if (peerConnection) {
+                peerConnection.close();
+                peerConnection = null;
+            }
+            dataChannel = null;
+            isCreator = false;
+            
+            document.getElementById('tradeCodeContainer').style.display = 'none';
+            document.getElementById('cancelTradeBtn').style.display = 'none';
+            document.getElementById('createTradeBtn').style.display = 'inline-block';
+            document.getElementById('sendCoinsContainer').style.display = 'none';
+            document.getElementById('joinTradeInput').value = '';
+            document.getElementById('createTradeBtn').disabled = false;
+            document.getElementById('joinTradeBtn').disabled = false;
+        }
+
+        // Trade event listeners
+        document.getElementById('createTradeBtn').addEventListener('click', createTrade);
+        document.getElementById('cancelTradeBtn').addEventListener('click', () => {
+            resetTrade();
+            updateTradeStatus('Disconnected');
+        });
+        document.getElementById('joinTradeBtn').addEventListener('click', joinTrade);
+        document.getElementById('sendCoinsBtn').addEventListener('click', sendCoins);
+        
+        // Click to copy trade code
+        document.getElementById('tradeCodeDisplay').addEventListener('click', function() {
+            navigator.clipboard.writeText(this.textContent).then(() => {
+                const original = this.textContent;
+                this.textContent = 'Copied!';
+                setTimeout(() => {
+                    this.textContent = original;
+                }, 1000);
+            });
+        });
+        
+        // Add button to complete connection for creator
+        document.getElementById('tradeCodeContainer').addEventListener('dblclick', () => {
+            if (isCreator && peerConnection) {
+                completeConnection();
             }
         });
 
