@@ -478,14 +478,28 @@
                 document.getElementById('sendCoinsContainer').style.display = 'block';
                 document.getElementById('createTradeBtn').disabled = true;
                 document.getElementById('joinTradeBtn').disabled = true;
+                
+                // Send heartbeat every 5 seconds to check connection
+                if (heartbeatInterval) clearInterval(heartbeatInterval);
+                heartbeatInterval = setInterval(() => {
+                    if (dataChannel && dataChannel.readyState === 'open') {
+                        try {
+                            dataChannel.send(JSON.stringify({ type: 'heartbeat' }));
+                        } catch(e) {
+                            console.error('Heartbeat failed:', e);
+                            handleDisconnect();
+                        }
+                    }
+                }, 5000);
             };
             
             dataChannel.onclose = () => {
-                updateTradeStatus('Disconnected');
-                document.getElementById('sendCoinsContainer').style.display = 'none';
-                document.getElementById('createTradeBtn').disabled = false;
-                document.getElementById('joinTradeBtn').disabled = false;
-                resetTrade();
+                handleDisconnect();
+            };
+            
+            dataChannel.onerror = (error) => {
+                console.error('Data channel error:', error);
+                handleDisconnect();
             };
             
             dataChannel.onmessage = (event) => {
@@ -496,12 +510,34 @@
                         setCoins(coins);
                         updateCoinDisplay();
                         updateTradeStatus(`Received ${data.amount} coins!`, true);
-                        setTimeout(() => updateTradeStatus('Connected to peer!', true), 2000);
+                        setTimeout(() => {
+                            if (dataChannel && dataChannel.readyState === 'open') {
+                                updateTradeStatus('Connected to peer!', true);
+                            }
+                        }, 2000);
+                    } else if (data.type === 'heartbeat') {
+                        // Peer is still alive, do nothing
                     }
                 } catch(e) {
                     console.error('Error parsing message:', e);
                 }
             };
+        }
+        
+        let heartbeatInterval = null;
+        
+        function handleDisconnect() {
+            updateTradeStatus('Peer disconnected! You can create a new trade.', false);
+            document.getElementById('sendCoinsContainer').style.display = 'none';
+            document.getElementById('createTradeBtn').disabled = false;
+            document.getElementById('joinTradeBtn').disabled = false;
+            
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
+            
+            resetTrade();
         }
 
         async function createTrade() {
@@ -575,19 +611,12 @@
                 
                 peerConnection = new RTCPeerConnection(configuration);
                 
-                // Handle data channel from creator
                 peerConnection.ondatachannel = (event) => {
                     setupDataChannel(event.channel);
                 };
-                
-                // Set remote description
                 await peerConnection.setRemoteDescription(tradeData.offer);
-                
-                // Create answer
                 const answer = await peerConnection.createAnswer();
                 await peerConnection.setLocalDescription(answer);
-                
-                // Wait for ICE gathering
                 await new Promise((resolve) => {
                     if (peerConnection.iceGatheringState === 'complete') {
                         resolve();
@@ -600,13 +629,10 @@
                     }
                 });
                 
-                // Create answer code for creator
                 const answerData = {
                     answer: peerConnection.localDescription
                 };
                 const answerCode = btoa(JSON.stringify(answerData));
-                
-                // Show answer code
                 prompt('Send this code back to the creator:', answerCode);
                 
                 updateTradeStatus('Waiting for creator to complete connection...');
@@ -620,16 +646,21 @@
 
         async function completeConnection() {
             try {
-                const answerCode = prompt('Enter the answer code from the joiner:');
-                if (!answerCode) return;
+                const answerCode = document.getElementById('answerCodeInput').value.trim();
+                if (!answerCode) {
+                    alert('Please paste the answer code');
+                    return;
+                }
                 
                 const answerData = JSON.parse(atob(answerCode));
                 await peerConnection.setRemoteDescription(answerData.answer);
                 
                 updateTradeStatus('Connecting...');
+                document.getElementById('answerCodeInput').value = '';
                 
             } catch(e) {
                 console.error('Error completing connection:', e);
+                alert('Invalid answer code. Please try again.');
                 updateTradeStatus('Error completing connection');
             }
         }
@@ -650,13 +681,9 @@
                 alert('Not enough coins!');
                 return;
             }
-            
-            // Deduct coins
             coins -= amount;
             setCoins(coins);
             updateCoinDisplay();
-            
-            // Send to peer
             dataChannel.send(JSON.stringify({
                 type: 'coins',
                 amount: amount
@@ -665,7 +692,7 @@
             updateTradeStatus(`Sent ${amount} coins!`, true);
             document.getElementById('coinAmountInput').value = '';
             
-            setTimeout(() => updateTradeStatus('Connected to peer!', true), 2000);
+            setTimeout(() => updateTradeStatus('Connected!', true), 2000);
         }
 
         function resetTrade() {
@@ -673,7 +700,14 @@
                 peerConnection.close();
                 peerConnection = null;
             }
-            dataChannel = null;
+            if (dataChannel) {
+                dataChannel.close();
+                dataChannel = null;
+            }
+            if (heartbeatInterval) {
+                clearInterval(heartbeatInterval);
+                heartbeatInterval = null;
+            }
             isCreator = false;
             
             document.getElementById('tradeCodeContainer').style.display = 'none';
@@ -681,11 +715,19 @@
             document.getElementById('createTradeBtn').style.display = 'inline-block';
             document.getElementById('sendCoinsContainer').style.display = 'none';
             document.getElementById('joinTradeInput').value = '';
+            document.getElementById('answerCodeInput').value = '';
             document.getElementById('createTradeBtn').disabled = false;
             document.getElementById('joinTradeBtn').disabled = false;
         }
+        window.addEventListener('beforeunload', () => {
+            if (dataChannel && dataChannel.readyState === 'open') {
+                dataChannel.close();
+            }
+            if (peerConnection) {
+                peerConnection.close();
+            }
+        });
 
-        // Trade event listeners
         document.getElementById('createTradeBtn').addEventListener('click', createTrade);
         document.getElementById('cancelTradeBtn').addEventListener('click', () => {
             resetTrade();
@@ -693,8 +735,9 @@
         });
         document.getElementById('joinTradeBtn').addEventListener('click', joinTrade);
         document.getElementById('sendCoinsBtn').addEventListener('click', sendCoins);
+        document.getElementById('completeBtn').addEventListener('click', completeConnection);
         
-        // Click to copy trade code
+        // Copy code
         document.getElementById('tradeCodeDisplay').addEventListener('click', function() {
             navigator.clipboard.writeText(this.textContent).then(() => {
                 const original = this.textContent;
@@ -705,13 +748,6 @@
             });
         });
         
-        // Add button to complete connection for creator
-        document.getElementById('tradeCodeContainer').addEventListener('dblclick', () => {
-            if (isCreator && peerConnection) {
-                completeConnection();
-            }
-        });
-
         // Initial display
         displayGames(games);
     </script>
