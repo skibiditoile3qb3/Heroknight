@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+        #mainView {
+            min-height: 100vh;
+            padding: 40px 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #coinDisplay {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #1a1a1a;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            border: 1px solid #333;
+            z-index: 100;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 32px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        #searchBox {
+            flex: 1;
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        #searchBox:focus {
+            border-color: #555;
+        }
+        button {
+            padding: 12px 24px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        button:hover {
+            background: #252525;
+            border-color: #555;
+        }
+        #gameList {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
+        }
+        .game-btn {
+            padding: 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            text-align: left;
+            transition: all 0.2s;
+            width: 100%;
+        }
+        .game-btn:hover {
+            background: #252525;
+            border-color: #555;
+            transform: translateY(-2px);
+        }
+        #gameView {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #000;
+            z-index: 1000;
+        }
+        #backBtn {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 1001;
+            padding: 10px 20px;
+        }
+        #gameFrame {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .dev-section {
+            margin-top: 40px;
+            padding-top: 40px;
+            border-top: 1px solid #333;
+        }
+        #devInput {
+            padding: 12px 16px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            width: 200px;
+        }
+    </style>
+</head>
+<body>
+    <div id="mainView">
+        <div id="coinDisplay">Coins: <span id="coinAmount">10</span></div>
+        <div class="container">
+            <h1>GAMES</h1>
+            <div class="search-container">
+                <input type="text" id="searchBox" placeholder="Search games...">
+                <button id="allBtn">ALL</button>
+            </div>
+            <div id="gameList"></div>
+            <div class="dev-section">
+                <input type="text" id="devInput" placeholder="Dev code">
+            </div>
+        </div>
+    </div>
+
+    <div id="gameView">
+        <button id="backBtn">← BACK</button>
+        <iframe id="gameFrame"></iframe>
+    </div>
+
+    <script>
+        const games = ["2048","4th-and-goal-2022","8-ball-pool","a-small-world-cup","among-us","apple-shooter","aquaparkio","arcade-car-driving","archery","awesome-tanks-2","awesome-tanks-2s","axis-football","backyard-baseball","backyard-football","bad-ice-cream-2","bad-ice-cream-3","bad-ice-cream","baldi-s-basics","baseball-9","baseball-bros","basket-champs","basket-random","basketball-legends","basketball-stars","big-shot-boxing","bit-life","blackjack","block-blast","block-breaker","bottle-flip","boxing-random","bubble-shooter","car-game-simulator","car-parking","car-traffic-racing","cheese-chompers-3d","chess","classic-uno","cluster-rush","color-tunnel","cookie-clicker","coreball","crazy-cattle-3d","crossy-road","dig-to-china","dino-game","dinosaur-game","doodle-baseball","doodle-cricket","doodle-jump-christmas","doodle-jump","dragon-ball-z","dragon-simulator-3d","dreadhead-parkour","drift-boss","drift-hunters","drive-mad","eaglercraft","easy-chess","eggy-car","escape-road","fireboy-and-watergirl","five-nights-at-freddy","flappy-bird","flappy-dunk","flying-gorilla","fnaf-2","football-us","friday-night-funkin","fruit-merge","funny-shooter-2","g-switch","geometry-dash-lite","getaway-shootout","granny-2","gunspin2","happy-wheels","hexanautio","highway-rider-extreme","highway-traffic","hill-climb-racing","house-of-hazards","idle-breakout","idle-dice","jelly-truck","level-devil","little-alchemy-2","little-alchemy","madalin-stunt-cars-2","make-it-meme","minesweeper","monkey-mart","moto-x3m-4-winter","moto-x3m-5-pool-party","moto-x3m-6-spooky-land","moto-x3m","murder","need-for-speed-dirft-car","ovo-2","ovo","papa-s-burgeria","papa-s-pancakeria","papa-s-scooperia","papas-freezeria","papas-pizzeria","paper-io","paperio-2","paperio","parking-fury","penalty-kick-online","penalty-kick","ping-pong-chaos","pixel-shooter","pizza-tower","polytrack","poodle-jump","poop-clicker","raft-wars","ragdoll-archers","ragdoll-hit","real-flight","retro-bowl","rocket-soccer-derby","rooftop-sniper","rooftop-snipers","run-3","sbrunga","scifi-flight-simulator","short-life","slice-master","slope-2","slope-3","slope-ball","slope-run","slope","smash-karts","snakeio","sniper-rifle-shooting","snow-rider3d","snowballio","soccer-bros","soccer-legends","space-waves","spacebar-clicker","speed-stars","sprinter","sprunki-1999","sprunki-2004","sprunki-cendi","sprunki-corruption","sprunki-italian-brainrot","sprunki-ketchup","sprunki-phase-21","sprunki-swap-retextured","sprunki-the-trevor-mod","sprunki-warm","squidgame3d","stickman-archero-fight","stickman-hook","strite-football-game","subway-surfers","survival-race","swingo","tag","tall-man-run","tank-trouble","tanuki-sunset","tap-road","tap-tap-shots","temple-run-2","tic-tac-toe","time-shooter-2","time-shooter-3","tiny-fishing","toca-boca","tomb-of-the-mask","tomb-of-the-masks","traffic-jam-3d","traffic-rush","tunnel-rush","unicycle-hero","vex-3","vex4","vex5","vex6","whack-your-neighbor","wheelie-bike","wordle-unlimited","wordle","world-war-2","worlds-hardest-game","wrestle-bros"];
+
+        // Obfuscation helpers
+        const _0x4a2b = (s) => btoa(s).split('').reverse().join('');
+        const _0x2b4a = (s) => atob(s.split('').reverse().join(''));
+        const _0x9c3d = 'X2NvaW5EYXRh';
+        const _0x7f1e = 'X2xhc3RBY3Rpdml0eQ==';
+        const _0x3e8a = 'X3RvdGFsQWN0aXZlVGltZQ==';
+
+        // Storage functions
+        function getCoins() {
+            try {
+                const stored = localStorage.getItem(_0x2b4a(_0x9c3d));
+                if (stored) {
+                    return parseInt(_0x2b4a(stored));
+                }
+            } catch(e) {}
+            return 10;
+        }
+
+        function setCoins(amount) {
+            try {
+                localStorage.setItem(_0x2b4a(_0x9c3d), _0x4a2b(amount.toString()));
+            } catch(e) {}
+        }
+
+        function getLastActivity() {
+            try {
+                const stored = localStorage.getItem(_0x2b4a(_0x7f1e));
+                return stored ? parseInt(_0x2b4a(stored)) : Date.now();
+            } catch(e) {}
+            return Date.now();
+        }
+
+        function setLastActivity(time) {
+            try {
+                localStorage.setItem(_0x2b4a(_0x7f1e), _0x4a2b(time.toString()));
+            } catch(e) {}
+        }
+
+        function getTotalActiveTime() {
+            try {
+                const stored = localStorage.getItem(_0x2b4a(_0x3e8a));
+                return stored ? parseInt(_0x2b4a(stored)) : 0;
+            } catch(e) {}
+            return 0;
+        }
+
+        function setTotalActiveTime(time) {
+            try {
+                localStorage.setItem(_0x2b4a(_0x3e8a), _0x4a2b(time.toString()));
+            } catch(e) {}
+        }
+
+        // Initialize
+        let coins = getCoins();
+        let lastActivity = getLastActivity();
+        let totalActiveTime = getTotalActiveTime();
+        let isActive = false;
+        let activityCheckInterval;
+
+        function updateCoinDisplay() {
+            document.getElementById('coinAmount').textContent = coins;
+        }
+
+        updateCoinDisplay();
+
+        // Activity tracking
+        function markActivity() {
+            isActive = true;
+            lastActivity = Date.now();
+        }
+
+        document.addEventListener('mousemove', markActivity);
+        document.addEventListener('keydown', markActivity);
+        document.addEventListener('click', markActivity);
+
+        // Check activity every second
+        activityCheckInterval = setInterval(() => {
+            const now = Date.now();
+            if (isActive && (now - lastActivity) < 2000) {
+                totalActiveTime += 1;
+                setTotalActiveTime(totalActiveTime);
+                
+                // Award coins every 20 minutes (1200 seconds)
+                if (totalActiveTime > 0 && totalActiveTime % 1200 === 0) {
+                    coins += 5;
+                    setCoins(coins);
+                    updateCoinDisplay();
+                }
+            }
+            isActive = false;
+        }, 1000);
+
+        // Levenshtein distance
+        function levenshtein(a, b) {
+            const matrix = [];
+            for (let i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+            for (let j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+            for (let i = 1; i <= b.length; i++) {
+                for (let j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(
+                            matrix[i - 1][j - 1] + 1,
+                            matrix[i][j - 1] + 1,
+                            matrix[i - 1][j] + 1
+                        );
+                    }
+                }
+            }
+            return matrix[b.length][a.length];
+        }
+
+        function formatGameName(game) {
+            return game.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+        }
+
+        function displayGames(gamesToShow) {
+            const gameList = document.getElementById('gameList');
+            gameList.innerHTML = '';
+            gamesToShow.forEach(game => {
+                const btn = document.createElement('button');
+                btn.className = 'game-btn';
+                btn.textContent = formatGameName(game);
+                btn.onclick = () => loadGame(game);
+                gameList.appendChild(btn);
+            });
+        }
+
+        function searchGames(query) {
+            if (!query.trim()) {
+                displayGames(games);
+                return;
+            }
+            
+            const results = games.map(game => ({
+                game,
+                distance: levenshtein(query.toLowerCase(), game.toLowerCase())
+            }))
+            .sort((a, b) => a.distance - b.distance)
+            .slice(0, 10)
+            .map(r => r.game);
+            
+            displayGames(results);
+        }
+
+        function loadGame(game) {
+            document.getElementById('mainView').style.display = 'none';
+            document.getElementById('gameView').style.display = 'block';
+            document.getElementById('coinDisplay').style.display = 'none';
+            document.getElementById('gameFrame').src = `https://jasongamesdev.github.io/${game}`;
+        }
+
+        function backToMain() {
+            document.getElementById('mainView').style.display = 'flex';
+            document.getElementById('gameView').style.display = 'none';
+            document.getElementById('coinDisplay').style.display = 'block';
+            document.getElementById('gameFrame').src = '';
+        }
+
+        // Event listeners
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            searchGames(e.target.value);
+        });
+
+        document.getElementById('allBtn').addEventListener('click', () => {
+            document.getElementById('searchBox').value = '';
+            displayGames(games);
+        });
+
+        document.getElementById('backBtn').addEventListener('click', backToMain);
+
+        // Dev code
+        document.getElementById('devInput').addEventListener('input', (e) => {
+            const code = e.target.value;
+            if (code === '**9p') {
+                coins += 100;
+                setCoins(coins);
+                updateCoinDisplay();
+                e.target.value = '';
+            }
+        });
+
+        // Initial display
+        displayGames(games);
+    </script>
+</body>
+</html>
