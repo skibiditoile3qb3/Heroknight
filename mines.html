@@ -235,8 +235,8 @@
 
     function updateInfo() {
       multEl.textContent = currentMult.toFixed(2) + '×';
-      winEl.textContent = (bet * currentMult).toFixed(2);
-      balanceEl.textContent = balance.toFixed(2);
+      winEl.textContent = Math.floor(bet * currentMult); // Floor the winnings display
+      balanceEl.textContent = Math.floor(balance); // Floor the balance display
     }
 
     function updateParentCoins() {
