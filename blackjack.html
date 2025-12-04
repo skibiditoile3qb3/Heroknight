@@ -910,10 +910,10 @@
             if (element === playerHandElement) {
                 updateHandValue(playerValueElement, calculateHandValue(hand));
                 checkForBust(hand);
-            } else if (!state.dealersTurn) {
-                // Don't update dealer value yet
-            } else {
+            } else if (state.dealersTurn) {
+                // Update dealer value during dealer's turn
                 updateHandValue(dealerValueElement, calculateHandValue(hand));
+                checkForBust(hand);
             }
         }
 
@@ -974,11 +974,11 @@
         function checkForBust(hand) {
             const value = calculateHandValue(hand);
             if (value > 21) {
-                if (state.currentHand === 'player') {
+                if (hand === state.playerHand) {
                     setTimeout(() => {
                         showResult('bust');
                     }, 500);
-                } else if (state.currentHand === 'dealer') {
+                } else if (hand === state.dealerHand && state.dealersTurn) {
                     setTimeout(() => {
                         showResult('dealer_bust');
                     }, 500);
