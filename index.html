@@ -217,6 +217,7 @@
                 <input type="text" id="searchBox" placeholder="Search games...">
                 <button id="allBtn">ALL</button>
                 <button id="minesBtn" style="background: #d69e2e; border: 1px solid #b7791f;">MINES 💎</button>
+                <button id="blackjackBtn" style="background: #c53030; border: 1px solid #9b2c2c;">BLACKJACK ♠️</button>
             </div>
             <div id="gameList"></div>
             <div class="dev-section">
@@ -423,9 +424,11 @@
             document.getElementById('gameView').style.display = 'block';
             document.getElementById('coinDisplay').style.display = 'none';
             
-            // Special handling for Mines game
+            // Special handling for custom games
             if (game === 'mines') {
                 document.getElementById('gameFrame').src = 'mines.html';
+            } else if (game === 'blackjack') {
+                document.getElementById('gameFrame').src = 'blackjack.html';
             } else {
                 document.getElementById('gameFrame').src = `https://jasongamesdev.github.io/${game}`;
             }
@@ -458,7 +461,12 @@
             loadGame('mines');
         });
 
-        // Listen for messages from Mines game iframe
+        // Blackjack button
+        document.getElementById('blackjackBtn').addEventListener('click', () => {
+            loadGame('blackjack');
+        });
+
+        // Listen for messages from game iframes
         window.addEventListener('message', (event) => {
             // Security: only accept messages from same origin or your domain
             if (event.data.type === 'getCoins') {
