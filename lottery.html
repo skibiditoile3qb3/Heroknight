@@ -28,7 +28,7 @@
         justify-content: center;
         align-items: center;
         padding: 20px;
-        overflow: hidden;
+        overflow-y: auto;
     }
     
     body::before {
@@ -72,6 +72,7 @@
                     0 0 60px rgba(176, 38, 255, 0.1);
         border: 1px solid rgba(0, 255, 157, 0.2);
         margin-bottom: 20px;
+        overflow: visible;
     }
     
     .draw-info {
@@ -148,9 +149,10 @@
     }
     
     .ticket-list {
-        max-height: 300px;
+        max-height: 400px;
         overflow-y: auto;
         margin-top: 20px;
+        padding-right: 5px;
     }
     
     .ticket-item {
