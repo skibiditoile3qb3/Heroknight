@@ -343,10 +343,6 @@
                     </select>
                 </div>
                 <div class="setup-option">
-                    <label>Starting Chips:</label>
-                    <input type="number" id="startingChips" value="1000" min="100" step="100">
-                </div>
-                <div class="setup-option">
                     <label>Small Blind:</label>
                     <input type="number" id="smallBlind" value="10" min="5" step="5">
                 </div>
@@ -367,7 +363,7 @@
                 <div class="hand-rank" id="handRank"></div>
             </div>
 
-            <div class="controls" id="controls">
+            <div class="controls" id="controls" style="display: none;">
                 <button class="btn btn-fold" onclick="playerAction('fold')">Fold</button>
                 <button class="btn btn-check" id="checkBtn" onclick="playerAction('check')">Check</button>
                 <button class="btn btn-call" id="callBtn" onclick="playerAction('call')">Call $<span id="callAmount">0</span></button>
@@ -398,8 +394,29 @@
             bigBlind: 20,
             phase: 'preflop',
             gameActive: false,
-            lastAction: ''
+            humanBalance: 0
         };
+
+        // Coin integration
+        window.parent.postMessage({ type: 'getCoins' }, '*');
+
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'coinsData') {
+                state.humanBalance = event.data.coins;
+                const humanPlayer = state.players.find(p => p.isHuman);
+                if (humanPlayer) {
+                    humanPlayer.chips = state.humanBalance;
+                    updateDisplay();
+                }
+            }
+        });
+
+        function updateParentCoins() {
+            window.parent.postMessage({
+                type: 'updateCoins',
+                coins: state.humanBalance
+            }, '*');
+        }
 
         function createDeck() {
             const deck = [];
@@ -421,8 +438,12 @@
 
         function startGame() {
             const playerCount = parseInt(document.getElementById('playerCount').value);
-            const startingChips = parseInt(document.getElementById('startingChips').value);
             const smallBlind = parseInt(document.getElementById('smallBlind').value);
+
+            if (state.humanBalance < smallBlind * 2) {
+                alert('You need at least ' + (smallBlind * 2) + ' coins to play!');
+                return;
+            }
 
             state.smallBlind = smallBlind;
             state.bigBlind = smallBlind * 2;
@@ -431,7 +452,7 @@
             state.players.push({ 
                 name: 'You', 
                 isHuman: true, 
-                chips: startingChips, 
+                chips: state.humanBalance, 
                 cards: [], 
                 bet: 0, 
                 folded: false, 
@@ -444,7 +465,7 @@
                 state.players.push({
                     name: aiNames[i],
                     isHuman: false,
-                    chips: startingChips,
+                    chips: state.humanBalance,
                     cards: [],
                     bet: 0,
                     folded: false,
@@ -508,6 +529,7 @@
             document.getElementById('communityCards').innerHTML = '';
             document.getElementById('handRank').textContent = '';
             document.getElementById('newHandBtn').style.display = 'none';
+            document.getElementById('controls').style.display = 'none';
 
             postBlinds();
             dealCards();
@@ -536,6 +558,13 @@
             state.pot += bbAmount;
 
             state.currentBet = bbAmount;
+
+            // Update human balance if they posted blinds
+            const humanPlayer = state.players.find(p => p.isHuman);
+            if (humanPlayer) {
+                state.humanBalance = humanPlayer.chips;
+                updateParentCoins();
+            }
         }
 
         function dealCards() {
@@ -560,7 +589,6 @@
         }
 
         function updateDisplay() {
-            // Update player displays
             state.players.forEach((player, index) => {
                 const playerDiv = document.getElementById(`player-${index}`);
                 if (!playerDiv) return;
@@ -584,18 +612,15 @@
                 ).join('');
             });
 
-            // Update community cards
             const communityDiv = document.getElementById('communityCards');
             communityDiv.innerHTML = state.communityCards.map(card => renderCard(card)).join('');
 
-            // Update pot and balance
             document.getElementById('pot').textContent = state.pot;
             const humanPlayer = state.players.find(p => p.isHuman);
             if (humanPlayer) {
                 document.getElementById('balance').textContent = humanPlayer.chips;
             }
 
-            // Update hand rank
             if (humanPlayer && !humanPlayer.folded && state.communityCards.length >= 3) {
                 const hand = evaluateHand([...humanPlayer.cards, ...state.communityCards]);
                 document.getElementById('handRank').textContent = hand.name;
@@ -604,7 +629,7 @@
 
         function playerAction(action) {
             const player = state.players[0];
-            if (!player || player.folded || !player.isHuman) return;
+            if (!player || player.folded || !player.isHuman || state.currentPlayerIndex !== 0) return;
 
             if (action === 'fold') {
                 player.folded = true;
@@ -621,6 +646,8 @@
                 state.pot += amount;
                 if (player.chips === 0) player.allIn = true;
                 player.hasActed = true;
+                state.humanBalance = player.chips;
+                updateParentCoins();
                 showMessage(`You call $${amount}`, 1000);
             } else if (action === 'raise') {
                 const raiseAmount = parseInt(document.getElementById('raiseAmount').value);
@@ -634,16 +661,18 @@
                 if (player.chips === 0) player.allIn = true;
                 player.hasActed = true;
                 
-                // Reset other players' hasActed
                 state.players.forEach((p, i) => {
                     if (i !== 0 && !p.folded && !p.allIn) {
                         p.hasActed = false;
                     }
                 });
                 
+                state.humanBalance = player.chips;
+                updateParentCoins();
                 showMessage(`You raise to $${player.bet}`, 1000);
             }
 
+            document.getElementById('controls').style.display = 'none';
             updateDisplay();
 
             const activePlayers = state.players.filter(p => !p.folded);
@@ -684,11 +713,12 @@
             const player = state.players[0];
             const callAmount = state.currentBet - player.bet;
 
+            document.getElementById('controls').style.display = 'flex';
             document.getElementById('checkBtn').disabled = callAmount > 0;
             document.getElementById('callBtn').disabled = callAmount === 0 || player.chips <= callAmount;
             document.getElementById('callAmount').textContent = callAmount;
 
-            const minRaise = Math.max(state.bigBlind, state.currentBet * 2 - player.bet);
+            const minRaise = Math.max(state.bigBlind, state.currentBet - player.bet + state.bigBlind);
             document.getElementById('raiseAmount').value = minRaise;
             document.getElementById('raiseAmount').min = minRaise;
             document.getElementById('raiseAmount').max = player.chips;
@@ -696,10 +726,7 @@
 
         function bettingRoundComplete() {
             const activePlayers = state.players.filter(p => !p.folded && !p.allIn);
-            
             if (activePlayers.length === 0) return true;
-            
-            // All active players must have acted and matched the current bet
             return activePlayers.every(p => p.hasActed && p.bet === state.currentBet);
         }
 
@@ -708,14 +735,16 @@
             const callAmount = state.currentBet - player.bet;
 
             const handStrength = evaluateHandStrength(player.cards, state.communityCards);
-            const potOdds = callAmount / (state.pot + callAmount);
+            const potOdds = callAmount > 0 ? callAmount / (state.pot + callAmount) : 0;
             const random = Math.random();
 
             let action = '';
 
-            // Strong hand - raise often
-            if (handStrength > 0.7 && random > 0.4) {
-                const raiseAmount = Math.floor(state.bigBlind * (2 + random * 3));
+            // More aggressive AI behavior
+            if (handStrength > 0.65 && random > 0.3) {
+                // Strong hand - raise
+                const raiseMultiplier = 1.5 + random * 2;
+                const raiseAmount = Math.floor(state.bigBlind * raiseMultiplier);
                 const totalAmount = callAmount + raiseAmount;
                 const amount = Math.min(totalAmount, player.chips);
                 
@@ -725,7 +754,6 @@
                 state.currentBet = player.bet;
                 if (player.chips === 0) player.allIn = true;
                 
-                // Reset other players' hasActed when someone raises
                 state.players.forEach((p, i) => {
                     if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) {
                         p.hasActed = false;
@@ -733,9 +761,8 @@
                 });
                 
                 action = `raises to $${player.bet}`;
-            }
-            // Good hand or good odds - call
-            else if (handStrength > potOdds || callAmount === 0) {
+            } else if (handStrength > 0.4 || (handStrength > potOdds && callAmount < player.chips * 0.3)) {
+                // Decent hand or good pot odds - call
                 if (callAmount > 0) {
                     const amount = Math.min(callAmount, player.chips);
                     player.chips -= amount;
@@ -746,15 +773,21 @@
                 } else {
                     action = 'checks';
                 }
-            }
-            // Weak hand - fold or check
-            else {
-                if (callAmount > 0) {
-                    player.folded = true;
-                    action = 'folds';
-                } else {
-                    action = 'checks';
-                }
+            } else if (callAmount === 0) {
+                // Free to check
+                action = 'checks';
+            } else if (handStrength > 0.25 && random > 0.6) {
+                // Marginal hand - sometimes call
+                const amount = Math.min(callAmount, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                if (player.chips === 0) player.allIn = true;
+                action = 'calls';
+            } else {
+                // Weak hand - fold
+                player.folded = true;
+                action = 'folds';
             }
 
             player.hasActed = true;
@@ -773,22 +806,31 @@
 
         function evaluateHandStrength(playerCards, communityCards) {
             const allCards = [...playerCards, ...communityCards];
-            if (allCards.length < 2) return 0.3;
+            if (allCards.length < 2) {
+                // Pre-flop hand strength
+                const card1Val = valueMap[playerCards[0].value];
+                const card2Val = valueMap[playerCards[1].value];
+                const isPair = card1Val === card2Val;
+                const isHighCards = card1Val >= 11 && card2Val >= 11;
+                const isSuited = playerCards[0].suit === playerCards[1].suit;
+                
+                if (isPair && card1Val >= 10) return 0.85; // High pair
+                if (isPair) return 0.65; // Any pair
+                if (isHighCards) return 0.70; // Two face cards
+                if (card1Val >= 11 || card2Val >= 11) return isSuited ? 0.55 : 0.45; // One high card
+                return isSuited ? 0.35 : 0.25; // Low cards
+            }
 
             const hand = evaluateHand(allCards);
-            
-            // Normalize score (1-10 scale to 0-1)
             let strength = hand.score / 10;
             
-            // Boost based on high cards
             const highCards = playerCards.filter(c => valueMap[c.value] >= 11).length;
-            strength += highCards * 0.1;
+            strength += highCards * 0.05;
             
             return Math.min(strength, 1);
         }
 
         function nextPhase() {
-            // Reset bets and hasActed for next round
             state.players.forEach(p => {
                 p.bet = 0;
                 p.hasActed = false;
@@ -796,18 +838,15 @@
             state.currentBet = 0;
 
             if (state.phase === 'preflop') {
-                // Flop - deal 3 cards
-                state.deck.pop(); // Burn
+                state.deck.pop();
                 state.communityCards.push(state.deck.pop(), state.deck.pop(), state.deck.pop());
                 state.phase = 'flop';
             } else if (state.phase === 'flop') {
-                // Turn - deal 1 card
-                state.deck.pop(); // Burn
+                state.deck.pop();
                 state.communityCards.push(state.deck.pop());
                 state.phase = 'turn';
             } else if (state.phase === 'turn') {
-                // River - deal 1 card
-                state.deck.pop(); // Burn
+                state.deck.pop();
                 state.communityCards.push(state.deck.pop());
                 state.phase = 'river';
             } else if (state.phase === 'river') {
@@ -830,7 +869,12 @@
             if (activePlayers.length === 1) {
                 const winner = activePlayers[0];
                 winner.chips += state.pot;
+                if (winner.isHuman) {
+                    state.humanBalance = winner.chips;
+                    updateParentCoins();
+                }
                 showMessage(`${winner.name} wins $${state.pot}!`, 3000);
+                updatePlayerDisplay(state.players.indexOf(winner));
             } else {
                 const results = activePlayers.map(player => ({
                     player,
@@ -849,10 +893,18 @@
                 }
 
                 const winAmount = Math.floor(state.pot / winners.length);
-                winners.forEach(w => w.player.chips += winAmount);
+                winners.forEach(w => {
+                    w.player.chips += winAmount;
+                    if (w.player.isHuman) {
+                        state.humanBalance = w.player.chips;
+                        updateParentCoins();
+                    }
+                    updateDisplay();
+                });
 
                 const winnerNames = winners.map(w => w.player.name).join(' & ');
-                showMessage(`${winnerNames} win $${winAmount} with ${results[0].hand.name}!`, 3500);
+                const handName = results[0].hand.name;
+                showMessage(`${winnerNames} win${winners.length === 1 ? 's' : ''} ${winAmount} with ${handName}!`, 3500);
             }
 
             updateDisplay();
@@ -904,7 +956,9 @@
 
             const counts = {};
             values.forEach(v => counts[v] = (counts[v] || 0) + 1);
-            const groups = Object.entries(counts).sort((a, b) => b[1] - a[1] || b[0] - a[0]);
+            const sortedCounts = Object.entries(counts)
+                .map(([val, count]) => ({ val: parseInt(val), count }))
+                .sort((a, b) => b.count - a.count || b.val - a.val);
 
             if (isFlush && (isStraight || isAceLowStraight)) {
                 if (values[0] === 14 && values[1] === 13) {
@@ -913,12 +967,13 @@
                 return { name: 'Straight Flush', score: 9, ranks: values };
             }
 
-            if (groups[0][1] === 4) {
-                return { name: 'Four of a Kind', score: 8, ranks: values };
+            if (sortedCounts[0].count === 4) {
+                const kickers = values.filter(v => v !== sortedCounts[0].val);
+                return { name: 'Four of a Kind', score: 8, ranks: [sortedCounts[0].val, sortedCounts[0].val, sortedCounts[0].val, sortedCounts[0].val, ...kickers] };
             }
 
-            if (groups[0][1] === 3 && groups[1][1] === 2) {
-                return { name: 'Full House', score: 7, ranks: values };
+            if (sortedCounts[0].count === 3 && sortedCounts[1].count === 2) {
+                return { name: 'Full House', score: 7, ranks: [sortedCounts[0].val, sortedCounts[0].val, sortedCounts[0].val, sortedCounts[1].val, sortedCounts[1].val] };
             }
 
             if (isFlush) {
@@ -926,19 +981,23 @@
             }
 
             if (isStraight || isAceLowStraight) {
-                return { name: 'Straight', score: 5, ranks: values };
+                return { name: 'Straight', score: 5, ranks: isAceLowStraight ? [5, 4, 3, 2, 1] : values };
             }
 
-            if (groups[0][1] === 3) {
-                return { name: 'Three of a Kind', score: 4, ranks: values };
+            if (sortedCounts[0].count === 3) {
+                const kickers = values.filter(v => v !== sortedCounts[0].val).sort((a, b) => b - a);
+                return { name: 'Three of a Kind', score: 4, ranks: [sortedCounts[0].val, sortedCounts[0].val, sortedCounts[0].val, ...kickers] };
             }
 
-            if (groups[0][1] === 2 && groups[1][1] === 2) {
-                return { name: 'Two Pair', score: 3, ranks: values };
+            if (sortedCounts[0].count === 2 && sortedCounts[1].count === 2) {
+                const pairs = [sortedCounts[0].val, sortedCounts[1].val].sort((a, b) => b - a);
+                const kicker = values.filter(v => v !== pairs[0] && v !== pairs[1])[0];
+                return { name: 'Two Pair', score: 3, ranks: [pairs[0], pairs[0], pairs[1], pairs[1], kicker] };
             }
 
-            if (groups[0][1] === 2) {
-                return { name: 'Pair', score: 2, ranks: values };
+            if (sortedCounts[0].count === 2) {
+                const kickers = values.filter(v => v !== sortedCounts[0].val).sort((a, b) => b - a);
+                return { name: 'Pair', score: 2, ranks: [sortedCounts[0].val, sortedCounts[0].val, ...kickers] };
             }
 
             return { name: 'High Card', score: 1, ranks: values };
@@ -958,6 +1017,10 @@
                 }
             }
             return 0;
+        }
+
+        function updatePlayerDisplay(index) {
+            updateDisplay();
         }
 
         function showMessage(text, duration = 2000) {
