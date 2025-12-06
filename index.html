@@ -169,13 +169,18 @@
             try {
                 // 1. Hash the user's input
                 const inputHash = await hashText(input);
+                
+                // 🎯 ADD THIS LINE 🎯
+                console.log(`[DEBUG] Input Password: "${input}"`);
+                console.log(`[DEBUG] Calculated Hash: ${inputHash}`);
+                console.log(`[DEBUG] Expected Hash:   ${CORRECT_HASH}`); 
+                // 🎯 END ADDITION 🎯
 
                 // 2. Compare the hash to the stored correct hash
                 if (inputHash === CORRECT_HASH) {
                     // Correct password: Hide the modal and show the content
                     document.getElementById('password-modal').style.display = 'none';
                     document.getElementById('protected-content').style.display = 'block';
-                    // Optional: Save a token in session storage to avoid re-entering during the session
                     sessionStorage.setItem('accessGranted', 'true');
                 } else {
                     // Incorrect password: Show error
