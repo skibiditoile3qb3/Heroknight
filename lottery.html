@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lottery</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+    :root {
+        --neon-purple: #b026ff;
+        --neon-blue: #4da6ff;
+        --neon-green: #00ff9d;
+        --neon-red: #ff2a6d;
+        --felt-green: #035c3d;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+        background: #000;
+        color: white;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        overflow: hidden;
+    }
+    
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(145deg, #041e42, #052e20);
+        z-index: -1;
+    }
+    
+    .container {
+        max-width: 600px;
+        width: 100%;
+    }
+    
+    h1 {
+        text-align: center;
+        font-size: 48px;
+        font-weight: 300;
+        letter-spacing: 3px;
+        margin-bottom: 10px;
+        text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+    }
+    
+    .subtitle {
+        text-align: center;
+        opacity: 0.9;
+        margin-bottom: 40px;
+        font-size: 14px;
+    }
+    
+    .card {
+        background: rgba(3, 92, 61, 0.3);
+        backdrop-filter: blur(10px);
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 0 20px rgba(0, 255, 157, 0.3), 
+                    0 0 60px rgba(176, 38, 255, 0.1);
+        border: 1px solid rgba(0, 255, 157, 0.2);
+        margin-bottom: 20px;
+    }
+    
+    .draw-info {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .draw-info h3 {
+        font-size: 14px;
+        font-weight: 400;
+        opacity: 0.8;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+    
+    .draw-date {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+    
+    .winning-number {
+        font-size: 48px;
+        font-weight: 700;
+        letter-spacing: 8px;
+        font-family: 'Courier New', monospace;
+        background: rgba(0,0,0,0.6);
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
+        border: 1px solid rgba(0, 255, 157, 0.3);
+    }
+    
+    .hidden {
+        filter: blur(10px);
+        user-select: none;
+    }
+    
+    button {
+        width: 100%;
+        padding: 16px;
+        font-size: 16px;
+        font-weight: 600;
+        background: rgba(0,0,0,0.7);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        box-shadow: 0 0 10px rgba(0, 255, 157, 0.3);
+        border-bottom: 3px solid var(--neon-green);
+    }
+    
+    button:hover {
+        background: rgba(0,0,0,0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 0 15px rgba(176, 38, 255, 0.5);
+    }
+    
+    button:active {
+        transform: translateY(0);
+    }
+    
+    .ticket-section h3 {
+        font-size: 18px;
+        font-weight: 400;
+        margin-bottom: 15px;
+        opacity: 0.9;
+    }
+    
+    .ticket-list {
+        max-height: 300px;
+        overflow-y: auto;
+        margin-top: 20px;
+    }
+    
+    .ticket-item {
+        background: rgba(0,0,0,0.5);
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s;
+        border: 1px solid rgba(0, 255, 157, 0.2);
+    }
+    
+    .ticket-item:hover {
+        background: rgba(0,0,0,0.7);
+        border-color: rgba(0, 255, 157, 0.4);
+        box-shadow: 0 0 10px rgba(0, 255, 157, 0.2);
+    }
+    
+    .ticket-number {
+        font-family: 'Courier New', monospace;
+        font-size: 24px;
+        font-weight: 700;
+        letter-spacing: 3px;
+    }
+    
+    .ticket-info {
+        font-size: 12px;
+        opacity: 0.8;
+    }
+    
+    .ticket-result {
+        font-weight: 700;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 14px;
+    }
+    
+    .ticket-result.win {
+        background: #48bb78;
+        color: white;
+    }
+    
+    .ticket-result.lose {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+    }
+    
+    .ticket-result.pending {
+        background: rgba(255, 255, 255, 0.1);
+        color: white;
+        opacity: 0.6;
+    }
+    
+    /* WIN SCREEN */
+    .win-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: linear-gradient(145deg, #041e42, #035c3d);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+        animation: slideIn 0.5s ease-out;
+    }
+    
+    .win-screen::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at center, rgba(0, 255, 157, 0.2), transparent 70%);
+        animation: pulse-bg 2s infinite;
+    }
+    
+    @keyframes pulse-bg {
+        0%, 100% { opacity: 0.3; }
+        50% { opacity: 0.6; }
+    }
+    
+    .win-screen.show {
+        display: flex;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: scale(0.8);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+    
+    .win-content {
+        text-align: center;
+        animation: bounce 1s infinite;
+        position: relative;
+        z-index: 10;
+    }
+    
+    @keyframes bounce {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-20px); }
+    }
+    
+    .win-content h1 {
+        font-size: 80px;
+        margin-bottom: 20px;
+        animation: pulse 1s infinite;
+        text-shadow: 0 0 20px rgba(0, 255, 157, 0.8), 0 0 40px rgba(176, 38, 255, 0.5);
+    }
+    
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    
+    .win-content .amount {
+        font-size: 60px;
+        font-weight: 700;
+        margin: 20px 0;
+        color: var(--neon-green);
+        text-shadow: 0 0 20px rgba(0, 255, 157, 0.8);
+    }
+    
+    .win-content button {
+        width: auto;
+        padding: 20px 40px;
+        font-size: 18px;
+        margin-top: 30px;
+        background: rgba(0,0,0,0.8);
+        border: 2px solid var(--neon-green);
+        box-shadow: 0 0 20px rgba(0, 255, 157, 0.5);
+    }
+    
+    .win-content button:hover {
+        background: rgba(0,0,0,0.9);
+        box-shadow: 0 0 30px rgba(0, 255, 157, 0.8);
+    }
+    
+    .confetti {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        animation: confetti-fall 3s linear infinite;
+    }
+    
+    @keyframes confetti-fall {
+        to {
+            transform: translateY(100vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 40px 20px;
+        opacity: 0.6;
+    }
+    
+    ::-webkit-scrollbar {
+        width: 8px;
+    }
+    
+    ::-webkit-scrollbar-track {
+        background: rgba(0,0,0,0.3);
+        border-radius: 10px;
+    }
+    
+    ::-webkit-scrollbar-thumb {
+        background: rgba(0, 255, 157, 0.5);
+        border-radius: 10px;
+        box-shadow: 0 0 5px rgba(0, 255, 157, 0.3);
+    }
+    
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 255, 157, 0.7);
+    }
+</style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🎰 LOTTERY</h1>
+    <p class="subtitle">Global draw on the 1st of next month</p>
+    
+    <div class="card">
+        <div class="draw-info">
+            <h3>Next Draw Date</h3>
+            <div class="draw-date" id="drawDate">Loading...</div>
+            
+            <h3>Winning Number</h3>
+            <div class="winning-number hidden" id="winNum">88888</div>
+            <button onclick="reveal()" style="margin-top: 20px;">🔍 Reveal Winning Number</button>
+        </div>
+    </div>
+    
+    <div class="card ticket-section">
+        <h3>Buy a Lottery Ticket</h3>
+        <button onclick="buyTicket()">🎫 Buy Random Ticket (Cost: TBD)</button>
+        
+        <div class="ticket-list" id="ticketList">
+            <div class="empty-state">No tickets yet. Buy your first ticket!</div>
+        </div>
+    </div>
+</div>
+
+<!-- WIN SCREEN -->
+<div class="win-screen" id="winScreen">
+    <div class="win-content">
+        <h1>🎉 JACKPOT! 🎉</h1>
+        <div class="amount">+10,000 COINS</div>
+        <p style="font-size: 24px; opacity: 0.9;">You won the lottery!</p>
+        <button onclick="closeWinScreen()">Collect Prize</button>
+    </div>
+</div>
+
+<script>
+/* ----------------------------
+      UTILS
+-----------------------------*/
+function formatDate(d) {
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function nextDrawDate(d) {
+    let y = d.getFullYear();
+    let m = d.getMonth() + 1;
+    if (m >= 12) return new Date(y + 1, 0, 1);
+    return new Date(y, m, 1);
+}
+
+/* ----------------------------
+      HASH → SEED → PRNG
+-----------------------------*/
+function mulberry32(a) {
+    return function() {
+        a |= 0; 
+        a = (a + 0x6D2B79F5)|0;
+        var t = Math.imul(a ^ a >>> 15, 1 | a);
+        t = (t + Math.imul(t ^ t >>> 7, 61 | t)) ^ t;
+        return (t ^ t >>> 14) >>> 0;
+    };
+}
+
+function hashSeed(str) {
+    let h = 0;
+    for (let i = 0; i < str.length; i++) {
+        h = Math.imul(h, 31) + str.charCodeAt(i) | 0;
+    }
+    return h >>> 0;
+}
+
+function generateWinning(dateStr) {
+    let seed = hashSeed(dateStr);
+    let rng = mulberry32(seed);
+    let num = rng() % 100000;
+    return String(num).padStart(5, "0");
+}
+
+/* ----------------------------
+      TICKET STORAGE
+-----------------------------*/
+let tickets = [];
+
+function loadTickets() {
+    let raw = localStorage.getItem("lotteryTickets");
+    if (raw) tickets = JSON.parse(raw);
+    renderTickets();
+}
+
+function saveTickets() {
+    localStorage.setItem("lotteryTickets", JSON.stringify(tickets));
+}
+
+function renderTickets() {
+    let html = "";
+    
+    if (tickets.length === 0) {
+        html = '<div class="empty-state">No tickets yet. Buy your first ticket!</div>';
+    } else {
+        tickets.forEach((t, idx) => {
+            let resultHTML = "";
+            if (t.result === "WIN") {
+                resultHTML = '<span class="ticket-result win">🏆 WIN</span>';
+            } else if (t.result === "LOSE") {
+                resultHTML = '<span class="ticket-result lose">LOSE</span>';
+            } else {
+                resultHTML = '<span class="ticket-result pending">PENDING</span>';
+            }
+            
+            html += `
+                <div class="ticket-item">
+                    <div>
+                        <div class="ticket-number">${t.number}</div>
+                        <div class="ticket-info">Bought: ${t.date}</div>
+                    </div>
+                    ${resultHTML}
+                </div>
+            `;
+        });
+    }
+    
+    document.getElementById("ticketList").innerHTML = html;
+}
+
+/* ----------------------------
+      BUY TICKET
+-----------------------------*/
+function buyTicket() {
+    let num = String(Math.floor(Math.random() * 100000)).padStart(5,"0");
+    let today = formatDate(new Date());
+
+    tickets.push({
+        number: num,
+        date: today,
+        result: null
+    });
+
+    saveTickets();
+    renderTickets();
+    checkPastDraws();
+}
+
+/* ----------------------------
+      DRAW + REVEAL
+-----------------------------*/
+let activeDrawSeed = "";
+let winningNumber = "";
+
+function updateDrawInfo() {
+    let now = new Date();
+    let draw = nextDrawDate(now);
+    let seed = formatDate(draw);
+
+    activeDrawSeed = seed;
+    winningNumber = generateWinning(seed);
+
+    document.getElementById("drawDate").innerText = seed;
+}
+
+function reveal() {
+    document.getElementById("winNum").innerText = winningNumber;
+    document.getElementById("winNum").classList.remove("hidden");
+}
+
+/* ----------------------------
+   CHECK OLD DRAWS & AWARD COINS
+-----------------------------*/
+function checkPastDraws() {
+    let now = new Date();
+    let hasWon = false;
+
+    tickets.forEach(t => {
+        let d = new Date(t.date);
+        let draw = nextDrawDate(d);
+
+        if (draw < now && !t.result) {
+            let seed = formatDate(draw);
+            let win = generateWinning(seed);
+            
+            if (t.number === win) {
+                t.result = "WIN";
+                hasWon = true;
+            } else {
+                t.result = "LOSE";
+            }
+        }
+    });
+
+    saveTickets();
+    renderTickets();
+    
+    if (hasWon) {
+        showWinScreen();
+    }
+}
+
+/* ----------------------------
+   WIN SCREEN
+-----------------------------*/
+function showWinScreen() {
+    document.getElementById("winScreen").classList.add("show");
+    createConfetti();
+    
+    // Award coins to parent
+    window.parent.postMessage({
+        type: 'updateCoins',
+        coins: getParentCoins() + 10000
+    }, '*');
+}
+
+function closeWinScreen() {
+    document.getElementById("winScreen").classList.remove("show");
+}
+
+function createConfetti() {
+    const colors = ['#00ff9d', '#4da6ff', '#b026ff', '#ff2a6d', '#ffffff'];
+    for (let i = 0; i < 50; i++) {
+        setTimeout(() => {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 3 + 's';
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            confetti.style.boxShadow = `0 0 10px ${colors[Math.floor(Math.random() * colors.length)]}`;
+            document.getElementById('winScreen').appendChild(confetti);
+            
+            setTimeout(() => confetti.remove(), 5000);
+        }, i * 30);
+    }
+}
+
+function getParentCoins() {
+    // Request coins from parent - will be handled by message listener
+    return 0; // Placeholder, actual value comes from parent
+}
+
+/* ----------------------------
+      INIT
+-----------------------------*/
+window.onload = () => {
+    loadTickets();
+    updateDrawInfo();
+    checkPastDraws();
+};
+</script>
+</body>
+</html>
