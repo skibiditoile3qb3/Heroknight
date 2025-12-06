@@ -147,51 +147,39 @@
     <script>
         // --- PASSWORD PROTECTION LOGIC (New Additions) ---
         
-        const CORRECT_HASH = '2a60882e30f148943714b98684784654ec99c5123565e04e93014c62c9540c49'; 
-        async function hashText(text) {
-            const encoder = new TextEncoder();
-            const data = encoder.encode(text);
-            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-            const hashArray = Array.from(new Uint8Array(hashBuffer));
-            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-            return hashHex;
-        }
+        const CORRECT_HASH = 'Ymx1ZGNhbGM='; 
+function encodePassword(text) {
+    return btoa(text.trim());
+}
 
-        async function checkPassword() {
-            const input = document.getElementById('password-input').value;
-            const errorMsg = document.getElementById('error-message');
-            
-            if (!input) {
-                errorMsg.textContent = 'Please enter a password.';
-                return;
-            }
+        // BEFORE: async function checkPassword() {
+// ✅ NEW LINE:
+function checkPassword() {
+    const input = document.getElementById('password-input').value;
+    const errorMsg = document.getElementById('error-message');
+    
+    if (!input) {
+        errorMsg.textContent = 'Please enter a password.';
+        return;
+    }
 
-            try {
-                // 1. Hash the user's input
-                const inputHash = await hashText(input);
-                
-                // 🎯 ADD THIS LINE 🎯
-                console.log(`[DEBUG] Input Password: "${input}"`);
-                console.log(`[DEBUG] Calculated Hash: ${inputHash}`);
-                console.log(`[DEBUG] Expected Hash:   ${CORRECT_HASH}`); 
-                // 🎯 END ADDITION 🎯
-
-                // 2. Compare the hash to the stored correct hash
-                if (inputHash === CORRECT_HASH) {
-                    // Correct password: Hide the modal and show the content
-                    document.getElementById('password-modal').style.display = 'none';
-                    document.getElementById('protected-content').style.display = 'block';
-                    sessionStorage.setItem('accessGranted', 'true');
-                } else {
-                    // Incorrect password: Show error
-                    errorMsg.textContent = 'Incorrect password. Try again.';
-                }
-            } catch (e) {
-                console.error("Hashing error:", e);
-                errorMsg.textContent = 'An error occurred during check.';
-            }
-        }
-
+    // Since Base64 is synchronous, we no longer need the try/catch block for hashing
+    // but we will keep the .trim() fix we discussed before.
+    
+    // 1. Encode the user's input (input is trimmed inside encodePassword)
+    const inputHash = encodePassword(input); // <-- Changed from await hashText(input);
+    // 2. Compare the encoded value to the stored correct value
+    if (inputHash === CORRECT_HASH) {
+        // Correct password: Hide the modal and show the content
+        document.getElementById('password-modal').style.display = 'none';
+        document.getElementById('protected-content').style.display = 'block';
+        // Optional: Save a token in session storage to avoid re-entering during the session
+        sessionStorage.setItem('accessGranted', 'true');
+    } else {
+        // Incorrect password: Show error
+        errorMsg.textContent = 'Incorrect password. Try again.';
+    }
+}
         function handleKeyPress(event) {
             // Check password when the Enter key is pressed
             if (event.key === 'Enter') {
