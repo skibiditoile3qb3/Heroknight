@@ -105,6 +105,7 @@
         margin: 20px 0;
         box-shadow: 0 0 15px rgba(0, 255, 157, 0.3);
         border: 1px solid rgba(0, 255, 157, 0.3);
+        display: none;
     }
     
     .hidden {
@@ -348,16 +349,12 @@
         <div class="draw-info">
             <h3>Next Draw Date</h3>
             <div class="draw-date" id="drawDate">Loading...</div>
-            
-            <h3>Winning Number</h3>
-            <div class="winning-number hidden" id="winNum">88888</div>
-            <button onclick="reveal()" style="margin-top: 20px;">🔍 Reveal Winning Number</button>
         </div>
     </div>
     
     <div class="card ticket-section">
         <h3>Buy a Lottery Ticket</h3>
-        <button onclick="buyTicket()">🎫 Buy Random Ticket (Cost: TBD)</button>
+        <button onclick="buyTicket()">🎫 Buy Random Ticket (10 Coins)</button>
         
         <div class="ticket-list" id="ticketList">
             <div class="empty-state">No tickets yet. Buy your first ticket!</div>
@@ -376,6 +373,29 @@
 </div>
 
 <script>
+/* ----------------------------
+      COIN MANAGEMENT
+-----------------------------*/
+let playerCoins = 0;
+
+// Request coins from parent on load
+window.parent.postMessage({ type: 'getCoins' }, '*');
+
+// Listen for coin data from parent
+window.addEventListener('message', (event) => {
+    if (event.data.type === 'coinsData') {
+        playerCoins = event.data.coins;
+    }
+});
+
+function updateParentCoins(newAmount) {
+    playerCoins = newAmount;
+    window.parent.postMessage({
+        type: 'updateCoins',
+        coins: newAmount
+    }, '*');
+}
+
 /* ----------------------------
       UTILS
 -----------------------------*/
@@ -468,6 +488,15 @@ function renderTickets() {
       BUY TICKET
 -----------------------------*/
 function buyTicket() {
+    // Check if player has enough coins
+    if (playerCoins < 10) {
+        alert('❌ Not enough coins! You need 10 coins to buy a ticket.');
+        return;
+    }
+
+    // Deduct 10 coins
+    updateParentCoins(playerCoins - 10);
+
     let num = String(Math.floor(Math.random() * 100000)).padStart(5,"0");
     let today = formatDate(new Date());
 
@@ -497,11 +526,6 @@ function updateDrawInfo() {
     winningNumber = generateWinning(seed);
 
     document.getElementById("drawDate").innerText = seed;
-}
-
-function reveal() {
-    document.getElementById("winNum").innerText = winningNumber;
-    document.getElementById("winNum").classList.remove("hidden");
 }
 
 /* ----------------------------
@@ -543,11 +567,8 @@ function showWinScreen() {
     document.getElementById("winScreen").classList.add("show");
     createConfetti();
     
-    // Award coins to parent
-    window.parent.postMessage({
-        type: 'updateCoins',
-        coins: getParentCoins() + 10000
-    }, '*');
+    // Award 10,000 coins to parent
+    updateParentCoins(playerCoins + 10000);
 }
 
 function closeWinScreen() {
@@ -570,11 +591,6 @@ function createConfetti() {
             setTimeout(() => confetti.remove(), 5000);
         }, i * 30);
     }
-}
-
-function getParentCoins() {
-    // Request coins from parent - will be handled by message listener
-    return 0; // Placeholder, actual value comes from parent
 }
 
 /* ----------------------------
