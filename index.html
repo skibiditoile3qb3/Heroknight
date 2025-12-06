@@ -147,14 +147,7 @@
     <script>
         // --- PASSWORD PROTECTION LOGIC (New Additions) ---
         
-        // SHA-256 Hash of "bludcalc" (This is the obfuscated password)
-        const CORRECT_HASH = '1f13b6329c3664d5c95a5f1e31e3b6107f9c941d8e1c667a4216892a00c144e1'; 
-
-        /**
-         * Simple hashing function using the browser's SubtleCrypto API.
-         * @param {string} text 
-         * @returns {Promise<string>} Hexadecimal hash string.
-         */
+        const CORRECT_HASH = '2a60882e30f148943714b98684784654ec99c5123565e04e93014c62c9540c49'; 
         async function hashText(text) {
             const encoder = new TextEncoder();
             const data = encoder.encode(text);
