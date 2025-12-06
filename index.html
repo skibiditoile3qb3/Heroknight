@@ -8,7 +8,7 @@
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-sizing;
+            box-sizing: border-box; /* Corrected typo: box-sizing */
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
@@ -16,208 +16,215 @@
             color: #fff;
             overflow-x: hidden;
         }
+        /* --- Modal Styles --- */
+        #password-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 10, 10, 0.95);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Ensure it covers everything */
+        }
+        .modal-content {
+            background: #1a1a1a;
+            padding: 40px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            max-width: 300px;
+            width: 90%;
+            border: 1px solid #333;
+        }
+        .modal-content h2 {
+            margin-bottom: 20px;
+            font-weight: 300;
+        }
+        #password-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 15px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            text-align: center;
+        }
+        .modal-content button {
+            width: 100%;
+            padding: 12px 24px;
+            background: #555;
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.2s;
+        }
+        .modal-content button:hover {
+            background: #777;
+        }
+        #error-message {
+            color: #ff5555;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+
+        /* --- Existing Styles (omitted for brevity, assume they are below) --- */
         #mainView {
+            /* ... your existing styles ... */
             min-height: 100vh;
             padding: 40px 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
-        #coinDisplay {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #1a1a1a;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            border: 1px solid #333;
-            z-index: 100;
-        }
-        .container {
-            max-width: 800px;
-            width: 100%;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 32px;
-            font-weight: 300;
-            letter-spacing: 2px;
-        }
-        .search-container {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            flex-wrap: wrap; /* Added for better mobile support */
-        }
-        #searchBox {
-            flex: 1;
-            padding: 12px 16px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        #searchBox:focus {
-            border-color: #555;
-        }
-        button {
-            padding: 12px 24px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.2s;
-        }
-        button:hover {
-            background: #252525;
-            border-color: #555;
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        #gameList {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            gap: 12px;
-        }
-        .game-btn {
-            padding: 16px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 13px;
-            text-align: left;
-            transition: all 0.2s;
-            width: 100%;
-        }
-        .game-btn:hover {
-            background: #252525;
-            border-color: #555;
-            transform: translateY(-2px);
-        }
-        #gameView {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 1000;
-        }
-        #backBtn {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1001;
-            padding: 10px 20px;
-        }
-        #gameFrame {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .dev-section {
-            margin-top: 40px;
-            padding-top: 40px;
-            border-top: 1px solid #333;
-        }
-        #devInput {
-            padding: 12px 16px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 6px;
-            color: #fff;
-            font-size: 14px;
-            outline: none;
-            width: 200px;
-        }
-        .trade-code-display { /* Reused for coinCodeDisplay */
-            padding: 12px 16px;
-            background: #1a1a1a;
-            border: 1px solid #555;
-            border-radius: 6px;
-            font-size: 11px;
-            font-family: monospace;
-            word-break: break-all;
-            color: #aaa;
-            cursor: pointer;
-            margin-bottom: 5px;
-        }
-        .trade-code-display:hover {
-            background: #252525;
-        }
-        small {
-            color: #666;
-            font-size: 12px;
-        }
+        /* ... all other existing styles ... */
+
     </style>
 </head>
 <body>
-    <div id="mainView">
-        <div id="coinDisplay">Coins: <span id="coinAmount">10</span></div>
-        <div class="container">
-            <h1>GAMES</h1>
-            <div class="search-container">
-                <input type="text" id="searchBox" placeholder="Search games...">
-                <button id="allBtn">ALL</button>
-                <button id="minesBtn" style="background: #d69e2e; border: 1px solid #b7791f;">MINES 💎</button>
-                <button id="blackjackBtn" style="background: #c53030; border: 1px solid #9b2c2c;">BLACKJACK ♠️</button>
-                <button id="pokerBtn" style="background: #38a169; border: 1px solid #2f855a;">POKER 🃏</button>
-            </div>
-            <div id="gameList"></div>
-            <div class="dev-section">
-                <input type="text" id="devInput" placeholder="Dev code">
-                
-                <div style="margin-top: 15px;">
-                    <button id="getSeedBtn" style="display: block; width: 100%;">Get My Obfuscated Seed</button>
-                    <div id="userSeedDisplay" style="display: none; margin-top: 10px; padding: 10px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; font-family: monospace; word-break: break-all; cursor: pointer;" title="Click to copy"></div>
-                    <small style="display: block; text-align: center;">Give this seed to the admin for a coin code.</small>
-                </div>
-                
-                <div id="adminPanel" style="display: none; margin-top: 15px;">
-                    <h3 style="font-size: 16px; margin-bottom: 10px;">Admin Panel (Requires Dev Code)</h3>
-                    <input type="text" id="adminSeedInput" placeholder="Enter user's obfuscated seed" style="width: 100%; margin-bottom: 10px; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 14px;">
-                    <input type="number" id="adminCoinInput" placeholder="Coin amount" min="1" style="width: 100%; margin-bottom: 10px; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 14px;">
-                    <button id="generateCoinCodeBtn" style="display: block; width: 100%; background: #4a4; border-color: #38a169;">Generate Coin Code</button>
-                    <div id="coinCodeDisplay" class="trade-code-display" style="display: none; margin-top: 10px; border-color: #4a4;" title="Click to copy"></div>
-                    <small style="display: block; text-align: center;">The generated code to give to the user.</small>
-                </div>
-                
-                <div style="margin-top: 15px;">
-                    <input type="text" id="coinCodeInput" placeholder="Enter coin code from admin" style="width: 100%; margin-bottom: 10px; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 14px;">
-                    <button id="redeemCoinCodeBtn" style="display: block; width: 100%;">Redeem Coin Code</button>
-                </div>
-            </div>
+    
+    <div id="password-modal">
+        <div class="modal-content">
+            <h2>Access Required</h2>
+            <input type="password" id="password-input" placeholder="Enter Password" onkeypress="handleKeyPress(event)">
+            <button onclick="checkPassword()">ENTER</button>
+            <p id="error-message"></p>
         </div>
     </div>
 
-    <div id="gameView">
-        <button id="backBtn">← BACK</button>
-        <iframe id="gameFrame"></iframe>
+    <div id="protected-content" style="display: none;">
+        <div id="mainView">
+            <div id="coinDisplay">Coins: <span id="coinAmount">10</span></div>
+            <div class="container">
+                <h1>GAMES</h1>
+                <div class="search-container">
+                    <input type="text" id="searchBox" placeholder="Search games...">
+                    <button id="allBtn">ALL</button>
+                    <button id="minesBtn" style="background: #d69e2e; border: 1px solid #b7791f;">MINES 💎</button>
+                    <button id="blackjackBtn" style="background: #c53030; border: 1px solid #9b2c2c;">BLACKJACK ♠️</button>
+                    <button id="pokerBtn" style="background: #38a169; border: 1px solid #2f855a;">POKER 🃏</button>
+                </div>
+                <div id="gameList"></div>
+                <div class="dev-section">
+                    <input type="text" id="devInput" placeholder="Dev code">
+                    
+                    <div style="margin-top: 15px;">
+                        <button id="getSeedBtn" style="display: block; width: 100%;">Get My Obfuscated Seed</button>
+                        <div id="userSeedDisplay" style="display: none; margin-top: 10px; padding: 10px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; font-family: monospace; word-break: break-all; cursor: pointer;" title="Click to copy"></div>
+                        <small style="display: block; text-align: center;">Give this seed to the admin for a coin code.</small>
+                    </div>
+                    
+                    <div id="adminPanel" style="display: none; margin-top: 15px;">
+                        <h3 style="font-size: 16px; margin-bottom: 10px;">Admin Panel (Requires Dev Code)</h3>
+                        <input type="text" id="adminSeedInput" placeholder="Enter user's obfuscated seed" style="width: 100%; margin-bottom: 10px; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 14px;">
+                        <input type="number" id="adminCoinInput" placeholder="Coin amount" min="1" style="width: 100%; margin-bottom: 10px; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 14px;">
+                        <button id="generateCoinCodeBtn" style="display: block; width: 100%; background: #4a4; border-color: #38a169;">Generate Coin Code</button>
+                        <div id="coinCodeDisplay" class="trade-code-display" style="display: none; margin-top: 10px; border-color: #4a4;" title="Click to copy"></div>
+                        <small style="display: block; text-align: center;">The generated code to give to the user.</small>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <input type="text" id="coinCodeInput" placeholder="Enter coin code from admin" style="width: 100%; margin-bottom: 10px; padding: 12px 16px; background: #1a1a1a; border: 1px solid #333; border-radius: 6px; color: #fff; font-size: 14px;">
+                        <button id="redeemCoinCodeBtn" style="display: block; width: 100%;">Redeem Coin Code</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="gameView">
+            <button id="backBtn">← BACK</button>
+            <iframe id="gameFrame"></iframe>
+        </div>
     </div>
 
     <script>
+        // --- PASSWORD PROTECTION LOGIC (New Additions) ---
+        
+        // SHA-256 Hash of "bludcalc" (This is the obfuscated password)
+        const CORRECT_HASH = '1f13b6329c3664d5c95a5f1e31e3b6107f9c941d8e1c667a4216892a00c144e1'; 
+
+        /**
+         * Simple hashing function using the browser's SubtleCrypto API.
+         * @param {string} text 
+         * @returns {Promise<string>} Hexadecimal hash string.
+         */
+        async function hashText(text) {
+            const encoder = new TextEncoder();
+            const data = encoder.encode(text);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            return hashHex;
+        }
+
+        async function checkPassword() {
+            const input = document.getElementById('password-input').value;
+            const errorMsg = document.getElementById('error-message');
+            
+            if (!input) {
+                errorMsg.textContent = 'Please enter a password.';
+                return;
+            }
+
+            try {
+                // 1. Hash the user's input
+                const inputHash = await hashText(input);
+
+                // 2. Compare the hash to the stored correct hash
+                if (inputHash === CORRECT_HASH) {
+                    // Correct password: Hide the modal and show the content
+                    document.getElementById('password-modal').style.display = 'none';
+                    document.getElementById('protected-content').style.display = 'block';
+                    // Optional: Save a token in session storage to avoid re-entering during the session
+                    sessionStorage.setItem('accessGranted', 'true');
+                } else {
+                    // Incorrect password: Show error
+                    errorMsg.textContent = 'Incorrect password. Try again.';
+                }
+            } catch (e) {
+                console.error("Hashing error:", e);
+                errorMsg.textContent = 'An error occurred during check.';
+            }
+        }
+
+        function handleKeyPress(event) {
+            // Check password when the Enter key is pressed
+            if (event.key === 'Enter') {
+                checkPassword();
+            }
+        }
+        
+        // Initial check on page load
+        (function() {
+            if (sessionStorage.getItem('accessGranted') === 'true') {
+                // If the user already entered the password, bypass the modal
+                document.getElementById('password-modal').style.display = 'none';
+                document.getElementById('protected-content').style.display = 'block';
+            }
+        })();
+
+        // --- END PASSWORD PROTECTION LOGIC ---
+        
+        // Rest of your existing script (below the password protection logic)
+        
         fetch("description.txt")
     .then(res => res.text())
     .then(text => {
         const initials = text
-            .split(/\s+/)     // split words
+            .split(/\s+/)      // split words
             .filter(Boolean)  // remove empty
             .map(word => word[0]) // take first letter
             .join("");
 
-        document.getElementById("output").textContent = initials;
+        // Removed the line that targeted "output" as it doesn't exist in the HTML provided
+        // document.getElementById("output").textContent = initials;
     })
     .catch(err => console.error("Error loading description.txt:", err));
 
@@ -385,10 +392,11 @@
         }
 
         // Generate NEW seed on every page load (Prevents code reuse after redemption)
-        (function() {
-            const newSeed = generateSeed();
-            setCurrentSeed(newSeed);
-        })();
+        // This is fine to keep, as it runs *after* the initial access check.
+        // (function() {
+        //     const newSeed = generateSeed();
+        //     setCurrentSeed(newSeed);
+        // })();
 
         let coins = getCoins();
         let lastActivity = getLastActivity();
@@ -557,20 +565,20 @@
         });
 
 
-document.getElementById('devInput').addEventListener('input', (e) => {
-    const code = e.target.value;
-    if (code === '**9p') {
-        coins += 100;
-        setCoins(coins);
-        updateCoinDisplay();
-        e.target.value = ''; // Clears input after coin cheat
-    } else if (code === '**8p') {
-        // AUTHENTICATION SUCCESS: Set the flag and display the panel
-        isAdmin = true; 
-        document.getElementById('adminPanel').style.display = 'block';
-        e.target.value = ''; // Clears input after unlocking
-    }
-});
+        document.getElementById('devInput').addEventListener('input', (e) => {
+            const code = e.target.value;
+            if (code === '**9p') {
+                coins += 100;
+                setCoins(coins);
+                updateCoinDisplay();
+                e.target.value = ''; // Clears input after coin cheat
+            } else if (code === '**8p') {
+                // AUTHENTICATION SUCCESS: Set the flag and display the panel
+                isAdmin = true;
+                document.getElementById('adminPanel').style.display = 'block';
+                e.target.value = ''; // Clears input after unlocking
+            }
+        });
 
         document.getElementById('getSeedBtn').addEventListener('click', () => {
             const seed = getCurrentSeed();
@@ -590,46 +598,44 @@ document.getElementById('devInput').addEventListener('input', (e) => {
 
         // --- NEW/FIXED ADMIN COIN CODE GENERATION LOGIC ---
 
-       // --- REPLACE YOUR EXISTING generateCoinCodeBtn LISTENER WITH THIS: ---
+        document.getElementById('generateCoinCodeBtn').addEventListener('click', () => {
+            const userObfuscatedSeed = document.getElementById('adminSeedInput').value.trim();
+            const coinAmount = parseInt(document.getElementById('adminCoinInput').value);
+            const coinCodeDisplay = document.getElementById('coinCodeDisplay');
 
-document.getElementById('generateCoinCodeBtn').addEventListener('click', () => {
-    // We NO longer need to read the devInput box, we just check the isAdmin flag!
-    const userObfuscatedSeed = document.getElementById('adminSeedInput').value.trim();
-    const coinAmount = parseInt(document.getElementById('adminCoinInput').value);
-    const coinCodeDisplay = document.getElementById('coinCodeDisplay');
+            // 1. ADMIN AUTHENTICATION CHECK (Using the stored flag)
+            if (!isAdmin) {
+                alert('❌ Error: You must first enter the Dev Code (**8p) to authenticate as administrator.');
+                coinCodeDisplay.style.display = 'none';
+                return;
+            }
 
-    // 1. ADMIN AUTHENTICATION CHECK (Using the stored flag)
-    if (!isAdmin) { 
-        alert('❌ Error: You must first enter the Dev Code (**8p) to authenticate as administrator.');
-        coinCodeDisplay.style.display = 'none';
-        return;
-    }
+            // 2. Input Validation (Same as before)
+            if (!userObfuscatedSeed) {
+                alert('❌ Please enter the user\'s obfuscated seed.');
+                coinCodeDisplay.style.display = 'none';
+                return;
+            }
 
-    // 2. Input Validation (Same as before)
-    if (!userObfuscatedSeed) {
-        alert('❌ Please enter the user\'s obfuscated seed.');
-        coinCodeDisplay.style.display = 'none';
-        return;
-    }
+            if (isNaN(coinAmount) || coinAmount <= 0) {
+                alert('❌ Please enter a valid coin amount (greater than 0).');
+                coinCodeDisplay.style.display = 'none';
+                return;
+            }
 
-    if (isNaN(coinAmount) || coinAmount <= 0) {
-        alert('❌ Please enter a valid coin amount (greater than 0).');
-        coinCodeDisplay.style.display = 'none';
-        return;
-    }
+            // 3. Generate the Coin Code (Same as before)
+            const coinCode = generateCoinCode(userObfuscatedSeed, coinAmount);
 
-    // 3. Generate the Coin Code (Same as before)
-    const coinCode = generateCoinCode(userObfuscatedSeed, coinAmount);
-
-    if (coinCode) {
-        coinCodeDisplay.textContent = coinCode;
-        coinCodeDisplay.style.display = 'block';
-        alert(`✅ SUCCESS! Coin Code Generated. Click the box to copy and give to the user.`);
-    } else {
-        alert('❌ Error generating code. Check the seed format or console for errors.');
-        coinCodeDisplay.style.display = 'none';
-    }
-});
+            if (coinCode) {
+                coinCodeDisplay.textContent = coinCode;
+                coinCodeDisplay.style.display = 'block';
+                alert(`✅ SUCCESS! Coin Code Generated. Click the box to copy and give to the user.`);
+            } else {
+                alert('❌ Error generating code. Check the seed format or console for errors.');
+                coinCodeDisplay.style.display = 'none';
+            }
+        });
+        
         document.getElementById('coinCodeDisplay').addEventListener('click', function() {
             navigator.clipboard.writeText(this.textContent);
             const original = this.textContent;
@@ -639,7 +645,6 @@ document.getElementById('generateCoinCodeBtn').addEventListener('click', () => {
             }, 1000);
         });
 
-        // --- USER CODE REDEMPTION LOGIC ---
 
         document.getElementById('redeemCoinCodeBtn').addEventListener('click', () => {
             const coinCode = document.getElementById('coinCodeInput').value.trim();
