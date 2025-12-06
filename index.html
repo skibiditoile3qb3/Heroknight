@@ -8,7 +8,7 @@
         * {
             margin: 0;
             padding: 0;
-            box-sizing: border-sizing;
+            box-sizing: border-box;
         }
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
@@ -16,10 +16,68 @@
             color: #fff;
             overflow-x: hidden;
         }
+        #passwordScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0a0a0a;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+        #passwordScreen h1 {
+            font-size: 48px;
+            font-weight: 300;
+            letter-spacing: 3px;
+            margin-bottom: 30px;
+        }
+        #passwordInput {
+            padding: 16px 24px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            width: 300px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        #passwordInput:focus {
+            border-color: #555;
+        }
+        #unlockBtn {
+            padding: 16px 32px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        #unlockBtn:hover {
+            background: #252525;
+            border-color: #555;
+        }
+        .error-message {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: 10px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .error-message.show {
+            opacity: 1;
+        }
         #mainView {
             min-height: 100vh;
             padding: 40px 20px;
-            display: flex;
+            display: none;
             flex-direction: column;
             align-items: center;
         }
@@ -49,7 +107,7 @@
             display: flex;
             gap: 10px;
             margin-bottom: 30px;
-            flex-wrap: wrap; /* Added for better mobile support */
+            flex-wrap: wrap;
         }
         #searchBox {
             flex: 1;
@@ -142,7 +200,7 @@
             outline: none;
             width: 200px;
         }
-        .trade-code-display { /* Reused for coinCodeDisplay */
+        .trade-code-display {
             padding: 12px 16px;
             background: #1a1a1a;
             border: 1px solid #555;
@@ -164,6 +222,13 @@
     </style>
 </head>
 <body>
+    <div id="passwordScreen">
+        <h1>🔒 LOCKED</h1>
+        <input type="password" id="passwordInput" placeholder="Enter password...">
+        <button id="unlockBtn">UNLOCK</button>
+        <div class="error-message" id="errorMessage">Incorrect password</div>
+    </div>
+
     <div id="mainView">
         <div id="coinDisplay">Coins: <span id="coinAmount">10</span></div>
         <div class="container">
@@ -174,6 +239,7 @@
                 <button id="minesBtn" style="background: #d69e2e; border: 1px solid #b7791f;">MINES 💎</button>
                 <button id="blackjackBtn" style="background: #c53030; border: 1px solid #9b2c2c;">BLACKJACK ♠️</button>
                 <button id="pokerBtn" style="background: #38a169; border: 1px solid #2f855a;">POKER 🃏</button>
+                <button id="lotteryBtn" style="background: #805ad5; border: 1px solid #6b46c1;">LOTTERY 🎰</button>
             </div>
             <div id="gameList"></div>
             <div class="dev-section">
@@ -208,6 +274,32 @@
     </div>
 
     <script>
+        // PASSWORD PROTECTION
+        const correctPassword = atob('Ymx1ZGNhbGM='); // Base64 encoded "bludcalc"
+        
+        function checkPassword() {
+            const input = document.getElementById('passwordInput').value;
+            if (input === correctPassword) {
+                document.getElementById('passwordScreen').style.display = 'none';
+                document.getElementById('mainView').style.display = 'flex';
+                return true;
+            } else {
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.classList.add('show');
+                setTimeout(() => {
+                    errorMsg.classList.remove('show');
+                }, 2000);
+                return false;
+            }
+        }
+
+        document.getElementById('unlockBtn').addEventListener('click', checkPassword);
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                checkPassword();
+            }
+        });
+
         let isAdmin = false;
         const games = ["2048","4th-and-goal-2022","8-ball-pool","a-small-world-cup","among-us","apple-shooter","aquaparkio","arcade-car-driving","archery","awesome-tanks-2","awesome-tanks-2s","axis-football","backyard-baseball","backyard-football","bad-ice-cream-2","bad-ice-cream-3","bad-ice-cream","baldi-s-basics","baseball-9","baseball-bros","basket-champs","basket-random","basketball-legends","basketball-stars","big-shot-boxing","bit-life","blackjack","block-blast","block-breaker","bottle-flip","boxing-random","bubble-shooter","car-game-simulator","car-parking","car-traffic-racing","cheese-chompers-3d","chess","classic-uno","cluster-rush","color-tunnel","cookie-clicker","coreball","crazy-cattle-3d","crossy-road","dig-to-china","dino-game","dinosaur-game","doodle-baseball","doodle-cricket","doodle-jump-christmas","doodle-jump","dragon-ball-z","dragon-simulator-3d","dreadhead-parkour","drift-boss","drift-hunters","drive-mad","eaglercraft","easy-chess","eggy-car","escape-road","fireboy-and-watergirl","five-nights-at-freddy","flappy-bird","flappy-dunk","flying-gorilla","fnaf-2","football-us","friday-night-funkin","fruit-merge","funny-shooter-2","g-switch","geometry-dash-lite","getaway-shootout","granny-2","gunspin2","happy-wheels","hexanautio","highway-rider-extreme","highway-traffic","hill-climb-racing","house-of-hazards","idle-breakout","idle-dice","jelly-truck","level-devil","little-alchemy-2","little-alchemy","madalin-stunt-cars-2","make-it-meme","minesweeper","monkey-mart","moto-x3m-4-winter","moto-x3m-5-pool-party","moto-x3m-6-spooky-land","moto-x3m","murder","need-for-speed-dirft-car","ovo-2","ovo","papa-s-burgeria","papa-s-pancakeria","papa-s-scooperia","papas-freezeria","papas-pizzeria","paper-io","paperio-2","paperio","parking-fury","penalty-kick-online","penalty-kick","ping-pong-chaos","pixel-shooter","pizza-tower","polytrack","poodle-jump","poop-clicker","raft-wars","ragdoll-archers","ragdoll-hit","real-flight","retro-bowl","rocket-soccer-derby","rooftop-sniper","rooftop-snipers","run-3","sbrunga","scifi-flight-simulator","short-life","slice-master","slope-2","slope-3","slope-ball","slope-run","slope","smash-karts","snakeio","sniper-rifle-shooting","snow-rider3d","snowballio","soccer-bros","soccer-legends","space-waves","spacebar-clicker","speed-stars","sprinter","sprunki-1999","sprunki-2004","sprunki-cendi","sprunki-corruption","sprunki-italian-brainrot","sprunki-ketchup","sprunki-phase-21","sprunki-swap-retextured","sprunki-the-trevor-mod","sprunki-warm","squidgame3d","stick-fighter","stickman-archero-fight","stickman-hook","strite-football-game","subway-surfers","survival-race","swingo","tag","tall-man-run","tank-trouble","tanuki-sunset","tap-road","tap-tap-shots","temple-run-2","10-minutes-till-dawn","tic-tac-toe","time-shooter-2","time-shooter-3","tiny-fishing","toca-boca","tomb-of-the-mask","tomb-of-the-masks","traffic-jam-3d","traffic-rush","tunnel-rush","unicycle-hero","vex-3","vex4","vex5","vex6","whack-your-neighbor","wheelie-bike","wordle-unlimited","wordle","world-war-2","worlds-hardest-game","wrestle-bros"];
 
@@ -285,20 +377,15 @@
             } catch(e) {}
         }
 
-        // --- CORE COIN CODE OBFUSCATION LOGIC ---
-
         function obfuscateSeedUser(seed) {
-            // User-facing obfuscation: Base64, then reverse.
             return btoa(seed).split('').reverse().join('');
         }
 
         function deobfuscateSeedUser(obfuscated) {
-            // Admin uses this to get raw seed: Reverse, then Base64 decode.
             return atob(obfuscated.split('').reverse().join(''));
         }
 
         function obfuscateSeedAdmin(seed) {
-            // Admin's internal obfuscation (for code generation): ROT13, then Base64.
             const rot13 = seed.split('').map(char => {
                 if (char >= 'a' && char <= 'z') {
                     return String.fromCharCode(((char.charCodeAt(0) - 97 + 13) % 26) + 97);
@@ -311,7 +398,6 @@
         }
 
         function deobfuscateSeedAdmin(obfuscated) {
-            // User uses this for validation: Base64 decode, then ROT13 decode.
             const unb64 = atob(obfuscated);
             return unb64.split('').map(char => {
                 if (char >= 'a' && char <= 'z') {
@@ -323,19 +409,11 @@
             }).join('');
         }
 
-        // --- MAIN COIN CODE FUNCTIONS ---
-
         function generateCoinCode(userObfuscatedSeed, coinAmount) {
             try {
-                // 1. Get the user's raw seed from the obfuscated code they sent
                 const seed = deobfuscateSeedUser(userObfuscatedSeed);
-                
-                // 2. Re-obfuscate the raw seed using the admin's method
                 const adminObfuscated = obfuscateSeedAdmin(seed);
-                
-                // 3. Create the final Coin Code: Base64(Amount) . Base64(ROT13(Seed))
                 const coinCode = btoa(coinAmount.toString()) + '.' + adminObfuscated;
-                
                 return coinCode;
             } catch(e) {
                 console.error("Error generating coin code:", e);
@@ -356,9 +434,7 @@
                 const seed = deobfuscateSeedAdmin(adminObfuscatedSeed);
                 const currentSeed = getCurrentSeed();
                 
-                // CRITICAL CHECK: Seed in code must match user's current seed
                 if (seed === currentSeed) {
-                    // Success: Generate a NEW seed to immediately invalidate the redeemed code
                     const newSeed = generateSeed();
                     setCurrentSeed(newSeed);
                     return { valid: true, coins: coinAmount };
@@ -371,7 +447,6 @@
             }
         }
 
-        // Generate NEW seed on every page load (Prevents code reuse after redemption)
         (function() {
             const newSeed = generateSeed();
             setCurrentSeed(newSeed);
@@ -408,7 +483,6 @@
                 totalActiveTime += 1;
                 setTotalActiveTime(totalActiveTime);
                 
-                // Award 5 coins every 1200 seconds (20 minutes) of active time
                 if (totalActiveTime > 0 && totalActiveTime % 1200 === 0) {
                     coins += 5;
                     setCoins(coins);
@@ -486,6 +560,8 @@
                 document.getElementById('gameFrame').src = 'blackjack.html';
             } else if (game === 'poker') {
                 document.getElementById('gameFrame').src = 'poker.html';
+            } else if (game === 'lottery') {
+                document.getElementById('gameFrame').src = 'lottery.html';
             } else if (game === 'stick-fighter') {
                 document.getElementById('gameFrame').src = 'https://gswitch3.github.io/g6/stick-fighter/';
             } else if (game === '10-minutes-till-dawn') {
@@ -530,6 +606,10 @@
             loadGame('poker');
         });
 
+        document.getElementById('lotteryBtn').addEventListener('click', () => {
+            loadGame('lottery');
+        });
+
         window.addEventListener('message', (event) => {
             if (event.data.type === 'getCoins') {
                 event.source.postMessage({
@@ -543,21 +623,19 @@
             }
         });
 
-
-document.getElementById('devInput').addEventListener('input', (e) => {
-    const code = e.target.value;
-    if (code === '**9p') {
-        coins += 100;
-        setCoins(coins);
-        updateCoinDisplay();
-        e.target.value = ''; // Clears input after coin cheat
-    } else if (code === '**8p') {
-        // AUTHENTICATION SUCCESS: Set the flag and display the panel
-        isAdmin = true; 
-        document.getElementById('adminPanel').style.display = 'block';
-        e.target.value = ''; // Clears input after unlocking
-    }
-});
+        document.getElementById('devInput').addEventListener('input', (e) => {
+            const code = e.target.value;
+            if (code === '**9p') {
+                coins += 100;
+                setCoins(coins);
+                updateCoinDisplay();
+                e.target.value = '';
+            } else if (code === '**8p') {
+                isAdmin = true; 
+                document.getElementById('adminPanel').style.display = 'block';
+                e.target.value = '';
+            }
+        });
 
         document.getElementById('getSeedBtn').addEventListener('click', () => {
             const seed = getCurrentSeed();
@@ -575,48 +653,41 @@ document.getElementById('devInput').addEventListener('input', (e) => {
             }, 1000);
         });
 
-        // --- NEW/FIXED ADMIN COIN CODE GENERATION LOGIC ---
+        document.getElementById('generateCoinCodeBtn').addEventListener('click', () => {
+            const userObfuscatedSeed = document.getElementById('adminSeedInput').value.trim();
+            const coinAmount = parseInt(document.getElementById('adminCoinInput').value);
+            const coinCodeDisplay = document.getElementById('coinCodeDisplay');
 
-       // --- REPLACE YOUR EXISTING generateCoinCodeBtn LISTENER WITH THIS: ---
+            if (!isAdmin) { 
+                alert('❌ Error: You must first enter the Dev Code (**8p) to authenticate as administrator.');
+                coinCodeDisplay.style.display = 'none';
+                return;
+            }
 
-document.getElementById('generateCoinCodeBtn').addEventListener('click', () => {
-    // We NO longer need to read the devInput box, we just check the isAdmin flag!
-    const userObfuscatedSeed = document.getElementById('adminSeedInput').value.trim();
-    const coinAmount = parseInt(document.getElementById('adminCoinInput').value);
-    const coinCodeDisplay = document.getElementById('coinCodeDisplay');
+            if (!userObfuscatedSeed) {
+                alert('❌ Please enter the user\'s obfuscated seed.');
+                coinCodeDisplay.style.display = 'none';
+                return;
+            }
 
-    // 1. ADMIN AUTHENTICATION CHECK (Using the stored flag)
-    if (!isAdmin) { 
-        alert('❌ Error: You must first enter the Dev Code (**8p) to authenticate as administrator.');
-        coinCodeDisplay.style.display = 'none';
-        return;
-    }
+            if (isNaN(coinAmount) || coinAmount <= 0) {
+                alert('❌ Please enter a valid coin amount (greater than 0).');
+                coinCodeDisplay.style.display = 'none';
+                return;
+            }
 
-    // 2. Input Validation (Same as before)
-    if (!userObfuscatedSeed) {
-        alert('❌ Please enter the user\'s obfuscated seed.');
-        coinCodeDisplay.style.display = 'none';
-        return;
-    }
+            const coinCode = generateCoinCode(userObfuscatedSeed, coinAmount);
 
-    if (isNaN(coinAmount) || coinAmount <= 0) {
-        alert('❌ Please enter a valid coin amount (greater than 0).');
-        coinCodeDisplay.style.display = 'none';
-        return;
-    }
+            if (coinCode) {
+                coinCodeDisplay.textContent = coinCode;
+                coinCodeDisplay.style.display = 'block';
+                alert(`✅ SUCCESS! Coin Code Generated. Click the box to copy and give to the user.`);
+            } else {
+                alert('❌ Error generating code. Check the seed format or console for errors.');
+                coinCodeDisplay.style.display = 'none';
+            }
+        });
 
-    // 3. Generate the Coin Code (Same as before)
-    const coinCode = generateCoinCode(userObfuscatedSeed, coinAmount);
-
-    if (coinCode) {
-        coinCodeDisplay.textContent = coinCode;
-        coinCodeDisplay.style.display = 'block';
-        alert(`✅ SUCCESS! Coin Code Generated. Click the box to copy and give to the user.`);
-    } else {
-        alert('❌ Error generating code. Check the seed format or console for errors.');
-        coinCodeDisplay.style.display = 'none';
-    }
-});
         document.getElementById('coinCodeDisplay').addEventListener('click', function() {
             navigator.clipboard.writeText(this.textContent);
             const original = this.textContent;
