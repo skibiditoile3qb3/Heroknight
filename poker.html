@@ -683,6 +683,7 @@
                 if (player.chips === 0) player.allIn = true;
                 player.hasActed = true;
                 state.humanBalance = player.chips;
+                updateParentCoins(); // Update parent immediately
                 showMessage(`You call $${amount}`, 1000);
             } else if (action === 'raise') {
                 const raiseAmount = parseInt(document.getElementById('raiseAmount').value);
@@ -704,6 +705,7 @@
                 });
                 
                 state.humanBalance = player.chips;
+                updateParentCoins(); // Update parent immediately
                 showMessage(`You raise to $${player.bet}`, 1000);
             }
 
