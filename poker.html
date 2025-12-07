@@ -737,13 +737,17 @@
             const handStrength = evaluateHandStrength(player.cards, state.communityCards);
             const potOdds = callAmount > 0 ? callAmount / (state.pot + callAmount) : 0;
             const random = Math.random();
+            
+            // Calculate bet size relative to pot and stack
+            const betSizeRatio = callAmount / state.pot;
+            const stackRatio = callAmount / player.chips;
 
             let action = '';
 
-            // More aggressive AI behavior
-            if (handStrength > 0.65 && random > 0.3) {
-                // Strong hand - raise
-                const raiseMultiplier = 1.5 + random * 2;
+            // Much more aggressive AI - willing to play more hands
+            if (handStrength > 0.7 && random > 0.25) {
+                // Very strong hand - raise frequently
+                const raiseMultiplier = 1.5 + random * 2.5;
                 const raiseAmount = Math.floor(state.bigBlind * raiseMultiplier);
                 const totalAmount = callAmount + raiseAmount;
                 const amount = Math.min(totalAmount, player.chips);
@@ -760,9 +764,28 @@
                     }
                 });
                 
-                action = `raises to $${player.bet}`;
-            } else if (handStrength > 0.4 || (handStrength > potOdds && callAmount < player.chips * 0.3)) {
-                // Decent hand or good pot odds - call
+                action = `raises to ${player.bet}`;
+            } else if (handStrength > 0.5 && callAmount < player.chips * 0.4 && random > 0.4) {
+                // Good hand - sometimes raise
+                const raiseAmount = Math.floor(state.bigBlind * (1 + random * 2));
+                const totalAmount = callAmount + raiseAmount;
+                const amount = Math.min(totalAmount, player.chips);
+                
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) {
+                        p.hasActed = false;
+                    }
+                });
+                
+                action = `raises to ${player.bet}`;
+            } else if (handStrength > 0.35 || stackRatio < 0.15 || (betSizeRatio < 0.5 && handStrength > 0.25)) {
+                // Decent hand, small bet, or good pot odds - call
                 if (callAmount > 0) {
                     const amount = Math.min(callAmount, player.chips);
                     player.chips -= amount;
@@ -774,10 +797,18 @@
                     action = 'checks';
                 }
             } else if (callAmount === 0) {
-                // Free to check
+                // Free to check - always check
                 action = 'checks';
-            } else if (handStrength > 0.25 && random > 0.6) {
-                // Marginal hand - sometimes call
+            } else if (handStrength > 0.2 && random > 0.5 && callAmount < player.chips * 0.25) {
+                // Marginal hand but small bet - sometimes call (bluff/pot odds)
+                const amount = Math.min(callAmount, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                if (player.chips === 0) player.allIn = true;
+                action = 'calls';
+            } else if (handStrength > 0.15 && stackRatio < 0.1) {
+                // Very small bet relative to stack - call with almost anything
                 const amount = Math.min(callAmount, player.chips);
                 player.chips -= amount;
                 player.bet += amount;
@@ -785,7 +816,7 @@
                 if (player.chips === 0) player.allIn = true;
                 action = 'calls';
             } else {
-                // Weak hand - fold
+                // Only fold with truly weak hands when facing a real bet
                 player.folded = true;
                 action = 'folds';
             }
