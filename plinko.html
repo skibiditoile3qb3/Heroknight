@@ -1,52 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Plinko</title>
-    <style>
-        * {margin:0; padding:0; box-sizing:border-box; font-family:Arial,sans-serif;}
-        body {background: linear-gradient(145deg,#0a0e27,#1a1a2e); color:white; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px;}
-        .game-container {max-width:900px; width:100%; background: linear-gradient(145deg,#1a1a2e,#16213e); border-radius:20px; padding:40px; box-shadow:0 10px 50px rgba(0,0,0,0.5);}
-        .header {text-align:center; margin-bottom:30px;}
-        h1 {font-size:48px; color:#00ff9d; text-shadow:0 0 20px rgba(0,255,157,0.5); margin-bottom:10px;}
-        .stats {display:flex; justify-content:space-around; margin-bottom:30px; padding:20px; background: rgba(0,0,0,0.6); border-radius:10px;}
-        .stat {text-align:center;}
-        .stat-label {font-size:14px; opacity:0.7; margin-bottom:5px;}
-        .stat-value {font-size:28px; font-weight:bold; color:#00ff9d;}
-        .controls {display:flex; gap:15px; margin-bottom:30px; flex-wrap:wrap; justify-content:center; align-items:flex-end;}
-        .control-group {display:flex; flex-direction:column; gap:8px;}
-        label {font-size:14px; color:#00ff9d; font-weight:bold;}
-        select, input {padding:12px 20px; background: rgba(0,0,0,0.5); border:2px solid #00ff9d; border-radius:8px; color:white; font-size:16px; outline:none;}
-        select:focus, input:focus {border-color:#00ffff;}
-        button {padding:15px 40px; background:#00ff9d; color:#000; border:none; border-radius:8px; font-size:18px; font-weight:bold; cursor:pointer; transition: all 0.3s; text-transform:uppercase;}
-        button:hover:not(:disabled) {transform:translateY(-3px); box-shadow:0 5px 20px rgba(0,255,157,0.5);}
-        button:disabled {opacity:0.3; cursor:not-allowed;}
-        #plinkoCanvas {display:block; margin:0 auto; border:3px solid #00ff9d; border-radius:10px; background: linear-gradient(180deg,#0a0e27 0%,#16213e 100%); box-shadow:0 5px 30px rgba(0,255,157,0.2);}
-        .multipliers {display:flex; justify-content:space-around; margin-top:20px; padding:15px; background: rgba(0,0,0,0.6); border-radius:10px;}
-        .multiplier {padding:10px 15px; border-radius:8px; font-weight:bold; font-size:16px; text-align:center; min-width:60px; box-shadow:0 2px 10px rgba(0,0,0,0.3);}
-        .history {margin-top:30px; padding:20px; background: rgba(0,0,0,0.6); border-radius:10px; max-height:200px; overflow-y:auto;}
-        .history-title {font-weight:bold; margin-bottom:15px; color:#00ff9d; font-size:18px;}
-        .history-item {padding:10px 15px; margin:8px 0; border-radius:8px; font-size:15px; display:flex; justify-content:space-between; transition:all 0.2s;}
-        .history-item:hover {transform:translateX(5px);}
-        .win {background: rgba(0,255,157,0.2); border-left:4px solid #00ff9d;}
-        .loss {background: rgba(255,69,87,0.2); border-left:4px solid #ff4557;}
-        .profit {font-weight:bold;}
-        .profit.positive {color:#00ff9d;}
-        .profit.negative {color:#ff4557;}
-        .history::-webkit-scrollbar {width:8px;}
-        .history::-webkit-scrollbar-track {background: rgba(0,0,0,0.3); border-radius:10px;}
-        .history::-webkit-scrollbar-thumb {background:#00ff9d; border-radius:10px;}
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Plinko Game</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif;}
+body{background: linear-gradient(145deg,#0a0e27,#1a1a2e); color:white; min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px;}
+.game-container{max-width:900px;width:100%;background: linear-gradient(145deg,#1a1a2e,#16213e);border-radius:20px;padding:40px;box-shadow:0 10px 50px rgba(0,0,0,0.5);}
+.header{text-align:center;margin-bottom:30px;}
+h1{font-size:48px;color:#00ff9d;text-shadow:0 0 20px rgba(0,255,157,0.5);margin-bottom:10px;}
+.stats{display:flex;justify-content:space-around;margin-bottom:30px;padding:20px;background: rgba(0,0,0,0.6);border-radius:10px;}
+.stat{text-align:center;}
+.stat-label{font-size:14px;opacity:0.7;margin-bottom:5px;}
+.stat-value{font-size:28px;font-weight:bold;color:#00ff9d;}
+.controls{display:flex;gap:15px;margin-bottom:30px;flex-wrap:wrap;justify-content:center;align-items:flex-end;}
+.control-group{display:flex;flex-direction:column;gap:8px;}
+label{font-size:14px;color:#00ff9d;font-weight:bold;}
+select,input{padding:12px 20px;background: rgba(0,0,0,0.5);border:2px solid #00ff9d;border-radius:8px;color:white;font-size:16px;outline:none;}
+select:focus,input:focus{border-color:#00ffff;}
+button{padding:15px 40px;background:#00ff9d;color:#000;border:none;border-radius:8px;font-size:18px;font-weight:bold;cursor:pointer;transition: all 0.3s;text-transform:uppercase;}
+button:hover:not(:disabled){transform:translateY(-3px);box-shadow:0 5px 20px rgba(0,255,157,0.5);}
+button:disabled{opacity:0.3;cursor:not-allowed;}
+#plinkoCanvas{display:block;margin:0 auto;border:3px solid #00ff9d;border-radius:10px;background: linear-gradient(180deg,#0a0e27 0%,#16213e 100%);box-shadow:0 5px 30px rgba(0,255,157,0.2);max-width:100%;}
+.multipliers{display:flex;justify-content:space-around;margin-top:20px;padding:15px;background: rgba(0,0,0,0.6);border-radius:10px;gap:3px;}
+.multiplier{padding:10px 5px;border-radius:8px;font-weight:bold;font-size:13px;text-align:center;flex:1;box-shadow:0 2px 10px rgba(0,0,0,0.3);}
+.mult-high{background:#8e24aa;color:white;}
+.mult-medium-high{background:#3949ab;color:white;}
+.mult-medium{background:#43a047;color:white;}
+.mult-low{background:#fdd835;color:#000;}
+.mult-very-low{background:#e53935;color:white;}
+.legend{margin-top:15px;padding:15px;background: rgba(0,0,0,0.6);border-radius:10px;}
+.legend-title{font-weight:bold;margin-bottom:10px;color:#00ff9d;font-size:16px;}
+.legend-items{display:flex;flex-wrap:wrap;gap:15px;justify-content:center;}
+.legend-item{display:flex;align-items:center;gap:8px;}
+.legend-color{width:30px;height:20px;border-radius:4px;border:2px solid #00ff9d;}
+.history{margin-top:30px;padding:20px;background: rgba(0,0,0,0.6);border-radius:10px;max-height:200px;overflow-y:auto;}
+.history-title{font-weight:bold;margin-bottom:15px;color:#00ff9d;font-size:18px;}
+.history-item{padding:10px 15px;margin:8px 0;border-radius:8px;font-size:15px;display:flex;justify-content:space-between;transition:all 0.2s;}
+.history-item:hover{transform:translateX(5px);}
+.win{background: rgba(0,255,157,0.2);border-left:4px solid #00ff9d;}
+.loss{background: rgba(255,69,87,0.2);border-left:4px solid #ff4557;}
+.profit{font-weight:bold;}
+.profit.positive{color:#00ff9d;}
+.profit.negative{color:#ff4557;}
+.history::-webkit-scrollbar{width:8px;}
+.history::-webkit-scrollbar-track{background: rgba(0,0,0,0.3);border-radius:10px;}
+.history::-webkit-scrollbar-thumb{background:#00ff9d;border-radius:10px;}
+</style>
 </head>
 <body>
 <div class="game-container">
-    <div class="header"><h1>🎯 PLINKO</h1></div>
+    <div class="header"><h1>🎯 PLINKO GAME</h1></div>
+    
     <div class="stats">
-        <div class="stat"><div class="stat-label">Balance</div><div class="stat-value">$<span id="balance">0</span></div></div>
-        <div class="stat"><div class="stat-label">Current Bet</div><div class="stat-value">$<span id="currentBet">10</span></div></div>
-        <div class="stat"><div class="stat-label">Total Profit</div><div class="stat-value" id="totalProfit">$0</div></div>
+        <div class="stat">
+            <div class="stat-label">Balance</div>
+            <div class="stat-value">$<span id="balance">0</span></div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Current Bet</div>
+            <div class="stat-value">$<span id="currentBet">10</span></div>
+        </div>
+        <div class="stat">
+            <div class="stat-label">Total Profit</div>
+            <div class="stat-value" id="totalProfit">$0</div>
+        </div>
     </div>
+    
     <div class="controls">
         <div class="control-group">
             <label>Risk Level</label>
@@ -58,66 +79,92 @@
         </div>
         <div class="control-group">
             <label>Bet Amount</label>
-            <input type="number" id="betAmount" value="10" min="1" step="1">
+            <input type="number" id="betAmount" value="10" min="1" max="1000" step="1">
         </div>
-        <button id="dropBtn" onclick="dropBall()">Drop Ball</button>
+        <button id="dropBtn">Drop Ball</button>
     </div>
-    <canvas id="plinkoCanvas" width="700" height="600"></canvas>
+    
+    <canvas id="plinkoCanvas" width="650" height="600"></canvas>
+    
     <div class="multipliers" id="multiplierDisplay"></div>
+    
+    <div class="legend">
+        <div class="legend-title">🎨 Multiplier Key</div>
+        <div class="legend-items">
+            <div class="legend-item"><div class="legend-color" style="background:#8e24aa;"></div><span>20x - 30x</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#3949ab;"></div><span>10x - 20x</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#43a047;"></div><span>5x - 10x</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#fdd835;"></div><span>0.1x - 5x</span></div>
+            <div class="legend-item"><div class="legend-color" style="background:#e53935;"></div><span>0.01x - 0.1x</span></div>
+        </div>
+    </div>
+    
     <div class="history">
-        <div class="history-title">Recent Drops</div>
+        <div class="history-title">📊 Recent Drops</div>
         <div id="historyList"></div>
     </div>
 </div>
 
 <script>
+// === PLINKO LOGIC ===
 const canvas = document.getElementById('plinkoCanvas');
 const ctx = canvas.getContext('2d');
-let balance = 1000; // default for testing
+
 let totalProfit = 0;
 let isDropping = false;
 let activeBalls = [];
 let animationId = null;
 
-const ROWS = 12;
-const PEG_RADIUS = 5;
-const BALL_RADIUS = 8;
-const GRAVITY = 0.35;
-const BOUNCE = 0.7;
-const FRICTION = 0.995;
+const ROWS = 11;
+const PEG_RADIUS = 4;
+const BALL_RADIUS = 10;
+const GRAVITY = 0.4;
+const BOUNCE = 0.65;
+const FRICTION = 0.99;
 
+// Multipliers - edges high, middle low, no 1x
 const multipliers = {
-    low:     [20,10,5,1,0.1,0.05,0.1,1,5,10,20],
-    medium:  [25,15,6,1,0.05,0.02,0.05,1,6,15,25],
-    high:    [30,20,8,1,0.01,0.01,0.01,1,8,20,30]
+    low:[0.1,0.2,0.5,0.3,0.5,0.2,0.1],
+    medium:[0.05,0.2,0.3,0.5,0.3,0.2,0.05],
+    high:[0.01,0.1,0.2,0.5,0.2,0.1,0.01]
 };
 
 let pegs = [];
 let buckets = [];
 
-function initializeBoard() {
-    pegs = [];
-    const startX = canvas.width / 2;
+// --- Initialize Board ---
+function initializeBoard(){
+    pegs=[];
+    const startX = canvas.width/2;
     const startY = 80;
-    const horizontalSpacing = 50;
-    const verticalSpacing = 40;
-    for (let row=0; row<ROWS; row++){
-        const pegsInRow = row+3;
-        const rowWidth = (pegsInRow-1)*horizontalSpacing;
+    const hSpacing = 50;
+    const vSpacing = 38;
+    
+    for(let row=0;row<ROWS;row++){
+        const pegsInRow = row + 3;
+        const rowWidth = (pegsInRow-1)*hSpacing;
         const rowStartX = startX - rowWidth/2;
-        for (let col=0; col<pegsInRow; col++){
-            pegs.push({x: rowStartX + col*horizontalSpacing, y: startY + row*verticalSpacing});
+        for(let col=0;col<pegsInRow;col++){
+            pegs.push({x:rowStartX+col*hSpacing, y:startY+row*vSpacing});
         }
     }
+    
     // Buckets
-    buckets = [];
-    const bucketCount = ROWS+3;
-    const bucketWidth = canvas.width/(bucketCount+1);
-    const bucketY = startY + ROWS*verticalSpacing + 30;
+    buckets=[];
+    const bucketCount = multipliers.low.length; // dynamically scale
+    const bucketWidth = canvas.width / bucketCount;
+    const bucketY = startY+ROWS*vSpacing+50;
     const mults = getCurrentMultipliers();
-    for (let i=0; i<bucketCount; i++){
-        buckets.push({x: bucketWidth*(i+0.5), y: bucketY, width: bucketWidth*0.9, height:40, multiplier: mults[i]});
+    for(let i=0;i<bucketCount;i++){
+        buckets.push({
+            x:bucketWidth*(i+0.5),
+            y:bucketY,
+            width: bucketWidth*0.95,
+            height:50,
+            multiplier: mults[i]
+        });
     }
+    
     updateMultiplierDisplay();
     drawBoard();
 }
@@ -131,88 +178,73 @@ function updateMultiplierDisplay(){
     const display = document.getElementById('multiplierDisplay');
     const mults = getCurrentMultipliers();
     display.innerHTML = mults.map(m=>{
-        let className='mult-1';
-        if (m<=0.02) className='mult-0-2';
-        else if (m<=0.05) className='mult-0-5';
-        else if (m<=0.1) className='mult-0-2';
-        else if (m>=5 && m<10) className='mult-5';
-        else if (m>=10 && m<20) className='mult-10';
-        else if (m>=20) className='mult-10';
-        else className='mult-2';
+        let className='mult-medium';
+        if(m>=10)className='mult-high';
+        else if(m>=5)className='mult-medium-high';
+        else if(m>=1)className='mult-medium';
+        else if(m>=0.1)className='mult-low';
+        else className='mult-very-low';
         return `<div class="multiplier ${className}">${m}x</div>`;
     }).join('');
 }
 
 function drawBoard(){
     ctx.clearRect(0,0,canvas.width,canvas.height);
+    // pegs
     pegs.forEach(peg=>{
-        ctx.shadowBlur=10;
-        ctx.shadowColor='rgba(0,255,157,0.5)';
-        ctx.beginPath();
-        ctx.arc(peg.x,peg.y,PEG_RADIUS,0,Math.PI*2);
-        ctx.fillStyle='#00ff9d';
-        ctx.fill();
-        ctx.shadowBlur=0;
+        ctx.shadowBlur=10; ctx.shadowColor='rgba(0,255,157,0.5)';
+        ctx.beginPath(); ctx.arc(peg.x,peg.y,PEG_RADIUS,0,Math.PI*2);
+        ctx.fillStyle='#00ff9d'; ctx.fill(); ctx.shadowBlur=0;
     });
+    // buckets
     buckets.forEach(bucket=>{
         ctx.fillStyle=getBucketColor(bucket.multiplier);
-        ctx.fillRect(bucket.x-bucket.width/2, bucket.y, bucket.width, bucket.height);
-        ctx.strokeStyle='#00ff9d';
-        ctx.lineWidth=2;
-        ctx.strokeRect(bucket.x-bucket.width/2, bucket.y, bucket.width, bucket.height);
-        ctx.fillStyle='white';
-        ctx.font='bold 16px Arial';
-        ctx.textAlign='center';
-        ctx.fillText(bucket.multiplier+'x', bucket.x, bucket.y+26);
+        ctx.fillRect(bucket.x-bucket.width/2,bucket.y,bucket.width,bucket.height);
+        ctx.strokeStyle='#00ff9d'; ctx.lineWidth=2;
+        ctx.strokeRect(bucket.x-bucket.width/2,bucket.y,bucket.width,bucket.height);
+        ctx.fillStyle='white'; ctx.font='bold 11px Arial';
+        ctx.textAlign='center'; ctx.textBaseline='middle';
+        ctx.fillText(bucket.multiplier+'x',bucket.x,bucket.y+bucket.height/2);
     });
 }
 
 function getBucketColor(mult){
-    if(mult>=20) return '#8e24aa';
-    if(mult>=10) return '#3949ab';
-    if(mult>=5) return '#43a047';
-    if(mult>=1) return '#fdd835';
-    if(mult>=0.1) return '#fb8c00';
+    if(mult>=20)return '#8e24aa';
+    if(mult>=10)return '#3949ab';
+    if(mult>=5)return '#43a047';
+    if(mult>=1)return '#fdd835';
+    if(mult>=0.1)return '#fb8c00';
     return '#e53935';
 }
 
+// === Ball class ===
 class Ball{
-    constructor(x,y){
-        this.x=x; this.y=y; this.vx=(Math.random()-0.5)*4; this.vy=0;
-        this.radius=BALL_RADIUS; this.landed=false; this.landedBucket=null;
-    }
+    constructor(x,y){this.x=x;this.y=y;this.vx=(Math.random()-0.5)*2;this.vy=0;this.radius=BALL_RADIUS;this.landed=false;this.landedBucket=null;}
     update(){
-        if(this.landed) return;
+        if(this.landed)return;
         this.vy+=GRAVITY; this.vx*=FRICTION; this.vy*=FRICTION;
         this.x+=this.vx; this.y+=this.vy;
-
-        // Peg collisions
+        // peg collisions
         pegs.forEach(peg=>{
             const dx=this.x-peg.x, dy=this.y-peg.y, dist=Math.sqrt(dx*dx+dy*dy);
             if(dist<this.radius+PEG_RADIUS){
                 const angle=Math.atan2(dy,dx);
                 const targetX=peg.x+Math.cos(angle)*(PEG_RADIUS+this.radius);
                 const targetY=peg.y+Math.sin(angle)*(PEG_RADIUS+this.radius);
-                this.x=targetX; this.y=targetY;
-                const ax=(this.vx*Math.cos(angle)+this.vy*Math.sin(angle))*Math.cos(angle);
-                const ay=(this.vx*Math.cos(angle)+this.vy*Math.sin(angle))*Math.sin(angle);
-                this.vx=(this.vx-2*ax)*BOUNCE + (Math.random()-0.5)*0.5;
-                this.vy=(this.vy-2*ay)*BOUNCE;
+                const ax=this.vx-dx/dist;
+                const ay=this.vy-dy/dist;
+                this.x=targetX; this.y=targetY; this.vx=ax*BOUNCE+(Math.random()-0.5)*1.5; this.vy=ay*BOUNCE;
             }
         });
-
-        // Buckets
+        // buckets
         buckets.forEach((bucket,i)=>{
-            if(this.y>bucket.y && this.x>bucket.x-bucket.width/2 && this.x<bucket.x+bucket.width/2){
-                if(!this.landed){
-                    this.landed=true; this.landedBucket=i; this.y=bucket.y; this.vx=0; this.vy=0;
-                }
+            if(this.y+this.radius>=bucket.y && this.x>bucket.x-bucket.width/2 && this.x<bucket.x+bucket.width/2){
+                if(!this.landed){this.landed=true;this.landedBucket=i;this.y=bucket.y-this.radius;this.vx=0;this.vy=0;}
             }
         });
-
-        // Walls
-        if(this.x<this.radius){this.x=this.radius; this.vx*=-BOUNCE;}
-        if(this.x>canvas.width-this.radius){this.x=canvas.width-this.radius; this.vx*=-BOUNCE;}
+        // walls
+        if(this.x-this.radius<0){this.x=this.radius;this.vx*=-BOUNCE;}
+        if(this.x+this.radius>canvas.width){this.x=canvas.width-this.radius;this.vx*=-BOUNCE;}
     }
     draw(){
         ctx.shadowBlur=15; ctx.shadowColor='rgba(255,107,107,0.8)';
@@ -222,71 +254,67 @@ class Ball{
     }
 }
 
+// === Drop Ball ===
 function dropBall(){
     const betAmount=parseInt(document.getElementById('betAmount').value);
-    if(betAmount>balance){alert('Not enough coins!'); return;}
-    if(betAmount<1){alert('Bet must be at least $1!'); return;}
-    if(isDropping) return;
-
-    balance-=betAmount;
-    updateDisplay();
-
-    const ball=new Ball(canvas.width/2,40);
-    activeBalls.push(ball);
-
-    isDropping=true;
-    document.getElementById('dropBtn').disabled=true;
-
-    if(!animationId) animate();
-
+    if(isNaN(betAmount)||betAmount<1){alert('Enter valid bet!');return;}
+    if(betAmount>getCoins()){alert('Insufficient coins!');return;}
+    if(isDropping)return;
+    
+    removeCoins(betAmount); updateDisplay();
+    const ball=new Ball(canvas.width/2,40); activeBalls.push(ball);
+    isDropping=true; document.getElementById('dropBtn').disabled=true;
+    if(!animationId)animate();
+    
     const checkLanded=setInterval(()=>{
         if(ball.landed){
             clearInterval(checkLanded);
             const mult=buckets[ball.landedBucket].multiplier;
-            const win=Math.floor(betAmount*mult);
-            balance+=win;
-            const profit=win-betAmount;
-            totalProfit+=profit;
-            updateDisplay();
-            addHistory(betAmount,mult,win,profit);
-
+            const win=Math.round(betAmount*mult*100)/100;
+            addCoins(win);
+            const profit=win-betAmount; totalProfit+=profit;
+            updateDisplay(); addHistory(betAmount,mult,win,profit);
             setTimeout(()=>{
                 activeBalls=activeBalls.filter(b=>b!==ball);
                 if(activeBalls.length===0){isDropping=false; document.getElementById('dropBtn').disabled=false;}
-            },500);
+            },1000);
         }
     },50);
 }
 
+// === Animation ===
 function animate(){
     drawBoard();
-    activeBalls.forEach(ball=>{ball.update(); ball.draw();});
-    if(activeBalls.length>0) animationId=requestAnimationFrame(animate);
-    else animationId=null;
+    activeBalls.forEach(ball=>{ball.update();ball.draw();});
+    animationId=activeBalls.length>0?requestAnimationFrame(animate):null;
 }
 
+// === History & Display ===
 function addHistory(bet,mult,win,profit){
-    const historyList=document.getElementById('historyList');
+    const list=document.getElementById('historyList');
     const item=document.createElement('div');
     item.className='history-item '+(profit>=0?'win':'loss');
-    const profitClass=profit>=0?'positive':'negative';
-    item.innerHTML=`<span>Bet: $${bet} × ${mult}x</span><span class="profit ${profitClass}">${profit>=0?'+':''}$${profit}</span>`;
-    historyList.insertBefore(item,historyList.firstChild);
-    while(historyList.children.length>10) historyList.removeChild(historyList.lastChild);
+    const sign=profit>=0?'+':'';
+    item.innerHTML=`<span>Bet: $${bet} × ${mult}x = $${win}</span><span class="profit ${profit>=0?'positive':'negative'}">${sign}$${profit}</span>`;
+    list.insertBefore(item,list.firstChild);
+    while(list.children.length>15)list.removeChild(list.lastChild);
 }
 
 function updateDisplay(){
-    document.getElementById('balance').textContent=balance;
+    document.getElementById('balance').textContent=getCoins();
     document.getElementById('currentBet').textContent=document.getElementById('betAmount').value;
     const profitEl=document.getElementById('totalProfit');
-    profitEl.textContent=(totalProfit>=0?'+$':'-$')+Math.abs(totalProfit);
-    profitEl.style.color=totalProfit>=0?'#00ff9d':'#ff4557';
+    const sign=totalProfit>=0?'+':'';
+    profitEl.textContent=sign+'$'+totalProfit;
+    profitEl.style.color=totalProfit>=0?'#43e97b':'#f5576c';
 }
 
+// --- Event Listeners ---
+document.getElementById('dropBtn').addEventListener('click',dropBall);
 document.getElementById('betAmount').addEventListener('input',updateDisplay);
 document.getElementById('riskLevel').addEventListener('change',initializeBoard);
 
-// Initialize
+// --- Init ---
 initializeBoard();
 updateDisplay();
 </script>
