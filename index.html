@@ -240,6 +240,7 @@
                 <button id="blackjackBtn" style="background: #c53030; border: 1px solid #9b2c2c;">BLACKJACK ♠️</button>
                 <button id="pokerBtn" style="background: #38a169; border: 1px solid #2f855a;">POKER 🃏</button>
                 <button id="lotteryBtn" style="background: #805ad5; border: 1px solid #6b46c1;">LOTTERY 🎰</button>
+                <button id="plinkoBtn" style="background: #3182ce; border: 1px solid #2c5282;">PLINKO 🎯</button>
             </div>
             <div id="gameList"></div>
             <div class="dev-section">
@@ -608,6 +609,10 @@
 
         document.getElementById('lotteryBtn').addEventListener('click', () => {
             loadGame('lottery');
+        });
+
+        document.getElementById('plinkoBtn').addEventListener('click', () => {
+            loadGame('plinko');
         });
 
         window.addEventListener('message', (event) => {
