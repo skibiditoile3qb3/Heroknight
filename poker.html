@@ -744,7 +744,7 @@ function aiAction() {
     // ============================
     // 1. DUMB PLAYERS (smart < 0.4)
     // ============================
-    if (smart < 0.4) {
+    if (smart < 0.5) {
 
         // 30% raise with ANY hand
         if (random < 0.3) {
@@ -789,7 +789,7 @@ function aiAction() {
     // ============================
     // 2. MID SMART PLAYERS (0.4–0.75)
     // ============================
-    else if (smart < 0.75) {
+    else if (smart < 0.8) {
 
         // raise if half decent or ego moment
         if (handStrength > 0.45 || random < 0.15) {
