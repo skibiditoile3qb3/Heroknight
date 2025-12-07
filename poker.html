@@ -429,6 +429,9 @@
                 type: 'updateCoins',
                 coins: state.humanBalance
             }, '*');
+            
+            // Update local display immediately
+            document.getElementById('balance').textContent = state.humanBalance;
         }
 
         function createDeck() {
