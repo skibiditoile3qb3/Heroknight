@@ -405,26 +405,6 @@
             humanBalance: 1000
         };
 
-        window.parent.postMessage({ type: 'getCoins' }, '*');
-
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'coinsData') {
-                state.humanBalance = event.data.coins;
-                const humanPlayer = state.players.find(p => p.isHuman);
-                if (humanPlayer) {
-                    humanPlayer.chips = state.humanBalance;
-                    updateDisplay();
-                }
-            }
-        });
-
-        function updateParentCoins() {
-            window.parent.postMessage({
-                type: 'updateCoins',
-                coins: state.humanBalance
-            }, '*');
-        }
-
         function createDeck() {
             const deck = [];
             for (const suit of suits) {
@@ -555,6 +535,7 @@
             dealCards();
             updateDisplay();
 
+            // Start action after the big blind (dealer + 3 positions for preflop)
             state.currentPlayerIndex = (state.dealerIndex + 3) % state.players.length;
             
             setTimeout(() => {
@@ -572,17 +553,18 @@
             state.players[sbIndex].chips -= sbAmount;
             state.players[sbIndex].bet = sbAmount;
             state.pot += sbAmount;
+            if (state.players[sbIndex].chips === 0) state.players[sbIndex].allIn = true;
 
             state.players[bbIndex].chips -= bbAmount;
             state.players[bbIndex].bet = bbAmount;
             state.pot += bbAmount;
+            if (state.players[bbIndex].chips === 0) state.players[bbIndex].allIn = true;
 
             state.currentBet = bbAmount;
 
             const humanPlayer = state.players.find(p => p.isHuman);
             if (humanPlayer) {
                 state.humanBalance = humanPlayer.chips;
-                updateParentCoins();
             }
         }
 
@@ -647,8 +629,8 @@
         }
 
         function playerAction(action) {
-            const player = state.players[0];
-            if (!player || player.folded || !player.isHuman || state.currentPlayerIndex !== 0) return;
+            const player = state.players[state.currentPlayerIndex];
+            if (!player || player.folded || !player.isHuman) return;
 
             if (action === 'fold') {
                 player.folded = true;
@@ -666,7 +648,6 @@
                 if (player.chips === 0) player.allIn = true;
                 player.hasActed = true;
                 state.humanBalance = player.chips;
-                updateParentCoins();
                 showMessage(`You call $${amount}`, 1000);
             } else if (action === 'raise') {
                 const raiseAmount = parseInt(document.getElementById('raiseAmount').value);
@@ -680,14 +661,14 @@
                 if (player.chips === 0) player.allIn = true;
                 player.hasActed = true;
                 
+                // Reset other players' hasActed status since there's a new bet
                 state.players.forEach((p, i) => {
-                    if (i !== 0 && !p.folded && !p.allIn) {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) {
                         p.hasActed = false;
                     }
                 });
                 
                 state.humanBalance = player.chips;
-                updateParentCoins();
                 showMessage(`You raise to $${player.bet}`, 1000);
             }
 
@@ -706,6 +687,8 @@
 
         function nextPlayer() {
             let attempts = 0;
+            const startIndex = state.currentPlayerIndex;
+            
             while (attempts < state.players.length) {
                 state.currentPlayerIndex = (state.currentPlayerIndex + 1) % state.players.length;
                 const player = state.players[state.currentPlayerIndex];
@@ -720,24 +703,34 @@
                     }
                     return;
                 }
+                
                 attempts++;
+                
+                // If we've gone full circle, check if betting is complete
+                if (state.currentPlayerIndex === startIndex) {
+                    if (bettingRoundComplete()) {
+                        nextPhase();
+                        return;
+                    }
+                }
             }
 
+            // If we get here, all remaining players are folded or all-in
             if (bettingRoundComplete()) {
                 nextPhase();
             }
         }
 
         function showControls() {
-            const player = state.players[0];
+            const player = state.players[state.currentPlayerIndex];
             const callAmount = state.currentBet - player.bet;
 
             document.getElementById('controls').style.display = 'flex';
             document.getElementById('checkBtn').disabled = callAmount > 0;
-            document.getElementById('callBtn').disabled = callAmount === 0 || player.chips <= callAmount;
+            document.getElementById('callBtn').disabled = callAmount === 0 || player.chips === 0;
             document.getElementById('callAmount').textContent = callAmount;
 
-            const minRaise = Math.max(state.bigBlind, state.currentBet - player.bet + state.bigBlind);
+            const minRaise = Math.max(state.bigBlind, state.bigBlind);
             document.getElementById('raiseAmount').value = minRaise;
             document.getElementById('raiseAmount').min = minRaise;
             document.getElementById('raiseAmount').max = player.chips;
@@ -745,7 +738,11 @@
 
         function bettingRoundComplete() {
             const activePlayers = state.players.filter(p => !p.folded && !p.allIn);
+            
             if (activePlayers.length === 0) return true;
+            if (activePlayers.length === 1) return true;
+            
+            // Everyone must have acted and matched the current bet
             return activePlayers.every(p => p.hasActed && p.bet === state.currentBet);
         }
 
@@ -758,7 +755,7 @@
             const cockiness = player.cockiness;
             const risk = player.risk;
             const smart = player.smart;
-            const type = smart < 0.4 ? "dumb" : smart < 0.7 ? "mid" : "smart";
+            const type = smart < 0.5 ? "dumb" : smart < 0.75 ? "mid" : "smart";
 
             let distrustFactor = 0;
             if (type === "smart") {
@@ -1002,6 +999,7 @@
             }
 
             updateDisplay();
+            // After flop/turn/river, start with player after dealer
             state.currentPlayerIndex = state.dealerIndex;
             setTimeout(() => nextPlayer(), 1000);
         }
@@ -1018,7 +1016,6 @@
                 winner.chips += state.pot;
                 if (winner.isHuman) {
                     state.humanBalance = winner.chips;
-                    updateParentCoins();
                 }
                 showMessage(`${winner.name} wins ${state.pot}!`, 3000);
                 updateDisplay();
@@ -1044,7 +1041,6 @@
                     w.player.chips += winAmount;
                     if (w.player.isHuman) {
                         state.humanBalance = w.player.chips;
-                        updateParentCoins();
                     }
                 });
 
