@@ -402,8 +402,34 @@
             bigBlind: 20,
             phase: 'preflop',
             gameActive: false,
-            humanBalance: 1000
+            humanBalance: 0,
+            coinsLoaded: false
         };
+
+        // Request coins from parent on load
+        window.parent.postMessage({ type: 'getCoins' }, '*');
+
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'coinsData') {
+                state.humanBalance = event.data.coins;
+                state.coinsLoaded = true;
+                document.getElementById('balance').textContent = state.humanBalance;
+                
+                // Update human player if they exist
+                const humanPlayer = state.players.find(p => p.isHuman);
+                if (humanPlayer) {
+                    humanPlayer.chips = state.humanBalance;
+                    updateDisplay();
+                }
+            }
+        });
+
+        function updateParentCoins() {
+            window.parent.postMessage({
+                type: 'updateCoins',
+                coins: state.humanBalance
+            }, '*');
+        }
 
         function createDeck() {
             const deck = [];
@@ -424,11 +450,17 @@
         }
 
         function startGame() {
+            // Make sure coins are loaded first
+            if (!state.coinsLoaded) {
+                alert('Loading your coin balance... Please wait a moment and try again.');
+                return;
+            }
+
             const playerCount = parseInt(document.getElementById('playerCount').value);
             const smallBlind = parseInt(document.getElementById('smallBlind').value);
 
             if (state.humanBalance < smallBlind * 2) {
-                alert('You need at least ' + (smallBlind * 2) + ' coins to play!');
+                alert('You need at least ' + (smallBlind * 2) + ' coins to play! You currently have ' + state.humanBalance + ' coins.');
                 return;
             }
 
