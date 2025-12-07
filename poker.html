@@ -788,93 +788,93 @@
                 state.players.forEach((p, i) => {
                     if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
                 });
-                return `raises to $${player.bet}`;
+                return `raises to ${player.bet}`;
             }
 
-            // RAISE LOGIC - but reduce aggressiveness preflop
-            const raiseMultiplier = state.phase === 'preflop' ? 0.4 : 1.0; // Less likely to raise preflop
+            // NO RAISES ALLOWED PREFLOP - skip all raise logic
+            if (state.phase !== 'preflop') {
+                // SMART RAISES
+                if (type === "smart") {
+                    if (effectiveStrength > 0.72 && player.chips > callAmount + state.bigBlind) {
+                        action = executeRaise(1.8 + r * 2);
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
 
-            // SMART RAISES
-            if (type === "smart") {
-                if (effectiveStrength > 0.72 && r < raiseMultiplier && player.chips > callAmount + state.bigBlind) {
-                    action = executeRaise(1.8 + r * 2);
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
+                    if (effectiveStrength > 0.55 && r < risk * 0.40 && player.chips > callAmount + state.bigBlind) {
+                        action = executeRaise(1.2 + r * 1.6);
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
+
+                    if (wantsToBluff && player.chips > callAmount + state.bigBlind && r > handStrength) {
+                        action = executeRaise(1 + r * 1.25);
+                        player.bluffMemory++;
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
                 }
 
-                if (effectiveStrength > 0.55 && r < risk * 0.40 * raiseMultiplier && player.chips > callAmount + state.bigBlind) {
-                    action = executeRaise(1.2 + r * 1.6);
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
+                // MID RAISES
+                if (type === "mid") {
+                    if (effectiveStrength > 0.65 && r < 0.7 && player.chips > callAmount + state.bigBlind) {
+                        action = executeRaise(1.5 + r * 2.2);
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
+
+                    if (effectiveStrength > 0.45 && r < risk * 0.55 && player.chips > callAmount + state.bigBlind) {
+                        action = executeRaise(1 + r * 1.8);
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
+
+                    if (wantsToBluff && player.chips > callAmount + state.bigBlind) {
+                        action = executeRaise(1 + r * 1.4);
+                        player.bluffMemory++;
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
                 }
 
-                if (wantsToBluff && r < raiseMultiplier && player.chips > callAmount + state.bigBlind && r > handStrength) {
-                    action = executeRaise(1 + r * 1.25);
-                    player.bluffMemory++;
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
-                }
-            }
+                // DUMB RAISES
+                if (type === "dumb") {
+                    if (effectiveStrength > 0.55 && r < 0.8 && player.chips > callAmount + state.bigBlind) {
+                        action = executeRaise(1 + r * 3);
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
 
-            // MID RAISES
-            if (type === "mid") {
-                if (effectiveStrength > 0.65 && r < 0.7 * raiseMultiplier && player.chips > callAmount + state.bigBlind) {
-                    action = executeRaise(1.5 + r * 2.2);
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
-                }
-
-                if (effectiveStrength > 0.45 && r < risk * 0.55 * raiseMultiplier && player.chips > callAmount + state.bigBlind) {
-                    action = executeRaise(1 + r * 1.8);
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
-                }
-
-                if (wantsToBluff && r < raiseMultiplier && player.chips > callAmount + state.bigBlind) {
-                    action = executeRaise(1 + r * 1.4);
-                    player.bluffMemory++;
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
-                }
-            }
-
-            // DUMB RAISES
-            if (type === "dumb") {
-                if (effectiveStrength > 0.55 && r < 0.8 * raiseMultiplier && player.chips > callAmount + state.bigBlind) {
-                    action = executeRaise(1 + r * 3);
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
-                }
-
-                if (wantsToBluff && r < raiseMultiplier && player.chips > callAmount + state.bigBlind) {
-                    action = executeRaise(0.8 + r * 2.5);
-                    player.bluffMemory++;
-                    player.hasActed = true;
-                    showMessage(`${player.name} ${action}`, 1000);
-                    updateDisplay();
-                    proceedAfterAction();
-                    return;
+                    if (wantsToBluff && player.chips > callAmount + state.bigBlind) {
+                        action = executeRaise(0.8 + r * 2.5);
+                        player.bluffMemory++;
+                        player.hasActed = true;
+                        showMessage(`${player.name} ${action}`, 1000);
+                        updateDisplay();
+                        proceedAfterAction();
+                        return;
+                    }
                 }
             }
 
