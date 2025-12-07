@@ -732,191 +732,270 @@
 
 function aiAction() {
     const player = state.players[state.currentPlayerIndex];
-    const s = player.smartness ?? 0;  // 0–1
-    const r = player.risk ?? 0;       // 0–1
     const callAmount = state.currentBet - player.bet;
 
+    // base metrics
     const handStrength = evaluateHandStrength(player.cards, state.communityCards);
-    const random = Math.random();
-    const isPreFlop = state.communityCards.length === 0;
+    const potOdds = callAmount > 0 ? callAmount / (state.pot + callAmount) : 0;
+    const r = Math.random();
+
+    // traits
+    const cockiness = player.cockiness; // folds less
+    const risk = player.risk;           // raises more
+    const smart = player.smart;         // intelligence rating 0–1
+
+    // classification (your new ranges)
+    const type = smart < 0.4 ? "dumb" : smart < 0.7 ? "mid" : "smart";
+
+    // persistent memory inside player object
+    if (player.bluffMemory == null) player.bluffMemory = 0;
+
+    // smart players distrust raises if they caught previous bluffs
+    let distrustFactor = 0;
+    if (type === "smart") {
+        distrustFactor = Math.min(0.4, player.bluffMemory * 0.15);
+    }
+
+    // adjust real strength by distrust
+    const effectiveStrength = Math.max(0, handStrength - distrustFactor);
+
+    // bluff decision
+    let wantsToBluff = false;
+    if (type === "smart") {
+        if (r < 0.07 * risk) wantsToBluff = true;
+    } else if (type === "mid") {
+        if (r < 0.11 * risk) wantsToBluff = true;
+    } else {
+        if (r < 0.18 * risk) wantsToBluff = true;
+    }
 
     let action = "";
 
-    // =========================================================
-    // INTERNAL INLINE ACTIONS (not helpers, but local ops)
-    // =========================================================
+    // ---------------------------------------------------------
+    // RAISE LOGIC (EXISTS ONLY INSIDE THIS FUNCTION)
+    // ---------------------------------------------------------
+    // Since you said "no helper functions," everything is inline:
 
-    const canFullyRaise = (extra) => {
-        const total = callAmount + extra;
-        return total <= player.chips;
-    };
+    // smart calculated raises
+    if (type === "smart") {
+        if (effectiveStrength > 0.72 && player.chips > callAmount + state.bigBlind) {
+            const raiseMult = 1.8 + r * 2;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
 
-    const doCall = () => {
-        const send = Math.min(callAmount, player.chips);
-        player.chips -= send;
-        player.bet += send;
-        state.pot += send;
-        if (player.chips === 0) player.allIn = true;
-    };
-
-    const doRaise = () => {
-        const riskBoost = 1 + (r * 1.5); // risk makes bigger raises but not insane
-        const rand = Math.random();
-
-        let raiseAmount = Math.floor(
-            state.bigBlind * (1 + rand * 2 * riskBoost)
-        );
-
-        if (!canFullyRaise(raiseAmount)) return false; // can't raise → not allowed
-
-        const total = callAmount + raiseAmount;
-
-        player.chips -= total;
-        player.bet += total;
-        state.pot += total;
-
-        state.currentBet = player.bet;
-
-        // reset others
-        state.players.forEach((p, i) => {
-            if (i !== state.currentPlayerIndex && !p.folded && !p.allIn)
-                p.hasActed = false;
-        });
-
-        return true;
-    };
-
-    const doFold = () => {
-        player.folded = true;
-    };
-
-    // ============================================================
-    // 1. DUMB PLAYERS (0.00 – 0.50)
-    // ============================================================
-    if (s < 0.50) {
-
-        const raiseChance = 0.25 + r * 0.30; // Lower than before. Dumber = less risky.
-
-        if (random < raiseChance) {
-            if (doRaise()) action = "raises";
-            else {
-                // can't raise → fallback to call/check
-                if (callAmount === 0) action = "checks";
-                else { doCall(); action = "calls"; }
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                action = `raises to ${player.bet}`;
+                return action;
             }
         }
 
-        else if (random < 0.90) {
-            if (callAmount === 0) action = "checks";
-            else { doCall(); action = "calls"; }
+        if (effectiveStrength > 0.55 && r < risk * 0.40 && player.chips > callAmount + state.bigBlind) {
+            const raiseMult = 1.2 + r * 1.6;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
+
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                action = `raises to ${player.bet}`;
+                return action;
+            }
         }
 
-        else {
-            if (random < 0.10 - r * 0.3) { doFold(); action = "folds"; }
-            else {
-                if (callAmount === 0) action = "checks";
-                else { doCall(); action = "calls"; }
+        // smart bluff
+        if (wantsToBluff && player.chips > callAmount + state.bigBlind && r > handStrength) {
+            const raiseMult = 1 + r * 1.25;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
+
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                player.bluffMemory++;
+                action = `raises to ${player.bet}`;
+                return action;
             }
         }
     }
 
-    // ============================================================
-    // 2. MID SMART (0.50 – 0.80)
-    // ============================================================
-    else if (s < 0.80) {
+    // mid players raising
+    if (type === "mid") {
+        if (effectiveStrength > 0.65 && r < 0.7 && player.chips > callAmount + state.bigBlind) {
+            const raiseMult = 1.5 + r * 2.2;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
 
-        const raiseChance = 0.10 + r * 0.25; // Lower by default—more realistic
-
-        if (handStrength > 0.45 || random < raiseChance) {
-            if (doRaise()) action = "raises";
-            else {
-                if (callAmount === 0) action = "checks";
-                else { doCall(); action = "calls"; }
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                action = `raises to ${player.bet}`;
+                return action;
             }
         }
 
-        else if (callAmount === 0) action = "checks";
+        if (effectiveStrength > 0.45 && r < risk * 0.55 && player.chips > callAmount + state.bigBlind) {
+            const raiseMult = 1 + r * 1.8;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                action = `raises to ${player.bet}`;
+                return action;
+            }
+        }
 
-        else if (
-            callAmount < player.chips * (0.25 + r * 0.25) ||
-            handStrength > 0.25
-        ) {
-            doCall();
+        // mid bluff
+        if (wantsToBluff && player.chips > callAmount + state.bigBlind) {
+            const raiseMult = 1 + r * 1.4;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                player.bluffMemory++;
+                action = `raises to ${player.bet}`;
+                return action;
+            }
+        }
+    }
+
+    // dumb players raising (chaos)
+    if (type === "dumb") {
+        if (effectiveStrength > 0.55 && r < 0.8 && player.chips > callAmount + state.bigBlind) {
+            const raiseMult = 1 + r * 3;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                action = `raises to ${player.bet}`;
+                return action;
+            }
+        }
+
+        if (wantsToBluff && player.chips > callAmount + state.bigBlind) {
+            const raiseMult = 0.8 + r * 2.5;
+            let raiseAmount = Math.floor(state.bigBlind * raiseMult);
+            let total = callAmount + raiseAmount;
+            if (total > callAmount) {
+                let amount = Math.min(total, player.chips);
+                player.chips -= amount;
+                player.bet += amount;
+                state.pot += amount;
+                state.currentBet = player.bet;
+                if (player.chips === 0) player.allIn = true;
+                state.players.forEach((p, i) => {
+                    if (i !== state.currentPlayerIndex && !p.folded && !p.allIn) p.hasActed = false;
+                });
+                player.bluffMemory++;
+                action = `raises to ${player.bet}`;
+                return action;
+            }
+        }
+    }
+
+    // ---------------------------------------------------------
+    // CALLING & FOLDING LOGIC (cockiness + risk influenced)
+    // ---------------------------------------------------------
+
+    const foldThreshold = 0.28 - cockiness * 0.18;  // cocky players fold less
+    const callThreshold = 0.18 + cockiness * 0.35;  // cocky calls more weak hands
+
+    if (effectiveStrength > callThreshold) {
+        if (callAmount > 0) {
+            const amt = Math.min(callAmount, player.chips);
+            player.chips -= amt;
+            player.bet += amt;
+            state.pot += amt;
+            if (player.chips === 0) player.allIn = true;
             action = "calls";
+        } else {
+            action = "checks";
         }
-
-        else {
-            if (random < 0.5 - r * 0.3) { doFold(); action = "folds"; }
-            else { doCall(); action = "calls"; }
-        }
+        return action;
     }
 
-    // ============================================================
-    // 3. SMART (.80 – 1.00)
-    // ============================================================
-    else {
-
-        const raiseChance = 0.15 + r * 0.30; // smart but still cautious unless risk is high
-
-        if (isPreFlop && callAmount > 0) {
-
-            if ((handStrength > 0.30 && random < raiseChance) && doRaise()) {
-                action = "raises";
-            }
-
-            else if (handStrength > 0.25 || random < 0.40 + r * 0.2) {
-                doCall();
-                action = "calls";
-            }
-
-            else {
-                if (random < 0.65 - r * 0.5) { doFold(); action = "folds"; }
-                else { doCall(); action = "calls"; }
-            }
-        }
-
-        else {
-            if ((handStrength > 0.70 || random < raiseChance) && doRaise()) {
-                action = "raises";
-            }
-
-            else if (handStrength > 0.40) {
-                if (callAmount === 0) action = "checks";
-                else { doCall(); action = "calls"; }
-            }
-
-            else {
-                if (callAmount === 0) action = "checks";
-                else if (callAmount < player.chips * (0.08 + r * 0.10)) {
-                    doCall();
-                    action = "calls";
-                } else {
-                    if (random < 0.75 - r * 0.5) { doFold(); action = "folds"; }
-                    else { doCall(); action = "calls"; }
-                }
-            }
-        }
+    // free check
+    if (callAmount === 0) {
+        action = "checks";
+        return action;
     }
 
-    // ============================================================
-    // FINISH
-    // ============================================================
-    player.hasActed = true;
-
-    showMessage(`${player.name} ${action}`, 1000);
-    updateDisplay();
-
-    const active = state.players.filter(p => !p.folded);
-    if (active.length === 1) {
-        setTimeout(() => endHand(), 1500);
-    } else if (bettingRoundComplete()) {
-        setTimeout(() => nextPhase(), 1500);
-    } else {
-        setTimeout(() => nextPlayer(), 1500);
+    // weak hand fold unless bluff impulse
+    if (effectiveStrength < foldThreshold && !wantsToBluff) {
+        player.folded = true;
+        action = "folds";
+        return action;
     }
+
+    // risky fallback call
+    if (r < cockiness * 0.6 + risk * 0.35) {
+        const amt = Math.min(callAmount, player.chips);
+        player.chips -= amt;
+        player.bet += amt;
+        state.pot += amt;
+        if (player.chips === 0) player.allIn = true;
+        action = "calls";
+        return action;
+    }
+
+    // final fold
+    player.folded = true;
+    action = "folds";
+    return action;
 }
-
-
 
         function evaluateHandStrength(playerCards, communityCards) {
             const allCards = [...playerCards, ...communityCards];
