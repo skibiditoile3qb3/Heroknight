@@ -193,8 +193,8 @@
         }
 
         .wheel {
-            width: 300px;
-            height: 300px;
+            width: 400px;
+            height: 400px;
             border-radius: 50%;
             background: conic-gradient(
                 #e53935 0deg 11.25deg,
@@ -230,8 +230,8 @@
                 #e53935 337.5deg 348.75deg,
                 #000 348.75deg 360deg
             );
-            border: 15px solid #8b7355;
-            box-shadow: 0 0 30px rgba(0,0,0,0.5), inset 0 0 20px rgba(0,0,0,0.3);
+            border: 20px solid #8b7355;
+            box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
             position: relative;
             transition: transform 4s cubic-bezier(0.17, 0.67, 0.12, 0.99);
         }
@@ -250,30 +250,30 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             background: linear-gradient(145deg, #ffd700, #ffed4e);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
             color: #000;
-            box-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
         }
 
         .wheel-pointer {
             position: absolute;
-            top: -20px;
+            top: -25px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-top: 30px solid #ffd700;
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.5));
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-top: 40px solid #ffd700;
+            filter: drop-shadow(0 3px 8px rgba(0,0,0,0.6));
         }
 
         .result-display {
@@ -630,12 +630,12 @@
     <div class="rules-modal" id="rulesModal">
         <div class="rules-content">
             <button class="close-btn" onclick="toggleRules()">×</button>
-            <h2>How to Play Roulette</h2>
+            <h2>🎰 How to Play Roulette</h2>
             
-            <h3>Game Overview</h3>
+            <h3>📋 Game Overview</h3>
             <p>Roulette is a classic casino game where you bet on where a ball will land on a spinning wheel. The wheel has numbers 0-36, with numbers colored red or black (0 is green).</p>
             
-            <h3>How to Play</h3>
+            <h3>🎯 How to Play</h3>
             <ul>
                 <li><strong>Select Bet Amount:</strong> Choose how much you want to bet using the chip buttons or enter a custom amount</li>
                 <li><strong>Place Your Bets:</strong> Click on any bet type to place that bet. You can place multiple different bets!</li>
@@ -643,7 +643,7 @@
                 <li><strong>Watch & Win:</strong> The wheel spins and if your bet wins, you get paid immediately!</li>
             </ul>
             
-            <h3>Bet Types & Payouts</h3>
+            <h3>💰 Bet Types & Payouts</h3>
             
             <div class="payout-table">
                 <div class="payout-row">
@@ -672,7 +672,7 @@
                 </div>
             </div>
             
-            <h3>Bet Explanations</h3>
+            <h3>📊 Bet Explanations</h3>
             <p><strong>Red/Black:</strong> Bet on the color of the winning number. 0 is neither red nor black.</p>
             <p><strong>Even/Odd:</strong> Bet on whether the number is even or odd. 0 doesn't count as even.</p>
             <p><strong>Low/High:</strong> Low = numbers 1-18, High = numbers 19-36.</p>
@@ -680,7 +680,7 @@
             <p><strong>Dozens:</strong> 1st dozen = 1-12, 2nd dozen = 13-24, 3rd dozen = 25-36.</p>
             <p><strong>Single Number:</strong> Bet on one specific number for the highest payout!</p>
             
-            <h3>Tips</h3>
+            <h3>💡 Tips</h3>
             <ul>
                 <li>You can place multiple bets on the same spin</li>
                 <li>Higher payouts mean lower probability of winning</li>
@@ -688,7 +688,7 @@
                 <li>Manage your bankroll - don't bet more than you can afford to lose!</li>
             </ul>
             
-            <h3>Good Luck!</h3>
+            <h3>🎲 Good Luck!</h3>
             <p>Remember, roulette is a game of chance. Play responsibly and have fun!</p>
         </div>
     </div>
