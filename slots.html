@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slot Machine</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0a0e27, #1a1a2e);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .game-container {
+            max-width: 900px;
+            width: 100%;
+            background: linear-gradient(145deg, #8b0000, #4a0000);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 50px rgba(0,0,0,0.5);
+            border: 5px solid #ffd700;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 56px;
+            color: #ffd700;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.8);
+            margin-bottom: 10px;
+            font-weight: bold;
+            letter-spacing: 3px;
+        }
+
+        .balance-display {
+            font-size: 28px;
+            color: #00ff9d;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 157, 0.5);
+        }
+
+        .slot-machine {
+            background: linear-gradient(145deg, #2c2c2c, #1a1a1a);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: inset 0 0 30px rgba(0,0,0,0.8), 0 10px 40px rgba(255, 215, 0, 0.3);
+            border: 3px solid #ffd700;
+            margin: 30px 0;
+        }
+
+        .reels-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .reel {
+            width: 150px;
+            height: 180px;
+            background: linear-gradient(180deg, #000, #1a1a1a);
+            border: 4px solid #ffd700;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .reel-inner {
+            position: absolute;
+            width: 100%;
+            transition: top 0.1s linear;
+        }
+
+        .symbol {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            background: linear-gradient(180deg, #2a2a2a, #1a1a1a);
+            border-bottom: 2px solid #333;
+        }
+
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .bet-controls {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        .bet-controls label {
+            font-size: 18px;
+            color: #ffd700;
+            font-weight: bold;
+        }
+
+        .bet-input {
+            padding: 12px 20px;
+            background: rgba(0,0,0,0.5);
+            border: 3px solid #ffd700;
+            border-radius: 10px;
+            color: white;
+            font-size: 20px;
+            width: 150px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .bet-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .bet-btn {
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #ffd700, #ffed4e);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .bet-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.5);
+        }
+
+        .spin-btn {
+            padding: 20px 80px;
+            background: linear-gradient(145deg, #00ff9d, #00cc7a);
+            color: #000;
+            border: none;
+            border-radius: 15px;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 5px 20px rgba(0, 255, 157, 0.4);
+        }
+
+        .spin-btn:hover:not(:disabled) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 255, 157, 0.6);
+        }
+
+        .spin-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .result-display {
+            text-align: center;
+            margin: 25px 0;
+            min-height: 60px;
+        }
+
+        .result-message {
+            font-size: 32px;
+            font-weight: bold;
+            text-shadow: 0 0 10px currentColor;
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        .result-message.win {
+            color: #00ff9d;
+        }
+
+        .result-message.lose {
+            color: #ff4557;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .paytable {
+            background: rgba(0,0,0,0.4);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .paytable-title {
+            text-align: center;
+            font-size: 24px;
+            color: #ffd700;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .paytable-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .paytable-item {
+            background: rgba(255, 215, 0, 0.1);
+            border: 2px solid #ffd700;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .paytable-symbols {
+            font-size: 36px;
+            margin-bottom: 8px;
+        }
+
+        .paytable-payout {
+            font-size: 20px;
+            color: #00ff9d;
+            font-weight: bold;
+        }
+
+        .info-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.3);
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .info-btn:hover {
+            background: #ffd700;
+            color: #000;
+            transform: scale(1.1);
+        }
+
+        .rules-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            padding: 20px;
+        }
+
+        .rules-modal.show {
+            display: flex;
+        }
+
+        .rules-content {
+            background: linear-gradient(145deg, #8b0000, #4a0000);
+            border: 3px solid #ffd700;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .rules-content h2 {
+            color: #ffd700;
+            font-size: 36px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .rules-content h3 {
+            color: #00ff9d;
+            font-size: 24px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .rules-content p {
+            line-height: 1.8;
+            margin-bottom: 15px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 35px;
+            height: 35px;
+            border-radius: 50%;
+            background: #e53935;
+            border: none;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .close-btn:hover {
+            background: #c62828;
+            transform: scale(1.1);
+        }
+
+        .message {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.95);
+            padding: 40px 80px;
+            border-radius: 20px;
+            font-size: 36px;
+            font-weight: bold;
+            z-index: 1000;
+            box-shadow: 0 0 40px rgba(0, 255, 157, 0.8);
+            display: none;
+            text-align: center;
+            border: 3px solid #ffd700;
+        }
+
+        .message.show {
+            display: block;
+            animation: messagePopup 0.5s ease-out;
+        }
+
+        @keyframes messagePopup {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+        }
+
+        .message.win {
+            color: #00ff9d;
+            box-shadow: 0 0 40px rgba(0, 255, 157, 0.8);
+        }
+
+        .message.lose {
+            color: #ff4557;
+            box-shadow: 0 0 40px rgba(255, 69, 87, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1>🎰 SLOTS 🎰</h1>
+            <div class="balance-display">Balance: $<span id="balance">0</span></div>
+        </div>
+
+        <div class="slot-machine">
+            <div class="reels-container">
+                <div class="reel">
+                    <div class="reel-inner" id="reel1"></div>
+                </div>
+                <div class="reel">
+                    <div class="reel-inner" id="reel2"></div>
+                </div>
+                <div class="reel">
+                    <div class="reel-inner" id="reel3"></div>
+                </div>
+            </div>
+
+            <div class="result-display" id="resultDisplay"></div>
+
+            <div class="controls">
+                <div class="bet-controls">
+                    <label>Bet Amount:</label>
+                    <input type="number" class="bet-input" id="betAmount" value="10" min="1" step="5">
+                    <div class="bet-buttons">
+                        <button class="bet-btn" onclick="setBet(5)">$5</button>
+                        <button class="bet-btn" onclick="setBet(10)">$10</button>
+                        <button class="bet-btn" onclick="setBet(25)">$25</button>
+                        <button class="bet-btn" onclick="setBet(50)">$50</button>
+                        <button class="bet-btn" onclick="setBet(100)">$100</button>
+                    </div>
+                </div>
+                <button class="spin-btn" id="spinBtn" onclick="spin()">SPIN!</button>
+            </div>
+        </div>
+
+        <div class="paytable">
+            <div class="paytable-title">💰 PAYTABLE 💰</div>
+            <div class="paytable-grid">
+                <div class="paytable-item">
+                    <div class="paytable-symbols">💎💎💎</div>
+                    <div class="paytable-payout">50x</div>
+                </div>
+                <div class="paytable-item">
+                    <div class="paytable-symbols">🍒🍒🍒</div>
+                    <div class="paytable-payout">20x</div>
+                </div>
+                <div class="paytable-item">
+                    <div class="paytable-symbols">🍋🍋🍋</div>
+                    <div class="paytable-payout">15x</div>
+                </div>
+                <div class="paytable-item">
+                    <div class="paytable-symbols">🍊🍊🍊</div>
+                    <div class="paytable-payout">10x</div>
+                </div>
+                <div class="paytable-item">
+                    <div class="paytable-symbols">🍇🍇🍇</div>
+                    <div class="paytable-payout">8x</div>
+                </div>
+                <div class="paytable-item">
+                    <div class="paytable-symbols">⭐⭐⭐</div>
+                    <div class="paytable-payout">5x</div>
+                </div>
+                <div class="paytable-item">
+                    <div class="paytable-symbols">🔔🔔🔔</div>
+                    <div class="paytable-payout">3x</div>
+                </div>
+                <div class="paytable-item">
+                    <div class="paytable-symbols">🍒🍒 (Any)</div>
+                    <div class="paytable-payout">2x</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        const symbols = ['🍒', '🍋', '🍊', '🍇', '⭐', '🔔', '💎'];
+        const symbolWeights = {
+            '🍒': 30,  // Common
+            '🍋': 25,
+            '🍊': 20,
+            '🍇': 15,
+            '⭐': 8,
+            '🔔': 5,
+            '💎': 2    // Rare
+        };
+
+        let state = {
+            balance: 0,
+            spinning: false,
+            coinsLoaded: false
+        };
+
+        // Request coins from parent on load
+        window.parent.postMessage({ type: 'getCoins' }, '*');
+
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'coinsData') {
+                state.balance = event.data.coins;
+                state.coinsLoaded = true;
+                document.getElementById('balance').textContent = state.balance;
+            }
+        });
+
+        function updateParentCoins() {
+            console.log('Updating parent coins to:', state.balance);
+            window.parent.postMessage({
+                type: 'updateCoins',
+                coins: state.balance
+            }, '*');
+            document.getElementById('balance').textContent = state.balance;
+        }
+
+        function getWeightedSymbol() {
+            const totalWeight = Object.values(symbolWeights).reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+            
+            for (const [symbol, weight] of Object.entries(symbolWeights)) {
+                random -= weight;
+                if (random <= 0) return symbol;
+            }
+            return symbols[0];
+        }
+
+        function initReels() {
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                let html = '';
+                for (let j = 0; j < 20; j++) {
+                    html += `<div class="symbol">${getWeightedSymbol()}</div>`;
+                }
+                reel.innerHTML = html;
+            }
+        }
+
+        function setBet(amount) {
+            document.getElementById('betAmount').value = amount;
+        }
+
+        function spin() {
+            if (!state.coinsLoaded) {
+                showMessage('Loading balance...', 2000, 'lose');
+                return;
+            }
+
+            if (state.spinning) return;
+
+            const betAmount = parseInt(document.getElementById('betAmount').value);
+            
+            if (betAmount <= 0) {
+                showMessage('Enter valid bet!', 2000, 'lose');
+                return;
+            }
+
+            if (betAmount > state.balance) {
+                showMessage('Insufficient balance!', 2000, 'lose');
+                return;
+            }
+
+            state.spinning = true;
+            document.getElementById('spinBtn').disabled = true;
+            document.getElementById('resultDisplay').innerHTML = '';
+
+            // Deduct bet
+            state.balance -= betAmount;
+            updateParentCoins();
+
+            // Generate final symbols
+            const finalSymbols = [
+                getWeightedSymbol(),
+                getWeightedSymbol(),
+                getWeightedSymbol()
+            ];
+
+            // Spin each reel
+            const spinDurations = [2000, 2500, 3000];
+            const reelsFinished = [false, false, false];
+
+            for (let i = 1; i <= 3; i++) {
+                const reel = document.getElementById(`reel${i}`);
+                const symbolIndex = i - 1;
+                
+                // Create new reel content with final symbol at specific position
+                let html = '';
+                for (let j = 0; j < 20; j++) {
+                    html += `<div class="symbol">${j === 15 ? finalSymbols[symbolIndex] : getWeightedSymbol()}</div>`;
+                }
+                reel.innerHTML = html;
+
+                // Animate
+                let position = 0;
+                const interval = setInterval(() => {
+                    position -= 20;
+                    reel.style.top = position + 'px';
+                }, 50);
+
+                setTimeout(() => {
+                    clearInterval(interval);
+                    // Stop at final position
+                    reel.style.top = '-2700px'; // Position to show symbol at index 15
+                    reelsFinished[symbolIndex] = true;
+
+                    // Check if all reels finished
+                    if (reelsFinished.every(f => f)) {
+                        setTimeout(() => {
+                            checkWin(finalSymbols, betAmount);
+                        }, 500);
+                    }
+                }, spinDurations[i - 1]);
+            }
+        }
+
+        function checkWin(symbols, betAmount) {
+            let winAmount = 0;
+            let winMessage = '';
+
+            // Check for three of a kind
+            if (symbols[0] === symbols[1] && symbols[1] === symbols[2]) {
+                const symbol = symbols[0];
+                let multiplier = 0;
+
+                switch(symbol) {
+                    case '💎': multiplier = 50; winMessage = '🎉 JACKPOT! Three Diamonds! 🎉'; break;
+                    case '🍒': multiplier = 20; winMessage = '🍒 Three Cherries! 🍒'; break;
+                    case '🍋': multiplier = 15; winMessage = '🍋 Three Lemons! 🍋'; break;
+                    case '🍊': multiplier = 10; winMessage = '🍊 Three Oranges! 🍊'; break;
+                    case '🍇': multiplier = 8; winMessage = '🍇 Three Grapes! 🍇'; break;
+                    case '⭐': multiplier = 5; winMessage = '⭐ Three Stars! ⭐'; break;
+                    case '🔔': multiplier = 3; winMessage = '🔔 Three Bells! 🔔'; break;
+                }
+
+                winAmount = betAmount * multiplier;
+            }
+            // Check for two cherries
+            else if (symbols.filter(s => s === '🍒').length >= 2) {
+                winAmount = betAmount * 2;
+                winMessage = '🍒 Two Cherries! 🍒';
+            }
+
+            if (winAmount > 0) {
+                state.balance += winAmount;
+                updateParentCoins();
+                
+                const resultDisplay = document.getElementById('resultDisplay');
+                resultDisplay.innerHTML = `<div class="result-message win">${winMessage}<br>You win $${winAmount}!</div>`;
+                
+                showMessage(`YOU WIN $${winAmount}! 🎉`, 3000, 'win');
+            } else {
+                const resultDisplay = document.getElementById('resultDisplay');
+                resultDisplay.innerHTML = `<div class="result-message lose">No match. Try again!</div>`;
+                
+                showMessage(`Better luck next time!`, 2000, 'lose');
+            }
+
+            state.spinning = false;
+            document.getElementById('spinBtn').disabled = false;
+        }
+
+        function showMessage(text, duration, type) {
+            const msg = document.getElementById('message');
+            msg.textContent = text;
+            msg.className = 'message show ' + type;
+            setTimeout(() => {
+                msg.classList.remove('show');
+            }, duration);
+        }
+
+        function toggleRules() {
+            const modal = document.getElementById('rulesModal');
+            modal.classList.toggle('show');
+        }
+
+        // Initialize
+        initReels();
+    </script>
+</body>
+</html>
