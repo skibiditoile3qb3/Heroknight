@@ -552,7 +552,7 @@
             ];
 
             // Spin each reel
-            const spinDurations = [2000, 2500, 3000];
+            const spinDurations = [1200, 1500, 1800];
             const reelsFinished = [false, false, false];
 
             for (let i = 1; i <= 3; i++) {
@@ -569,9 +569,9 @@
                 // Animate
                 let position = 0;
                 const interval = setInterval(() => {
-                    position -= 20;
+                    position -= 30;
                     reel.style.top = position + 'px';
-                }, 50);
+                }, 30);
 
                 setTimeout(() => {
                     clearInterval(interval);
@@ -621,14 +621,10 @@
                 updateParentCoins();
                 
                 const resultDisplay = document.getElementById('resultDisplay');
-                resultDisplay.innerHTML = `<div class="result-message win">${winMessage}<br>You win $${winAmount}!</div>`;
-                
-                showMessage(`YOU WIN $${winAmount}! 🎉`, 3000, 'win');
+                resultDisplay.innerHTML = `<div class="result-message win">${winMessage}<br>You win ${winAmount}!</div>`;
             } else {
                 const resultDisplay = document.getElementById('resultDisplay');
                 resultDisplay.innerHTML = `<div class="result-message lose">No match. Try again!</div>`;
-                
-                showMessage(`Better luck next time!`, 2000, 'lose');
             }
 
             state.spinning = false;
