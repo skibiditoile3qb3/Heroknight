@@ -215,38 +215,43 @@
             height: 500px;
             border-radius: 50%;
             background: conic-gradient(
-                #e53935 0deg 11.25deg,
-                #000 11.25deg 22.5deg,
-                #e53935 22.5deg 33.75deg,
-                #000 33.75deg 45deg,
-                #e53935 45deg 56.25deg,
-                #000 56.25deg 67.5deg,
-                #e53935 67.5deg 78.75deg,
-                #000 78.75deg 90deg,
-                #e53935 90deg 101.25deg,
-                #000 101.25deg 112.5deg,
-                #e53935 112.5deg 123.75deg,
-                #000 123.75deg 135deg,
-                #e53935 135deg 146.25deg,
-                #000 146.25deg 157.5deg,
-                #e53935 157.5deg 168.75deg,
-                #000 168.75deg 180deg,
-                #e53935 180deg 191.25deg,
-                #000 191.25deg 202.5deg,
-                #e53935 202.5deg 213.75deg,
-                #000 213.75deg 225deg,
-                #e53935 225deg 236.25deg,
-                #000 236.25deg 247.5deg,
-                #e53935 247.5deg 258.75deg,
-                #000 258.75deg 270deg,
-                #e53935 270deg 281.25deg,
-                #000 281.25deg 292.5deg,
-                #e53935 292.5deg 303.75deg,
-                #000 303.75deg 315deg,
-                #e53935 315deg 326.25deg,
-                #000 326.25deg 337.5deg,
-                #e53935 337.5deg 348.75deg,
-                #000 348.75deg 360deg
+                #e53935 0deg 9.73deg,
+                #000 9.73deg 19.46deg,
+                #e53935 19.46deg 29.19deg,
+                #000 29.19deg 38.92deg,
+                #e53935 38.92deg 48.65deg,
+                #000 48.65deg 58.38deg,
+                #e53935 58.38deg 68.11deg,
+                #000 68.11deg 77.84deg,
+                #e53935 77.84deg 87.57deg,
+                #000 87.57deg 97.3deg,
+                #e53935 97.3deg 107.03deg,
+                #000 107.03deg 116.76deg,
+                #e53935 116.76deg 126.49deg,
+                #000 126.49deg 136.22deg,
+                #e53935 136.22deg 145.95deg,
+                #000 145.95deg 155.68deg,
+                #e53935 155.68deg 165.41deg,
+                #000 165.41deg 175.14deg,
+                #e53935 175.14deg 185.14deg,
+                #000 185.14deg 194.87deg,
+                #e53935 194.87deg 204.6deg,
+                #000 204.6deg 214.33deg,
+                #e53935 214.33deg 224.06deg,
+                #000 224.06deg 233.79deg,
+                #e53935 233.79deg 243.52deg,
+                #000 243.52deg 253.25deg,
+                #e53935 253.25deg 262.98deg,
+                #000 262.98deg 272.71deg,
+                #e53935 272.71deg 282.44deg,
+                #000 282.44deg 292.17deg,
+                #e53935 292.17deg 301.9deg,
+                #000 301.9deg 311.63deg,
+                #e53935 311.63deg 321.36deg,
+                #000 321.36deg 331.09deg,
+                #e53935 331.09deg 340.82deg,
+                #000 340.82deg 350.55deg,
+                #e53935 350.55deg 360deg
             );
             border: 25px solid #8b7355;
             box-shadow: 0 0 40px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.4);
@@ -857,6 +862,17 @@
 
             // Spin animation - smoother with ease-out
             const wheel = document.getElementById('wheel');
+            
+            // Reset wheel to 0 before spinning
+            const currentRotation = parseFloat(wheel.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            
+            // Force reflow
+            wheel.offsetHeight;
+            
+            // Now spin to target
+            wheel.style.transition = 'transform 5s ease-out';
             const degreesPerNumber = 360 / 37;
             const targetRotation = 1800 + (winningNumber * degreesPerNumber);
             wheel.style.transform = `rotate(${targetRotation}deg)`;
