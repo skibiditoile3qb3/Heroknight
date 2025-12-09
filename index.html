@@ -292,7 +292,7 @@
             const input = document.getElementById('passwordInput').value;
             if (input === ky) {
                 document.getElementById('passwordScreen').style.display = 'none';
-                localStorage.getItem('good') === '1'
+                localStorage.setItem('good', '1')
                 document.getElementById('mainView').style.display = 'flex';
                 return true;
             } else {
