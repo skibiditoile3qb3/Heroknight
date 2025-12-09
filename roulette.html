@@ -855,27 +855,29 @@
             }, 4000);
         }
 
-        function displayResult(number) {
-            const resultDisplay = document.getElementById('resultDisplay');
-            const wheelNumber = document.getElementById('wheelNumber');
-            
-            let color = 'green';
-            let colorName = 'Green';
-            
-            if (number === 0) {
-                color = 'green';
-                colorName = 'Green';
-            } else if (redNumbers.includes(number)) {
-                color = 'red';
-                colorName = 'Red';
-            } else if (blackNumbers.includes(number)) {
-                color = 'black';
-                colorName = 'Black';
-            }
-            
-            resultDisplay.innerHTML = `<div class="result-number ${color}">${number} ${colorName}</div>`;
-            wheelNumber.textContent = number;
-        }
+function displayResult(number) {
+    const resultDisplay = document.getElementById('resultDisplay');
+    const wheelNumber = document.getElementById('wheelNumber');
+    
+    let color, colorName;
+    
+    if (number === 0) {
+        color = 'green';
+        colorName = 'Green';
+    } else if (redNumbers.includes(number)) {
+        color = 'red';
+        colorName = 'Red';
+    } else {
+        // If it's not 0 and not red, it MUST be black
+        color = 'black';
+        colorName = 'Black';
+    }
+    
+    console.log(`Number: ${number}, Color: ${colorName}`);
+    
+    resultDisplay.innerHTML = `<div class="result-number ${color}">${number} - ${colorName}</div>`;
+    wheelNumber.textContent = number;
+}
 
         function calculateWinnings(winningNumber) {
             let totalWinnings = 0;
