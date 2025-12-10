@@ -299,6 +299,8 @@
             <div class="search-container">
                 <input type="text" id="searchBox" placeholder="Search games...">
                 <button id="allBtn">ALL</button>
+                <button id="shopBtn" style="background: #38a169; border: 1px solid #2f855a;">SHOP 🛒</button>
+                <button id="hofBtn" style="background: #805ad5; border: 1px solid #6b46c1;">HALL OF FAME 🏆</button>
                 <button id="minesBtn" style="background: #d69e2e; border: 1px solid #b7791f;">MINES 💎</button>
                 <button id="blackjackBtn" style="background: #c53030; border: 1px solid #9b2c2c;">BLACKJACK ♠️</button>
                 <button id="pokerBtn" style="background: #38a169; border: 1px solid #2f855a;">POKER 🃏</button>
@@ -385,7 +387,7 @@
         let isAdmin = false;
         const games = ["2048","4th-and-goal-2022","8-ball-pool","a-small-world-cup","among-us","apple-shooter","aquapark.io","arcade-car-driving","archery","awesome-tanks-2","awesome-tanks-2s","axis-football","backyard-baseball","backyard-football","bad-ice-cream-2","bad-ice-cream-3","bad-ice-cream","baldi-s-basics","baseball-9","baseball-bros","basket-champs","basket-random","basketball-legends","basketball-stars","big-shot-boxing","bit-life","blackjack","block-blast","block-breaker","bottle-flip","boxing-random","bubble-shooter","car-game-simulator","car-parking","car-traffic-racing","cheese-chompers-3d","chess","classic-uno","cluster-rush","color-tunnel","cookie-clicker","coreball","crazy-cattle-3d","crossy-road","dig-to-china","dino-game","dinosaur-game","doodle-baseball","doodle-cricket","doodle-jump-christmas","doodle-jump","dragon-ball-z","dragon-simulator-3d","dreadhead-parkour","drift-boss","drift-hunters","drive-mad","eaglercraft-1.8", "eaglercraft","easy-chess","eggy-car","escape-road","fireboy-and-watergirl","five-nights-at-freddy","flappy-bird","flappy-dunk","flying-gorilla","fnaf-2","football-us","friday-night-funkin","fruit-merge","funny-shooter-2","g-switch","geometry-dash-lite","getaway-shootout","granny-2","gunspin2","happy-wheels","hexanaut.io","highway-rider-extreme","highway-traffic","hill-climb-racing","house-of-hazards","idle-breakout","idle-dice","jelly-truck","level-devil","little-alchemy-2","little-alchemy","madalin-stunt-cars-2","make-it-meme","minesweeper","monkey-mart","moto-x3m-4-winter","moto-x3m-5-pool-party","moto-x3m-6-spooky-land","moto-x3m","murder","need-for-speed-dirft-car","ovo-2","ovo","papa-s-burgeria","papa-s-pancakeria","papa-s-scooperia","papas-freezeria","papas-pizzeria","paper-io","paper.io-2","paper.io","parking-fury","penalty-kick-online","penalty-kick","ping-pong-chaos","pixel-shooter","pizza-tower","polytrack","poodle-jump","poop-clicker","raft-wars","ragdoll-archers","ragdoll-hit","real-flight","retro-bowl","rocket-soccer-derby","rooftop-sniper","rooftop-snipers","run-3","sbrunga","scifi-flight-simulator","short-life","slice-master","slope-2","slope-3","slope-ball","slope-multiplayer","slope-run","slope","smash-karts","snake.io","sniper-rifle-shooting","snow-rider3d","snowball.io","soccer-bros","soccer-legends","space-waves","spacebar-clicker","speed-stars","sprinter","sprunki-1999","sprunki-2004","sprunki-cendi","sprunki-corruption","sprunki-italian-brainrot","sprunki-ketchup","sprunki-phase-21","sprunki-swap-retextured","sprunki-the-trevor-mod","sprunki-warm","squidgame3d","stick-fighter","stickman-archero-fight","stickman-hook","strite-football-game","subway-surfers","survival-race","swingo","tag","tall-man-run","tank-trouble","tanuki-sunset","tap-road","tap-tap-shots","temple-run-2","10-minutes-till-dawn","tic-tac-toe","time-shooter-2","time-shooter-3","tiny-fishing","toca-boca","tomb-of-the-mask","tomb-of-the-masks","traffic-jam-3d","traffic-rush","tunnel-rush","unicycle-hero","vex-3","vex4","vex5","vex6","whack-your-neighbor","wheelie-bike","wordle-unlimited","wordle","world-war-2","worlds-hardest-game","wrestle-bros"];
 
-        const lockedGames = ['stick-fighter', '10-minutes-till-dawn', 'slope-multiplayer', 'poker'];
+        const lockedGames = ['stick-fighter', '10-minutes-till-dawn', 'slope-multiplayer', 'poker', 'escape-road', 'baldi-s-basics', 'plinko'];
 
         const _0x4a2b = (s) => btoa(s).split('').reverse().join('');
         const _0x2b4a = (s) => atob(s.split('').reverse().join(''));
@@ -603,30 +605,44 @@
             }
             isActive = false;
         }, 1000);
+function showAd() {
+    const overlay = document.getElementById('adOverlay');
+    const skipBtn = document.getElementById('skipAdBtn');
+    const countdown = document.getElementById('adCountdown');
+    const gameFrame = document.getElementById('gameFrame');
 
-        function showAd() {
-            const overlay = document.getElementById('adOverlay');
-            const skipBtn = document.getElementById('skipAdBtn');
-            const countdown = document.getElementById('adCountdown');
-            const gameFrame = document.getElementById('gameFrame');
-            
-            overlay.classList.add('show');
-            skipBtn.style.display = 'none';
-            gameFrame.style.pointerEvents = 'none';
-            
-            let timeLeft = 5;
-            countdown.textContent = timeLeft;
-            
-            const adInterval = setInterval(() => {
-                timeLeft--;
-                countdown.textContent = timeLeft;
-                
-                if (timeLeft <= 0) {
-                    clearInterval(adInterval);
-                    skipBtn.style.display = 'block';
-                }
-            }, 1000);
+    const adMessages = [
+        { title: '💛 Support the Creator!', text: 'Thanks for playing! Your support means everything.' },
+        { title: '🔔 Don\'t Forget to Donate Money!', text: 'Stay updated with new games and features.' },
+        { title: '⭐ Enjoying the Game?', text: 'Share it with your friends and spread the fun!' },
+        { title: '🎮 Keep Playing!', text: 'Every minute you play helps support development.' },
+        { title: '🤑 Tip: Every 2 minutes you play you get 10 coins!', text: 'Every minute you play helps support development.' }
+    ];
+    
+    const randomAd = adMessages[Math.floor(Math.random() * adMessages.length)];
+    
+    document.querySelector('.ad-content h2').textContent = randomAd.title;
+    document.querySelector('.ad-content p').textContent = randomAd.text;
+    
+    overlay.classList.add('show');
+    skipBtn.style.display = 'none';
+    gameFrame.style.pointerEvents = 'none';
+
+    
+    let timeLeft = Math.random() < 0.75 ? 5 : 10;
+    countdown.textContent = timeLeft;
+    
+    const adInterval = setInterval(() => {
+        timeLeft--;
+        countdown.textContent = timeLeft;
+        
+        if (timeLeft <= 0) {
+            clearInterval(adInterval);
+            skipBtn.style.display = 'block';
         }
+    }, 1000);
+}
+
 
         document.getElementById('skipAdBtn').addEventListener('click', () => {
             document.getElementById('adOverlay').classList.remove('show');
@@ -722,7 +738,7 @@
             
             if (game === 'mines') {
                 document.getElementById('gameFrame').src = 'mines.html';
-            } else if (game === 'blackjack') {
+            } else if (game === 'blackjack2') {
                 document.getElementById('gameFrame').src = 'blackjack.html';
             } else if (game === 'poker') {
                 document.getElementById('gameFrame').src = 'poker.html';
@@ -775,7 +791,7 @@
         });
 
         document.getElementById('blackjackBtn').addEventListener('click', () => {
-            loadGame('blackjack');
+            loadGame('blackjack2');
         });
 
         document.getElementById('pokerBtn').addEventListener('click', () => {
@@ -826,25 +842,24 @@
             }
         });
 
-        document.getElementById('devInput').addEventListener('input', (e) => {
-            const code = e.target.value;
-            if (code === '**9p') {
-                coins += 100;
-                setCoins(coins);
-                updateCoinDisplay();
-                e.target.value = '';
-            } else if (code === '**8p') {
-                isAdmin = true; 
-                document.getElementById('adminPanel').style.display = 'block';
-                e.target.value = '';
-            } else if (code === '**7p') {
-                userProfile.adsDisabled = true;
-                saveUserProfile(userProfile);
-                alert('✅ Ads disabled!');
-                e.target.value = '';
-            }
-        });
-
+document.getElementById('devInput').addEventListener('input', (e) => {
+    const code = e.target.value;
+    if (code === 'abcd') {
+        coins += 100;
+        setCoins(coins);
+        updateCoinDisplay();
+        e.target.value = '';
+    } else if (code === 'efgh') {
+        isAdmin = true; 
+        document.getElementById('adminPanel').style.display = 'block';
+        e.target.value = '';
+    } else if (code === 'ijkl') {
+        userProfile.adsDisabled = !userProfile.adsDisabled;
+        saveUserProfile(userProfile);
+        alert(userProfile.adsDisabled ? '✅ Ads disabled!' : '✅ Ads enabled!');
+        e.target.value = '';
+    }
+});
         document.getElementById('getSeedBtn').addEventListener('click', () => {
             const seed = getCurrentSeed();
             const obfuscated = obfuscateSeedUser(seed);
@@ -925,6 +940,13 @@
                 alert('❌ ' + result.message);
             }
         });
+        document.getElementById('shopBtn').addEventListener('click', () => {
+    window.location.href = 'shop.html';
+});
+
+document.getElementById('hofBtn').addEventListener('click', () => {
+    window.location.href = 'hof.html';
+});
     </script>
 </body>
 </html>
