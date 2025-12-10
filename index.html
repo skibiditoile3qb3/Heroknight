@@ -183,13 +183,13 @@
             width: 100vw;
             height: 100vh;
             background: #000;
-            z-index: 1000;
+            z-index: 100;
         }
         #backBtn {
             position: fixed;
             top: 15px;
             left: 15px;
-            z-index: 1001;
+            z-index: 10000;
             padding: 10px 20px;
         }
         #gameFrame {
@@ -204,8 +204,8 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background: rgba(0,0,0,0.95);
-            z-index: 2000;
+            background: rgba(0,0,0,0.98);
+            z-index: 9999;
             align-items: center;
             justify-content: center;
             flex-direction: column;
@@ -608,9 +608,11 @@
             const overlay = document.getElementById('adOverlay');
             const skipBtn = document.getElementById('skipAdBtn');
             const countdown = document.getElementById('adCountdown');
+            const gameFrame = document.getElementById('gameFrame');
             
             overlay.classList.add('show');
             skipBtn.style.display = 'none';
+            gameFrame.style.pointerEvents = 'none';
             
             let timeLeft = 5;
             countdown.textContent = timeLeft;
@@ -628,6 +630,7 @@
 
         document.getElementById('skipAdBtn').addEventListener('click', () => {
             document.getElementById('adOverlay').classList.remove('show');
+            document.getElementById('gameFrame').style.pointerEvents = 'auto';
         });
 
         function levenshtein(a, b) {
