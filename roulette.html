@@ -738,7 +738,7 @@
     <script>
         const redNumbers = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
         const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
-
+        const wheelLayout = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
         let state = {
             balance: 0,
             bets: [],
@@ -839,54 +839,80 @@
         }
 
         function spin() {
-            if (state.spinning || state.bets.length === 0) return;
+    if (state.spinning || state.bets.length === 0) return;
 
-            const totalBet = state.bets.reduce((sum, bet) => sum + bet.amount, 0);
-            
-            if (totalBet > state.balance) {
-                showMessage('Insufficient balance!', 2000, 'lose');
-                return;
-            }
+    const totalBet = state.bets.reduce((sum, bet) => sum + bet.amount, 0);
+    
+    if (totalBet > state.balance) {
+        showMessage('Insufficient balance!', 2000, 'lose');
+        return;
+    }
 
-            state.spinning = true;
-            document.getElementById('spinBtn').disabled = true;
-            document.getElementById('clearBtn').disabled = true;
+    state.spinning = true;
+    document.getElementById('spinBtn').disabled = true;
+    document.getElementById('clearBtn').disabled = true;
 
-            // Deduct bet amount
-            state.balance -= totalBet;
+    // Deduct bet amount
+    state.balance -= totalBet;
+    updateParentCoins();
+
+    // Calculate winning number FIRST
+    const winningNumber = Math.floor(Math.random() * 37); // 0-36
+
+    // Find which section this number is in on the wheel
+    const sectionIndex = wheelLayout.indexOf(winningNumber);
+    
+    // Calculate the angle for this section (each section is 9.73 degrees)
+    const degreesPerSection = 360 / 37;
+    const baseAngle = sectionIndex * degreesPerSection;
+    
+    // Add random offset within the section (0 to 9.73 degrees)
+    const randomOffset = Math.random() * degreesPerSection;
+    const finalAngle = baseAngle + randomOffset;
+    
+    // Spin animation
+    const wheel = document.getElementById('wheel');
+    
+    // Reset wheel to 0 before spinning
+    wheel.style.transition = 'none';
+    wheel.style.transform = 'rotate(0deg)';
+    
+    // Force reflow
+    wheel.offsetHeight;
+    
+    // Now spin to target (add extra rotations for effect)
+    wheel.style.transition = 'transform 5s ease-out';
+    const targetRotation = 1800 + finalAngle; // 5 full rotations + target angle
+    wheel.style.transform = `rotate(${targetRotation}deg)`;
+    
+    setTimeout(() => {
+        displayResult(winningNumber);
+        const winnings = calculateWinnings(winningNumber);
+        
+        if (winnings > 0) {
+            state.balance += winnings;
             updateParentCoins();
+            showMessage(`🎉 YOU WIN $${winnings}! 🎉`, 3000, 'win');
+        } else {
+            showMessage(`You lost $${totalBet}`, 2000, 'lose');
+        }
 
-            // Calculate winning number FIRST
-            const winningNumber = Math.floor(Math.random() * 37); // 0-36
-
-            // Spin animation - smoother with ease-out
-            const wheel = document.getElementById('wheel');
-            
-            // Reset wheel to 0 before spinning
-            const currentRotation = parseFloat(wheel.style.transform.replace('rotate(', '').replace('deg)', '')) || 0;
+        state.bets = [];
+        updateBetDisplay();
+        
+        state.spinning = false;
+        document.getElementById('clearBtn').disabled = false;
+        
+        // Reset wheel rotation for next spin
+        setTimeout(() => {
             wheel.style.transition = 'none';
             wheel.style.transform = 'rotate(0deg)';
-            
-            // Force reflow
-            wheel.offsetHeight;
-            
-            // Now spin to target
-            wheel.style.transition = 'transform 5s ease-out';
-            const degreesPerNumber = 360 / 37;
-            const targetRotation = 1800 + (winningNumber * degreesPerNumber);
-            wheel.style.transform = `rotate(${targetRotation}deg)`;
-            
             setTimeout(() => {
-                displayResult(winningNumber);
-                const winnings = calculateWinnings(winningNumber);
-                
-                if (winnings > 0) {
-                    state.balance += winnings;
-                    updateParentCoins();
-                    showMessage(`🎉 YOU WIN ${winnings}! 🎉`, 3000, 'win');
-                } else {
-                    showMessage(`You lost ${totalBet}`, 2000, 'lose');
-                }
+                wheel.style.transition = 'transform 5s ease-out';
+            }, 50);
+        }, 100);
+    }, 5000);
+}
 
                 state.bets = [];
                 updateBetDisplay();
