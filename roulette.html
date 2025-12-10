@@ -740,24 +740,34 @@
         const blackNumbers = [2, 4, 6, 8, 10, 11, 13, 15, 17, 20, 22, 24, 26, 28, 29, 31, 33, 35];
         const wheelLayout = [0, 32, 15, 19, 4, 21, 2, 25, 17, 34, 6, 27, 13, 36, 11, 30, 8, 23, 10, 5, 24, 16, 33, 1, 20, 14, 31, 9, 22, 18, 29, 7, 28, 12, 35, 3, 26];
         
-        let state = {
-            balance: 0,
-            bets: [],
-            spinning: false,
-            coinsLoaded: false
-        };
+let state = {
+    balance: 1000, // Default to 1000
+    bets: [],
+    spinning: false,
+    coinsLoaded: false,
+    currentRotation: 0
+};
 
-        // Request coins from parent on load
-        window.parent.postMessage({ type: 'getCoins' }, '*');
+// Request coins from parent on load
+window.parent.postMessage({ type: 'getCoins' }, '*');
 
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'coinsData') {
-                state.balance = event.data.coins;
-                state.coinsLoaded = true;
-                document.getElementById('balance').textContent = state.balance;
-            }
-        });
+// Set a timeout to use default balance if no response
+setTimeout(() => {
+    if (!state.coinsLoaded) {
+        state.balance = 1000;
+        state.coinsLoaded = true;
+        document.getElementById('balance').textContent = state.balance;
+        console.log('Using default balance of 1000');
+    }
+}, 1000); // Wait 1 second for parent response
 
+window.addEventListener('message', (event) => {
+    if (event.data.type === 'coinsData') {
+        state.balance = event.data.coins;
+        state.coinsLoaded = true;
+        document.getElementById('balance').textContent = state.balance;
+    }
+});
         function updateParentCoins() {
             console.log('Updating parent coins to:', state.balance);
             window.parent.postMessage({
@@ -874,16 +884,23 @@ function spin() {
     // Spin animation
     const wheel = document.getElementById('wheel');
     
+    // Reset to current position WITHOUT transition
+    wheel.style.transition = 'none';
+    wheel.style.transform = `rotate(${state.currentRotation}deg)`;
+    
+    // Force reflow
+    wheel.offsetHeight;
+    
     // Calculate new target rotation (add 5 full rotations + reach the target angle)
     const currentNormalized = state.currentRotation % 360;
     const angleDiff = (finalAngle - currentNormalized + 360) % 360;
     const newRotation = state.currentRotation + 1800 + angleDiff;
     
-    // Now spin to target
+    // Now spin to target WITH transition
     wheel.style.transition = 'transform 5s ease-out';
     wheel.style.transform = `rotate(${newRotation}deg)`;
     
-    // Update current rotation immediately
+    // Update current rotation
     state.currentRotation = newRotation;
     
     setTimeout(() => {
