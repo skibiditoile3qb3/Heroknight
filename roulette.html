@@ -882,14 +882,12 @@ function spin() {
     wheel.offsetHeight;
     
     // Calculate new target rotation (add 5 full rotations + reach the target angle)
-    const newRotation = state.currentRotation + 1800 + (finalAngle - (state.currentRotation % 360));
+    const currentNormalized = state.currentRotation % 360;
+    const newRotation = state.currentRotation + 1800 + (finalAngle - currentNormalized + 360) % 360;
     
     // Now spin to target
     wheel.style.transition = 'transform 5s ease-out';
     wheel.style.transform = `rotate(${newRotation}deg)`;
-    
-    // Update current rotation
-    state.currentRotation = newRotation;
     
     setTimeout(() => {
         displayResult(winningNumber);
@@ -908,6 +906,9 @@ function spin() {
         
         state.spinning = false;
         document.getElementById('clearBtn').disabled = false;
+        
+        // Update current rotation to the normalized final position
+        state.currentRotation = newRotation;
     }, 5000);
 }
 
