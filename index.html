@@ -208,8 +208,10 @@
             z-index: 99999;
         }
         #adOverlay.show {
-            display: block;
-        }
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 .ad-content {
     text-align: center;
     padding: 50px 60px;
@@ -568,6 +570,7 @@
         let totalActiveTime = getTotalActiveTime();
         let isActive = false;
         let activityCheckInterval;
+        let adIntervalTime = 180000; // Add this line
 
         function updateCoinDisplay() {
             document.getElementById('coinAmount').textContent = coins;
@@ -597,7 +600,7 @@
                     updateCoinDisplay();
                 }
 
-                if (!userProfile.adsDisabled && Date.now() - lastAdTime >= 180000) {
+                if (!userProfile.adsDisabled && Date.now() - lastAdTime >= adIntervalTime) {
                     showAd();
                     lastAdTime = Date.now();
                 }
