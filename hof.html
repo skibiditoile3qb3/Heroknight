@@ -63,21 +63,20 @@
             border-color: #b7791f;
             box-shadow: 0 10px 30px rgba(214, 158, 46, 0.3);
         }
-.legend-img {
-    width: 150px;
-    height: 150px;
-    border-radius: 50%;
-    background: #252525;
-    margin: 0 auto 20px;
-    border: 3px solid #d69e2e;
-    overflow: hidden;
-}
-
-.legend-img img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
+        .legend-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: #252525;
+            margin: 0 auto 20px;
+            border: 3px solid #d69e2e;
+            overflow: hidden;
+        }
+        .legend-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
         .legend-card h2 {
             font-size: 28px;
             margin-bottom: 10px;
@@ -135,6 +134,60 @@
         .close-modal:hover {
             background: #b7791f;
         }
+        .how-to-join {
+            margin-top: 60px;
+            padding: 40px;
+            background: #1a1a1a;
+            border: 2px solid #333;
+            border-radius: 12px;
+        }
+        .how-to-join h2 {
+            text-align: center;
+            color: #d69e2e;
+            font-size: 32px;
+            margin-bottom: 40px;
+        }
+        .criteria-list {
+            display: grid;
+            gap: 25px;
+        }
+        .criteria-item {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+            background: #0a0a0a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+        .criteria-item:hover {
+            border-color: #d69e2e;
+            transform: translateX(10px);
+        }
+        .criteria-icon {
+            font-size: 40px;
+            flex-shrink: 0;
+        }
+        .criteria-text h3 {
+            color: #fff;
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+        .criteria-text p {
+            color: #aaa;
+            font-size: 14px;
+        }
+        .join-note {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            background: #0a0a0a;
+            border: 1px solid #d69e2e;
+            border-radius: 8px;
+            color: #d69e2e;
+            font-size: 16px;
+        }
     </style>
 </head>
 <body>
@@ -143,21 +196,56 @@
         <h1>🏆 HALL OF FAME</h1>
         
         <div class="legends-grid">
-        <div class="legend-card" onclick="showModal('jiles')">
-            <div class="legend-img">
-                <img src="media/placeholder.png" alt="Jiles">
+            <div class="legend-card" onclick="showModal('jiles')">
+                <div class="legend-img">
+                    <img src="media/placeholder.png" alt="Jiles">
+                </div>
+                <h2>Jiles</h2>
+                <div class="subtitle">Click to learn more</div>
             </div>
-            <h2>Jiles</h2>
-            <div class="subtitle">Click to learn more</div>
+            
+            <div class="legend-card" onclick="showModal('aden')">
+                <div class="legend-img">
+                    <img src="media/aden.png" alt="Aden">
+                </div>
+                <h2>Aden</h2>
+                <div class="subtitle">Click to learn more</div>
+            </div>
         </div>
         
-        <div class="legend-card" onclick="showModal('aden')">
-            <div class="legend-img">
-                <img src="media/aden.png" alt="Aden">
+        <div class="how-to-join">
+            <h2>✨ How to Join the Hall of Fame</h2>
+            <div class="criteria-list">
+                <div class="criteria-item">
+                    <span class="criteria-icon">🎮</span>
+                    <div class="criteria-text">
+                        <h3>Be an Active Player</h3>
+                        <p>don't have a skill issue</p>
+                    </div>
+                </div>
+                <div class="criteria-item">
+                    <span class="criteria-icon">💎</span>
+                    <div class="criteria-text">
+                        <h3>Support the Project</h3>
+                        <p>AKA give money to me</p>
+                    </div>
+                </div>
+                <div class="criteria-item">
+                    <span class="criteria-icon">🤝</span>
+                    <div class="criteria-text">
+                        <h3>Be a Positive Community Member</h3>
+                        <p>Be very kind and respectful.</p>
+                    </div>
+                </div>
+                <div class="criteria-item">
+                    <span class="criteria-icon">🏆</span>
+                    <div class="criteria-text">
+                        <h3>Achieve Greatness</h3>
+                        <p>have achieved something before.</p>
+                    </div>
+                </div>
             </div>
-            <h2>Aden</h2>
-            <div class="subtitle">Click to learn more</div>
-        </div>
+            <p class="join-note">Think you have what it takes? Contact an admin to nominate yourself or others!</p>
         </div>
     </div>
 
@@ -177,7 +265,7 @@
             },
             aden: {
                 name: 'Aden',
-                description: 'Aden is a master strategist and kind admin, constantly pushing the boundaries of what\'s possible. He is also a kitten.'
+                description: 'Aden is a master strategist and kind admin, constantly pushing the boundaries of what\'s possible. He is also an e-kitten.'
             }
         };
 
