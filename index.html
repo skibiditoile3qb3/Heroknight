@@ -856,32 +856,38 @@ document.getElementById('skipAdBtn').addEventListener('click', () => {
         });
 
         document.getElementById('devInput').addEventListener('input', (e) => {
-            const code = e.target.value;
-            if (code === 'abcd') {
-                coins += 100;
-                setCoins(coins);
-                updateCoinDisplay();
-                e.target.value = '';
-            } else if (code === 'efgh') {
-                isAdmin = true; 
-                document.getElementById('adminPanel').style.display = 'block';
-                e.target.value = '';
-            } else if (code === 'ijkl') {
-                userProfile.adsDisabled = !userProfile.adsDisabled;
-                saveUserProfile(userProfile);
-                if (!userProfile.adsDisabled) {
-                    lastAdTime = Date.now(); // Reset ad timer when re-enabling
-                }
-                alert(userProfile.adsDisabled ? '✅ Ads disabled!' : '✅ Ads enabled!');
-                e.target.value = '';
-            } else if (code === 'mnop') {
-                adIntervalTime = 10000; // 10 seconds
-                lastAdTime = Date.now(); // Reset timer when changing interval
-                alert('✅ Ad interval set to 10 seconds!');
-                e.target.value = '';
-            }
-            }
-        });
+    const code = e.target.value;
+
+    if (code === 'abcd') {
+        coins += 100;
+        setCoins(coins);
+        updateCoinDisplay();
+        e.target.value = '';
+
+    } else if (code === 'efgh') {
+        isAdmin = true;
+        document.getElementById('adminPanel').style.display = 'block';
+        e.target.value = '';
+
+    } else if (code === 'ijkl') {
+        userProfile.adsDisabled = !userProfile.adsDisabled;
+        saveUserProfile(userProfile);
+
+        if (!userProfile.adsDisabled) {
+            lastAdTime = Date.now(); // Reset when re-enabling
+        }
+
+        alert(userProfile.adsDisabled ? '✅ Ads disabled!' : '✅ Ads enabled!');
+        e.target.value = '';
+
+    } else if (code === 'mnop') {
+        adIntervalTime = 10000; // 10 seconds
+        lastAdTime = Date.now();
+        alert('✅ Ad interval set to 10 seconds!');
+        e.target.value = '';
+    }
+});
+
 
         document.getElementById('getSeedBtn').addEventListener('click', () => {
             const seed = getCurrentSeed();
