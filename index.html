@@ -1224,7 +1224,11 @@ if (checkAndHandleBan()) {
         lastAdTime = Date.now();
         alert('✅ Ad interval set to 10 seconds!');
         e.target.value = '';
-    }
+    } else if (code === "grantowner") {
+    userProfile.status = 'owner';
+    saveUserProfile(userProfile);
+    updateUserDisplay();
+    e.target.value = '';
 });
 
 
