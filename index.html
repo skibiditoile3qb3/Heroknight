@@ -1316,25 +1316,21 @@ if (result.valid) {
         document.getElementById('coinCodeInput').value = '';
         
     } else if (result.type === 'ban') {
-        console.log('Ban detected!', result);
-        document.getElementById('coinCodeInput').value = '';
-
-        // Get the ban status that was just set
-        const banStatus = checkBanStatus();
-        console.log('Ban status:', banStatus);
-
-        if (banStatus && banStatus.banned) {
-            showBanScreen(banStatus);
-            document.getElementById('mainView').style.pointerEvents = 'none';
-        } else {
-            console.error('Ban status not found after setting ban data');
-        }
+    console.log('Ban detected!', result);
+    document.getElementById('coinCodeInput').value = '';
+    // Get the ban status that was just set
+    const banStatus = checkBanStatus();
+    console.log('Ban status:', banStatus);
+    if (banStatus && banStatus.banned) {
+        showBanScreen(banStatus);
+        document.getElementById('mainView').style.pointerEvents = 'none';
+    } else {
+        console.error('Ban status not found after setting ban data');
     }
-
+}
 } else {
     alert('❌ ' + result.message);
 }
-
 });
         document.getElementById('shopBtn').addEventListener('click', () => {
             window.location.href = 'shop.html';
