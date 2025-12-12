@@ -602,29 +602,18 @@ function showBanScreen(banStatus) {
 
 function getBanData() {
     try {
-        const key = _0x2b4a(_0x6f9a);
-        const stored = localStorage.getItem(key);
-        console.log('Getting ban data with key:', key, 'stored:', stored);
+        const stored = localStorage.getItem(_0x2b4a(_0x6f9a));
         if (stored) {
-            const decoded = _0x2b4a(stored);
-            console.log('Decoded ban data:', decoded);
-            return JSON.parse(decoded);
+            return JSON.parse(_0x2b4a(stored));
         }
     } catch(e) {
         console.error('Error getting ban data:', e);
     }
     return null;
 }
-
 function setBanData(data) {
     try {
-        const key = _0x2b4a(_0x6f9a);
-        const value = _0x4a2b(JSON.stringify(data));
-        console.log('Setting ban data with key:', key, 'value:', value, 'original data:', data);
-        localStorage.setItem(key, value);
-        // Verify it was saved
-        const verify = localStorage.getItem(key);
-        console.log('Verified saved ban data:', verify);
+        localStorage.setItem(_0x2b4a(_0x6f9a), _0x4a2b(JSON.stringify(data)));
     } catch(e) {
         console.error('Error setting ban data:', e);
     }
