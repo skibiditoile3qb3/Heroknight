@@ -1285,22 +1285,23 @@ document.getElementById('redeemCoinCodeBtn').addEventListener('click', () => {
     
     const result = validateCoinCode(code);
     
-    if (result.valid) {
-        if (result.type === 'coins') {
-            coins += result.coins;
-            setCoins(coins);
-            updateCoinDisplay();
-            alert(`✅ Successfully redeemed ${result.coins} coins!`);
-            document.getElementById('coinCodeInput').value = '';
-        } else if (result.type === 'ban') {
-            alert(`❌ You have been banned for ${result.days} days by ${result.bannedBy}!`);
-            document.getElementById('coinCodeInput').value = '';
-            location.reload();
+if (result.valid) {
+    if (result.type === 'coins') {
+        coins += result.coins;
+        setCoins(coins);
+        updateCoinDisplay();
+        alert(`✅ Successfully redeemed ${result.coins} coins!`);
+        document.getElementById('coinCodeInput').value = '';
+    } else if (result.type === 'ban') {
+        document.getElementById('coinCodeInput').value = '';
+        // Show ban screen immediately without reload
+        const banStatus = checkBanStatus();
+        if (banStatus.banned) {
+            showBanScreen(banStatus);
+            document.getElementById('mainView').style.pointerEvents = 'none';
         }
-    } else {
-        alert('❌ ' + result.message);
     }
-});
+}
         document.getElementById('shopBtn').addEventListener('click', () => {
             window.location.href = 'shop.html';
         });
