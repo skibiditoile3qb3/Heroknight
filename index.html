@@ -1132,9 +1132,9 @@ if (checkAndHandleBan()) {
 
         document.getElementById('pokerBtn').addEventListener('click', () => {
             if (isGameLocked('poker')) {
-                if (confirm('Unlock Poker for 50 coins?')) {
-                    if (coins >= 50) {
-                        coins -= 50;
+                if (confirm('Unlock Poker for 5000 coins?')) {
+                    if (coins >= 5000) {
+                        coins -= 5000;
                         setCoins(coins);
                         updateCoinDisplay();
                         userProfile.unlockedGames.push('poker');
@@ -1154,7 +1154,22 @@ if (checkAndHandleBan()) {
         });
 
         document.getElementById('plinkoBtn').addEventListener('click', () => {
-            loadGame('plinko');
+                        if (isGameLocked('plinko')) {
+                if (confirm('Unlock Plinko? for 10000 coins?')) {
+                    if (coins >= 5000) {
+                        coins -= 5000;
+                        setCoins(coins);
+                        updateCoinDisplay();
+                        userProfile.unlockedGames.push('poker');
+                        saveUserProfile(userProfile);
+                        loadGame('plinko');
+                    } else {
+                        alert('Not enough coins!');
+                    }
+                }
+            } else {
+                loadGame('plinko');
+            }
         });
         
         document.getElementById('rouletteBtn').addEventListener('click', () => {
@@ -1301,7 +1316,10 @@ if (result.valid) {
             document.getElementById('mainView').style.pointerEvents = 'none';
         }
     }
+} else {
+    alert('❌ ' + result.message);
 }
+});
         document.getElementById('shopBtn').addEventListener('click', () => {
             window.location.href = 'shop.html';
         });
