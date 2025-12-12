@@ -1202,8 +1202,8 @@ if (checkAndHandleBan()) {
 
    } else if (code === 'imanadmin' + userProfile.username) {
     isAdmin = true;
+    alert('admin granted!');
     userProfile.status = 'admin';
-    user
     saveUserProfile(userProfile);
     updateUserDisplay();
     e.target.value = '';
