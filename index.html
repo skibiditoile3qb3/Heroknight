@@ -1160,8 +1160,8 @@ if (checkAndHandleBan()) {
         document.getElementById('plinkoBtn').addEventListener('click', () => {
                         if (isGameLocked('plinko')) {
                 if (confirm('Unlock Plinko? for 10000 coins?')) {
-                    if (coins >= 5000) {
-                        coins -= 5000;
+                    if (coins >= 10000) {
+                        coins -= 10000;
                         setCoins(coins);
                         updateCoinDisplay();
                         userProfile.unlockedGames.push('poker');
