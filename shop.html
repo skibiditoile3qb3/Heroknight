@@ -209,6 +209,10 @@ let totalActiveTime = getTotalActiveTime();
 
 document.getElementById('coinAmount').textContent = coins;
 document.getElementById('playtime').textContent = formatPlaytime(totalActiveTime);
+setInterval(() => {
+    totalActiveTime = getTotalActiveTime();
+    document.getElementById('playtime').textContent = formatPlaytime(totalActiveTime);
+}, 1000);
 
 
 
