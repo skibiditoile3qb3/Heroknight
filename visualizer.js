@@ -1,5 +1,18 @@
-(() => {
-    "use strict";
+
+function getUserProfile() {
+    try {
+        const stored = localStorage.getItem('userProfile');
+        if (stored) return JSON.parse(stored);
+    } catch(e) {}
+    return { visualizerEnabled: false };
+}
+
+const profile = getUserProfile();
+if (!profile.visualizerEnabled) {
+    console.log('Visualizer not purchased');
+} else {
+    (() => {
+        "use strict";
 
     /************************************************************
      *  GLOBAL STATE
