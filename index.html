@@ -1307,19 +1307,34 @@ if (result.valid) {
         updateCoinDisplay();
         alert(`✅ Successfully redeemed ${result.coins} coins!`);
         document.getElementById('coinCodeInput').value = '';
-    } else if (result.type === 'ban') {
-    console.log('Ban detected!', result);
+if (result.valid) {
+    if (result.type === 'coins') {
+        coins += result.coins;
+        setCoins(coins);
+        updateCoinDisplay();
+        alert(`✅ Successfully redeemed ${result.coins} coins!`);
         document.getElementById('coinCodeInput').value = '';
-        // Show ban screen immediately without reload
+        
+    } else if (result.type === 'ban') {
+        console.log('Ban detected!', result);
+        document.getElementById('coinCodeInput').value = '';
+
+        // Get the ban status that was just set
         const banStatus = checkBanStatus();
-        if (banStatus.banned) {
+        console.log('Ban status:', banStatus);
+
+        if (banStatus && banStatus.banned) {
             showBanScreen(banStatus);
             document.getElementById('mainView').style.pointerEvents = 'none';
+        } else {
+            console.error('Ban status not found after setting ban data');
         }
     }
+
 } else {
     alert('❌ ' + result.message);
 }
+
 });
         document.getElementById('shopBtn').addEventListener('click', () => {
             window.location.href = 'shop.html';
