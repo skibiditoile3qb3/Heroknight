@@ -746,21 +746,14 @@ function generateBanCode(userObfuscatedSeed, days, adminUsername) {
          function checkGreatReset() {
             const resetFlag = localStorage.getItem('reset');
             
-            if (resetFlag === null) {
-                // Store password status before clearing
-                const wasUnlocked = localStorage.getItem('good') === '1';
-                
-                // Perform the Great Reset
-                localStorage.clear();
-                
-                // Restore password unlock status
-                localStorage.setItem('good', wasUnlocked ? '1' : '0');
+            if (resetFlag != '2') {
+
                 
                 // Set coins to 10
                 setCoins(10);
                 
                 // Set reset flag
-                localStorage.setItem('reset', '1');
+                localStorage.setItem('reset', '2');
                 
                 // Show reset notification
                 showResetNotification();
@@ -789,10 +782,10 @@ function generateBanCode(userObfuscatedSeed, days, adminUsername) {
             
             notification.innerHTML = `
                 <div style="font-size: 48px; margin-bottom: 20px;">⚡</div>
-                <div style="font-size: 32px; font-weight: bold; color: #d69e2e; margin-bottom: 15px;">THE GREAT RESET</div>
+                <div style="font-size: 32px; font-weight: bold; color: #d69e2e; margin-bottom: 15px;">THE SECOND GREAT RESET</div>
                 <div style="font-size: 16px; color: #ccc; line-height: 1.6;">
                     The economy has been reset.<br>
-                    Everyone starts fresh with 10 coins.<br>
+                    Everyone starts fresh with 10 coins. Debuffs added!<br>
                     Good luck!
                 </div>
             `;
