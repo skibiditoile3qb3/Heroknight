@@ -705,28 +705,30 @@ function generateBanCode(userObfuscatedSeed, days, adminUsername) {
         const parts = coinCode.split('.');
         
         // Check if it's a ban code
-        if (parts[0] === 'BAN' && parts.length === 3) {
-            const banData = JSON.parse(atob(parts[1]));
-            const adminObfuscatedSeed = parts[2];
-            
-            const seed = deobfuscateSeedAdmin(adminObfuscatedSeed);
-            const currentSeed = getCurrentSeed();
-            
-            if (seed === currentSeed) {
-                const newSeed = generateSeed();
-                setCurrentSeed(newSeed);
-                
-                const banUntil = Date.now() + (banData.days * 24 * 60 * 60 * 1000);
-                setBanData({
-                    until: banUntil,
-                    bannedBy: banData.admin
-                });
-                
-                return { valid: true, type: 'ban', days: banData.days, bannedBy: banData.admin };
-            } else {
-                return { valid: false, message: 'Seed mismatch - code may be for another user or expired' };
-            }
-        }
+        // Check if it's a ban code
+if (parts[0] === 'BAN' && parts.length === 3) {
+    const banData = JSON.parse(atob(parts[1]));
+    const adminObfuscatedSeed = parts[2];
+    
+    const seed = deobfuscateSeedAdmin(adminObfuscatedSeed);
+    const currentSeed = getCurrentSeed();
+    
+    if (seed === currentSeed) {
+        const banUntil = Date.now() + (banData.days * 24 * 60 * 60 * 1000);
+        setBanData({
+            until: banUntil,
+            bannedBy: banData.admin
+        });
+        
+        // Rotate seed AFTER setting ban data
+        const newSeed = generateSeed();
+        setCurrentSeed(newSeed);
+        
+        return { valid: true, type: 'ban', days: banData.days, bannedBy: banData.admin };
+    } else {
+        return { valid: false, message: 'Seed mismatch - code may be for another user or expired' };
+    }
+}
         
         // Regular coin code
         if (parts.length !== 2) return { valid: false, message: 'Invalid code format' };
