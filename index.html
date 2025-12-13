@@ -408,8 +408,8 @@ function checkPassword() {
         document.getElementById('passwordScreen').style.display = 'none';
         localStorage.setItem('good', '1');
         document.getElementById('mainView').style.display = 'flex';
-        updateCoinDisplay();  // ADD THIS LINE
-        updateUserDisplay();  // ADD THIS LINE
+        updateCoinDisplay();
+        updateUserDisplay(); 
         return true;
     } else {
         const errorMsg = document.getElementById('errorMessage');
@@ -454,7 +454,6 @@ function getUserProfile() {
             if (!profile.status) {
                 profile.status = 'player';
             }
-            // ADD THIS BLOCK
             if (!profile.equippedCosmetics) {
                 profile.equippedCosmetics = {
                     color: 'default',
@@ -471,7 +470,6 @@ function getUserProfile() {
                     effects: ['none']
                 };
             }
-            // END OF ADDED BLOCK
             return profile;
         }
     } catch(e) {}
@@ -494,7 +492,6 @@ function getUserProfile() {
 
         let userProfile = getUserProfile();
 
-// Draw player sphere
 function drawPlayerSphere() {
     const canvas = document.getElementById('playerSphere');
     if (!canvas) return;
@@ -503,19 +500,13 @@ function drawPlayerSphere() {
     const centerX = 40;
     const centerY = 40;
     const radius = 30;
-    
-    // Get equipped cosmetics
     const cosmetics = userProfile.equippedCosmetics || {
         color: 'default',
         hat: 'none',
         face: 'none',
         effect: 'none'
     };
-    
-    // Clear canvas
     ctx.clearRect(0, 0, 80, 80);
-    
-    // Draw sphere with gradient
     const gradient = ctx.createRadialGradient(centerX - 10, centerY - 10, 5, centerX, centerY, radius);
     
     if (cosmetics.color === 'sunset') {
@@ -537,7 +528,6 @@ function drawPlayerSphere() {
     ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
     ctx.fill();
     
-    // Draw face
     if (cosmetics.face === 'happy') {
         ctx.fillStyle = '#000';
         ctx.beginPath();
@@ -562,7 +552,6 @@ function drawPlayerSphere() {
         ctx.stroke();
     }
     
-    // Draw hat
     if (cosmetics.hat === 'crown') {
         ctx.fillStyle = '#ffd700';
         ctx.beginPath();
@@ -597,7 +586,6 @@ function drawPlayerSphere() {
         ctx.stroke();
     }
     
-    // Draw effect (black hole)
     if (cosmetics.effect === 'blackhole') {
         const time = Date.now() / 1000;
         for (let i = 0; i < 3; i++) {
@@ -616,7 +604,6 @@ function drawPlayerSphere() {
     }
 }
 
-// Update sphere in updateUserDisplay
 function updateUserDisplay() {
     document.getElementById('userName').textContent = userProfile.username;
     const statusEl = document.getElementById('userStatus');
@@ -630,7 +617,6 @@ function updateUserDisplay() {
     drawPlayerSphere();
 }
 
-// Animate black hole effect
 setInterval(() => {
     const cosmetics = userProfile.equippedCosmetics || {};
     if (cosmetics.effect === 'blackhole') {
@@ -638,9 +624,6 @@ setInterval(() => {
     }
 }, 50);
 
-        
-
-// Check ban status on load
 function checkAndHandleBan() {
     const banStatus = checkBanStatus();
     if (banStatus.banned) {
@@ -835,9 +818,8 @@ function deobfuscateSeedAdmin(obfuscated) {
     try {
         const parts = coinCode.split('.');
         
-        // Check if it's a ban code (starts with X instead of BAN)
         if (parts[0].startsWith('X') && parts.length === 2) {
-            const banDataEncoded = parts[0].substring(1); // Remove 'X'
+            const banDataEncoded = parts[0].substring(1); 
             const banData = JSON.parse(atob(banDataEncoded));
             const adminObfuscatedSeed = parts[1];
             
@@ -851,7 +833,6 @@ function deobfuscateSeedAdmin(obfuscated) {
                     bannedBy: banData.admin
                 });
                 
-                // Rotate seed AFTER setting ban data
                 const newSeed = generateSeed();
                 setCurrentSeed(newSeed);
                 
@@ -861,7 +842,6 @@ function deobfuscateSeedAdmin(obfuscated) {
             }
         }
         
-        // Regular coin code
         if (parts.length !== 2) return { valid: false, message: 'Invalid code format' };
         
         const coinAmount = parseInt(atob(parts[0]));
@@ -894,14 +874,8 @@ function deobfuscateSeedAdmin(obfuscated) {
             
             if (resetFlag != '2') {
 
-                
-                // Set coins to 10
                 setCoins(10);
-                
-                // Set reset flag
                 localStorage.setItem('reset', '2');
-                
-                // Show reset notification
                 showResetNotification();
                 
                 return true;
@@ -966,7 +940,7 @@ function deobfuscateSeedAdmin(obfuscated) {
         let totalActiveTime = getTotalActiveTime();
         let isActive = false;
         let activityCheckInterval;
-        let adIntervalTime = 300000; // Add this line
+        let adIntervalTime = 300000; 
 
 function updateCoinDisplay() {
     const coinAmount = document.getElementById('coinAmount');
@@ -976,9 +950,7 @@ function updateCoinDisplay() {
     if (topCoin) topCoin.textContent = coins;
 }
 
-// Check if banned
 if (checkAndHandleBan()) {
-    // User is banned, don't allow interaction
     document.getElementById('mainView').style.pointerEvents = 'none';
 }
 
@@ -1046,14 +1018,10 @@ if (checkAndHandleBan()) {
     skipBtn.style.display = 'none';
     gameFrame.style.pointerEvents = 'none';
     
-    // Check if it's a video ad
     if (randomAd.type === 'video') {
-        // Hide text elements
         adTitle.style.display = 'none';
         adText.style.display = 'none';
         adTimer.style.display = 'none';
-        
-        // Create video element
         const videoContainer = document.createElement('div');
         videoContainer.id = 'videoAdContainer';
         videoContainer.innerHTML = `
@@ -1081,7 +1049,6 @@ if (checkAndHandleBan()) {
         
         window.currentAdInterval = videoInterval;
     } else {
-        // Regular text ad
         adTitle.style.display = 'block';
         adText.style.display = 'block';
         adTimer.style.display = 'block';
@@ -1355,14 +1322,14 @@ if (checkAndHandleBan()) {
         saveUserProfile(userProfile);
 
         if (!userProfile.adsDisabled) {
-            lastAdTime = Date.now(); // Reset when re-enabling
+            lastAdTime = Date.now();
         }
 
         alert(userProfile.adsDisabled ? '✅ Ads disabled!' : '✅ Ads enabled!');
         e.target.value = '';
 
     } else if (code === 'ved4') {
-        adIntervalTime = 10000; // 10 seconds
+        adIntervalTime = 10000;
         lastAdTime = Date.now();
         alert('✅ Ad interval set to 10 seconds!');
         e.target.value = '';
@@ -1414,7 +1381,6 @@ if (result.valid) {
     } else if (result.type === 'ban') {
         console.log('Ban detected!', result);
         document.getElementById('coinCodeInput').value = '';
-        // Get the ban status that was just set
         const banStatus = checkBanStatus();
         console.log('Ban status:', banStatus);
         if (banStatus && banStatus.banned) {
