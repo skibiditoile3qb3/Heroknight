@@ -596,7 +596,6 @@
     </div>
 
     <script>
-        // Game state
         const state = {
             deck: [],
             dealerHand: [],
@@ -611,7 +610,6 @@
             cardsDealt: 0
         };
 
-        // DOM Elements
         const dealerHandElement = document.querySelector('.dealer-hand');
         const playerHandElement = document.querySelector('.player-hand');
         let dealerValueElement = document.querySelector('.dealer-hand-value');
@@ -628,15 +626,9 @@
         const historyLog = document.querySelector('.history-log');
         const chipElements = document.querySelectorAll('.chip');
         const betButton = document.querySelector('.bet-button');
-
-        // Card definitions
         const suits = ['♥', '♦', '♠', '♣'];
         const values = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
-
-        // Request coins from parent
         window.parent.postMessage({ type: 'getCoins' }, '*');
-
-        // Listen for coin data from parent
         window.addEventListener('message', (event) => {
             if (event.data.type === 'coinsData') {
                 state.balance = event.data.coins;
@@ -650,8 +642,6 @@
                 coins: state.balance
             }, '*');
         }
-
-        // Initialize the game
         function init() {
             updateBalanceDisplay();
             setupDragAndDrop();
@@ -911,7 +901,6 @@
                 updateHandValue(playerValueElement, calculateHandValue(hand));
                 checkForBust(hand);
             } else if (state.dealersTurn) {
-                // Update dealer value during dealer's turn
                 updateHandValue(dealerValueElement, calculateHandValue(hand));
                 checkForBust(hand);
             }
@@ -1023,12 +1012,10 @@ function dealerPlay() {
                 if (value < 17) {
                     setTimeout(() => {
                         dealCard(state.dealerHand, dealerHandElement);
-                        // Update dealer value after each card
                         updateHandValue(dealerValueElement, calculateHandValue(state.dealerHand));
                         dealerDraw();
                     }, 700);
                 } else {
-                    // Final update before showing result
                     updateHandValue(dealerValueElement, calculateHandValue(state.dealerHand));
                     setTimeout(() => {
                         showResult();
