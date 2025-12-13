@@ -393,9 +393,13 @@
 
         if (localStorage.getItem('good') === null) {
             localStorage.setItem('good', '0');
-} else if (localStorage.getItem('good') === '1') {
+} } else if (localStorage.getItem('good') === '1') {
     document.getElementById('passwordScreen').style.display = 'none';
     document.getElementById('mainView').style.display = 'flex';
+    setTimeout(() => {
+        updateCoinDisplay();
+        updateUserDisplay();
+    }, 0);
 }
             
 function checkPassword() {
@@ -968,10 +972,6 @@ function deobfuscateSeedAdmin(obfuscated) {
     document.getElementById('coinAmount').textContent = coins;
     const topCoin = document.getElementById('coinAmountTop');
     if (topCoin) topCoin.textContent = coins;
-}
-        if (localStorage.getItem('good') === '1') {
-    updateCoinDisplay();
-    updateUserDisplay();
 }
 
 
