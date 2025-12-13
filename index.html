@@ -448,11 +448,36 @@ function getUserProfile() {
             if (!profile.status) {
                 profile.status = 'player';
             }
+            // ADD THIS BLOCK
+            if (!profile.equippedCosmetics) {
+                profile.equippedCosmetics = {
+                    color: 'default',
+                    hat: 'none',
+                    face: 'none',
+                    effect: 'none'
+                };
+            }
+            if (!profile.ownedCosmetics) {
+                profile.ownedCosmetics = {
+                    colors: ['default'],
+                    hats: ['none'],
+                    faces: ['none'],
+                    effects: ['none']
+                };
+            }
+            // END OF ADDED BLOCK
             return profile;
         }
     } catch(e) {}
     const newUsername = 'guest' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
-    return { unlockedGames: [], adsDisabled: false, username: newUsername, status: 'player' };
+    return { 
+        unlockedGames: [], 
+        adsDisabled: false, 
+        username: newUsername, 
+        status: 'player',
+        equippedCosmetics: { color: 'default', hat: 'none', face: 'none', effect: 'none' },
+        ownedCosmetics: { colors: ['default'], hats: ['none'], faces: ['none'], effects: ['none'] }
+    };
 }
 
         function saveUserProfile(profile) {
@@ -1410,6 +1435,6 @@ if (result.valid) {
 });
     
     </script>
-    <script src="visualizer.js"></script
+    <script src="visualizer.js"></script>
 </body>
 </html>
