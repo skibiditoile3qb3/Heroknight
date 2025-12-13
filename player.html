@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Player Profile</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .back-btn {
+            padding: 12px 24px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-bottom: 30px;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .back-btn:hover {
+            background: #252525;
+            border-color: #555;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 36px;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        .left-panel {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+        }
+        #bigPlayerSphere {
+            margin: 0 auto 20px;
+            display: block;
+            cursor: grab;
+        }
+        #bigPlayerSphere:active {
+            cursor: grabbing;
+        }
+        .username {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .status {
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .status.admin { color: #ff4444; }
+        .status.owner { color: #a855f7; }
+        .status.rare { color: #3b82f6; }
+        .status.legendary { color: #ffd700; }
+        .status.mystical { color: #008c99; text-shadow: 0 0 10px rgba(168, 85, 247, 0.5); }
+        .coins-display {
+            font-size: 20px;
+            color: #d69e2e;
+            margin-bottom: 20px;
+        }
+        .right-panel {
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 30px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #333;
+            padding-bottom: 10px;
+        }
+        .tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: none;
+            color: #888;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+            border-radius: 6px 6px 0 0;
+        }
+        .tab:hover {
+            color: #fff;
+            background: #252525;
+        }
+        .tab.active {
+            color: #fff;
+            background: #252525;
+            border-bottom: 2px solid #d69e2e;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #333;
+        }
+        .stat-label {
+            color: #888;
+        }
+        .stat-value {
+            color: #fff;
+            font-weight: bold;
+        }
+        .cosmetics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        .cosmetic-item {
+            background: #252525;
+            border: 2px solid #333;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cosmetic-item:hover {
+            border-color: #555;
+            transform: translateY(-2px);
+        }
+        .cosmetic-item.equipped {
+            border-color: #d69e2e;
+            background: #2a2a1a;
+        }
+        .cosmetic-item.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .cosmetic-preview {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 10px;
+        }
+        .cosmetic-name {
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .cosmetic-status {
+            font-size: 12px;
+            color: #d69e2e;
+        }
+        .share-btn {
+            padding: 12px 24px;
+            background: #38a169;
+            border: 1px solid #2f855a;
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            margin-top: 20px;
+        }
+        .share-btn:hover {
+            background: #2f855a;
+        }
+        @media (max-width: 768px) {
+            .profile-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="back-btn">← BACK TO GAMES</a>
+        <h1>👤 PLAYER PROFILE</h1>
+
+        <div class="profile-grid">
+            <!-- Left Panel -->
+            <div class="left-panel">
+                <canvas id="bigPlayerSphere" width="200" height="200"></canvas>
+                <div class="username" id="profileUsername">guest000000</div>
+                <div class="status" id="profileStatus">player</div>
+                <div class="coins-display">💰 <span id="profileCoins">0</span> coins</div>
+                <button class="share-btn" id="shareBtn">📸 Share Profile</button>
+            </div>
+
+            <!-- Right Panel -->
+            <div class="right-panel">
+                <div class="tabs">
+                    <button class="tab active" data-tab="stats">📊 Stats</button>
+                    <button class="tab" data-tab="cosmetics">🎨 Cosmetics</button>
+                </div>
+
+                <!-- Stats Tab -->
+                <div class="tab-content active" id="stats">
+                    <div class="stat-row">
+                        <span class="stat-label">Total Playtime</span>
+                        <span class="stat-value" id="statPlaytime">0 minutes</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Status</span>
+                        <span class="stat-value" id="statStatus">player</span>
+                    </div>
+                    <div class="stat-row">
+                        <span class="stat-label">Total Coins</span>
+                        <span class="stat-value" id="statCoins">0</span>
+                    </div>
+                </div>
+
+                <!-- Cosmetics Tab -->
+                <div class="tab-content" id="cosmetics">
+                    <h3 style="margin-bottom: 20px; color: #d69e2e;">🌈 Colors</h3>
+                    <div class="cosmetics-grid" id="colorsGrid"></div>
+
+                    <h3 style="margin: 30px 0 20px; color: #d69e2e;">🎩 Hats</h3>
+                    <div class="cosmetics-grid" id="hatsGrid"></div>
+
+                    <h3 style="margin: 30px 0 20px; color: #d69e2e;">😊 Faces</h3>
+                    <div class="cosmetics-grid" id="facesGrid"></div>
+
+                    <h3 style="margin: 30px 0 20px; color: #d69e2e;">✨ Effects</h3>
+                    <div class="cosmetics-grid" id="effectsGrid"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const _0x4a2b = (s) => btoa(s).split('').reverse().join('');
+        const _0x2b4a = (s) => atob(s.split('').reverse().join(''));
+        const _0x9c3d = 'X2NvaW5EYXRh';
+        const _0x3e8a = 'X3RvdGFsQWN0aXZlVGltZQ==';
+
+        function getUserProfile() {
+            try {
+                const stored = localStorage.getItem('userProfile');
+                if (stored) {
+                    const profile = JSON.parse(stored);
+                    if (!profile.equippedCosmetics) {
+                        profile.equippedCosmetics = {
+                            color: 'default',
+                            hat: 'none',
+                            face: 'none',
+                            effect: 'none'
+                        };
+                    }
+                    if (!profile.ownedCosmetics) {
+                        profile.ownedCosmetics = {
+                            colors: ['default'],
+                            hats: ['none'],
+                            faces: ['none'],
+                            effects: ['none']
+                        };
+                    }
+                    return profile;
+                }
+            } catch(e) {}
+            return { 
+                username: 'guest000000',
+                status: 'player',
+                equippedCosmetics: { color: 'default', hat: 'none', face: 'none', effect: 'none' },
+                ownedCosmetics: { colors: ['default'], hats: ['none'], faces: ['none'], effects: ['none'] }
+            };
+        }
+
+        function saveUserProfile(profile) {
+            try {
+                localStorage.setItem('userProfile', JSON.stringify(profile));
+            } catch(e) {}
+        }
+
+        function getCoins() {
+            try {
+                const stored = localStorage.getItem(_0x2b4a(_0x9c3d));
+                if (stored) {
+                    return parseInt(_0x2b4a(stored));
+                }
+            } catch(e) {}
+            return 10;
+        }
+
+        function getTotalActiveTime() {
+            try {
+                const stored = localStorage.getItem(_0x2b4a(_0x3e8a));
+                return stored ? parseInt(_0x2b4a(stored)) : 0;
+            } catch(e) {}
+            return 0;
+        }
+
+        let userProfile = getUserProfile();
+        let coins = getCoins();
+        let rotation = { x: 0, y: 0 };
+        let isDragging = false;
+        let lastMouse = { x: 0, y: 0 };
+
+        // Draw big player sphere
+        function drawBigPlayerSphere() {
+            const canvas = document.getElementById('bigPlayerSphere');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const centerX = 100;
+            const centerY = 100;
+            const radius = 75;
+            
+            const cosmetics = userProfile.equippedCosmetics;
+            
+            ctx.clearRect(0, 0, 200, 200);
+            
+            // Draw sphere with gradient
+            const gradient = ctx.createRadialGradient(centerX - 25, centerY - 25, 10, centerX, centerY, radius);
+            
+            if (cosmetics.color === 'sunset') {
+                gradient.addColorStop(0, '#ff6b6b');
+                gradient.addColorStop(1, '#ff9a3c');
+            } else if (cosmetics.color === 'ocean') {
+                gradient.addColorStop(0, '#4cc9f0');
+                gradient.addColorStop(1, '#0077b6');
+            } else if (cosmetics.color === 'galaxy') {
+                gradient.addColorStop(0, '#c77dff');
+                gradient.addColorStop(1, '#3c096c');
+            } else {
+                gradient.addColorStop(0, '#888');
+                gradient.addColorStop(1, '#333');
+            }
+            
+            ctx.fillStyle = gradient;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, radius, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Draw face
+            if (cosmetics.face === 'happy') {
+                ctx.fillStyle = '#000';
+                ctx.beginPath();
+                ctx.arc(75, 80, 8, 0, Math.PI * 2);
+                ctx.arc(125, 80, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(100, 100, 35, 0, Math.PI);
+                ctx.strokeStyle = '#000';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            } else if (cosmetics.face === 'evil') {
+                ctx.fillStyle = '#f00';
+                ctx.beginPath();
+                ctx.arc(75, 80, 8, 0, Math.PI * 2);
+                ctx.arc(125, 80, 8, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(100, 125, 35, Math.PI, 0);
+                ctx.strokeStyle = '#f00';
+                ctx.lineWidth = 4;
+                ctx.stroke();
+            }
+            
+            // Draw hat
+            if (cosmetics.hat === 'crown') {
+                ctx.fillStyle = '#ffd700';
+                ctx.beginPath();
+                ctx.moveTo(50, 40);
+                ctx.lineTo(60, 20);
+                ctx.lineTo(75, 30);
+                ctx.lineTo(90, 15);
+                ctx.lineTo(100, 30);
+                ctx.lineTo(110, 15);
+                ctx.lineTo(125, 30);
+                ctx.lineTo(140, 20);
+                ctx.lineTo(150, 40);
+                ctx.closePath();
+                ctx.fill();
+            } else if (cosmetics.hat === 'tophat') {
+                ctx.fillStyle = '#1a1a1a';
+                ctx.fillRect(60, 10, 80, 20);
+                ctx.fillRect(50, 30, 100, 12);
+            } else if (cosmetics.hat === 'wizard') {
+                ctx.fillStyle = '#6b46c1';
+                ctx.beginPath();
+                ctx.moveTo(100, 10);
+                ctx.lineTo(60, 35);
+                ctx.lineTo(140, 35);
+                ctx.closePath();
+                ctx.fill();
+            } else if (cosmetics.hat === 'halo') {
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 6;
+                ctx.beginPath();
+                ctx.arc(100, 20, 30, 0, Math.PI * 2);
+                ctx.stroke();
+            }
+            
+            // Draw effect (black hole)
+            if (cosmetics.effect === 'blackhole') {
+                const time = Date.now() / 1000;
+                for (let i = 0; i < 3; i++) {
+                    const angle = time + (i * Math.PI * 2 / 3);
+                    const x = centerX + Math.cos(angle) * 110;
+                    const y = centerY + Math.sin(angle) * 110;
+                    
+                    const effGradient = ctx.createRadialGradient(x, y, 0, x, y, 20);
+                    effGradient.addColorStop(0, '#000');
+                    effGradient.addColorStop(1, 'transparent');
+                    ctx.fillStyle = effGradient;
+                    ctx.beginPath();
+                    ctx.arc(x, y, 20, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+            }
+        }
+
+        // Animate black hole effect
+        setInterval(() => {
+            if (userProfile.equippedCosmetics.effect === 'blackhole') {
+                drawBigPlayerSphere();
+            }
+        }, 50);
+
+        // Drag to rotate (placeholder for future 3D)
+        const canvas = document.getElementById('bigPlayerSphere');
+        canvas.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            lastMouse = { x: e.clientX, y: e.clientY };
+        });
+
+        document.addEventListener('mousemove', (e) => {
+            if (isDragging) {
+                const dx = e.clientX - lastMouse.x;
+                const dy = e.clientY - lastMouse.y;
+                rotation.y += dx * 0.01;
+                rotation.x += dy * 0.01;
+                lastMouse = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        document.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        // Load profile data
+        function loadProfileData() {
+            document.getElementById('profileUsername').textContent = userProfile.username;
+            document.getElementById('profileStatus').textContent = userProfile.status;
+            document.getElementById('profileStatus').className = 'status ' + userProfile.status;
+            document.getElementById('profileCoins').textContent = coins.toLocaleString();
+
+            document.getElementById('statStatus').textContent = userProfile.status;
+            document.getElementById('statCoins').textContent = coins.toLocaleString();
+            
+            const totalTime = getTotalActiveTime();
+            const minutes = Math.floor(totalTime / 60);
+            document.getElementById('statPlaytime').textContent = `${minutes} minutes`;
+
+            drawBigPlayerSphere();
+        }
+
+        // Cosmetics data
+        const cosmetics = {
+            colors: [
+                { id: 'default', name: 'Default Gray', preview: '#555' },
+                { id: 'sunset', name: 'Sunset', preview: 'linear-gradient(#ff6b6b, #ff9a3c)' },
+                { id: 'ocean', name: 'Ocean', preview: 'linear-gradient(#4cc9f0, #0077b6)' },
+                { id: 'galaxy', name: 'Galaxy', preview: 'linear-gradient(#c77dff, #3c096c)' }
+            ],
+            hats: [
+                { id: 'none', name: 'None', icon: '❌' },
+                { id: 'crown', name: 'Crown', icon: '👑' },
+                { id: 'tophat', name: 'Top Hat', icon: '🎩' },
+                { id: 'wizard', name: 'Wizard Hat', icon: '🧙' },
+                { id: 'halo', name: 'Halo', icon: '😇' }
+            ],
+            faces: [
+                { id: 'none', name: 'None', icon: '😐' },
+                { id: 'happy', name: 'Happy', icon: '😊' },
+                { id: 'evil', name: 'Evil', icon: '😈' }
+            ],
+            effects: [
+                { id: 'none', name: 'None', icon: '❌' },
+                { id: 'blackhole', name: 'Black Holes', icon: '🌑' }
+            ]
+        };
+
+        // Render cosmetics
+        function renderCosmetics() {
+            // Colors
+            const colorsGrid = document.getElementById('colorsGrid');
+            colorsGrid.innerHTML = '';
+            cosmetics.colors.forEach(item => {
+                const owned = userProfile.ownedCosmetics.colors.includes(item.id);
+                const equipped = userProfile.equippedCosmetics.color === item.id;
+                
+                const div = document.createElement('div');
+                div.className = 'cosmetic-item' + (equipped ? ' equipped' : '') + (!owned ? ' locked' : '');
+                div.innerHTML = `
+                    <div class="cosmetic-preview" style="background: ${item.preview}; border-radius: 50%;"></div>
+                    <div class="cosmetic-name">${item.name}</div>
+                    <div class="cosmetic-status">${equipped ? 'EQUIPPED' : owned ? 'Click to equip' : 'LOCKED'}</div>
+                `;
+                if (owned) {
+                    div.onclick = () => equipCosmetic('color', item.id);
+                }
+                colorsGrid.appendChild(div);
+            });
+
+            // Hats
+            const hatsGrid = document.getElementById('hatsGrid');
+            hatsGrid.innerHTML = '';
+            cosmetics.hats.forEach(item => {
+                const owned = userProfile.ownedCosmetics.hats.includes(item.id);
+                const equipped = userProfile.equippedCosmetics.hat === item.id;
+                
+                const div = document.createElement('div');
+                div.className = 'cosmetic-item' + (equipped ? ' equipped' : '') + (!owned ? ' locked' : '');
+                div.innerHTML = `
+                    <div class="cosmetic-preview" style="font-size: 48px;">${item.icon}</div>
+                    <div class="cosmetic-name">${item.name}</div>
+                    <div class="cosmetic-status">${equipped ? 'EQUIPPED' : owned ? 'Click to equip' : 'LOCKED'}</div>
+                `;
+                if (owned) {
+                    div.onclick = () => equipCosmetic('hat', item.id);
+                }
+                hatsGrid.appendChild(div);
+            });
+
+            // Faces
+            const facesGrid = document.getElementById('facesGrid');
+            facesGrid.innerHTML = '';
+            cosmetics.faces.forEach(item => {
+                const owned = userProfile.ownedCosmetics.faces.includes(item.id);
+                const equipped = userProfile.equippedCosmetics.face === item.id;
+                
+                const div = document.createElement('div');
+                div.className = 'cosmetic-item' + (equipped ? ' equipped' : '') + (!owned ? ' locked' : '');
+                div.innerHTML = `
+                    <div class="cosmetic-preview" style="font-size: 48px;">${item.icon}</div>
+                    <div class="cosmetic-name">${item.name}</div>
+                    <div class="cosmetic-status">${equipped ? 'EQUIPPED' : owned ? 'Click to equip' : 'LOCKED'}</div>
+                `;
+                if (owned) {
+                    div.onclick = () => equipCosmetic('face', item.id);
+                }
+                facesGrid.appendChild(div);
+            });
+
+            // Effects
+            const effectsGrid = document.getElementById('effectsGrid');
+            effectsGrid.innerHTML = '';
+            cosmetics.effects.forEach(item => {
+                const owned = userProfile.ownedCosmetics.effects.includes(item.id);
+                const equipped = userProfile.equippedCosmetics.effect === item.id;
+                
+                const div = document.createElement('div');
+                div.className = 'cosmetic-item' + (equipped ? ' equipped' : '') + (!owned ? ' locked' : '');
+                div.innerHTML = `
+                    <div class="cosmetic-preview" style="font-size: 48px;">${item.icon}</div>
+                    <div class="cosmetic-name">${item.name}</div>
+                    <div class="cosmetic-status">${equipped ? 'EQUIPPED' : owned ? 'Click to equip' : 'LOCKED'}</div>
+                `;
+                if (owned) {
+                    div.onclick = () => equipCosmetic('effect', item.id);
+                }
+                effectsGrid.appendChild(div);
+            });
+        }
+
+        // Equip cosmetic
+        function equipCosmetic(type, id) {
+            if (type === 'color') {
+                userProfile.equippedCosmetics.color = id;
+            } else if (type === 'hat') {
+                userProfile.equippedCosmetics.hat = id;
+            } else if (type === 'face') {
+                userProfile.equippedCosmetics.face = id;
+            } else if (type === 'effect') {
+                userProfile.equippedCosmetics.effect = id;
+            }
+            
+            saveUserProfile(userProfile);
+            drawBigPlayerSphere();
+            renderCosmetics();
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Share button
+        document.getElementById('shareBtn').addEventListener('click', () => {
+            const canvas = document.getElementById('bigPlayerSphere');
+            canvas.toBlob((blob) => {
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${userProfile.username}_sphere.png`;
+                a.click();
+                URL.revokeObjectURL(url);
+                alert('✅ Sphere image downloaded!');
+            });
+        });
+
+        // Initialize
+        loadProfileData();
+        renderCosmetics();
+    </script>
+</body>
+</html>
