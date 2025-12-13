@@ -968,12 +968,13 @@ function deobfuscateSeedAdmin(obfuscated) {
         let activityCheckInterval;
         let adIntervalTime = 300000; // Add this line
 
-        function updateCoinDisplay() {
-    document.getElementById('coinAmount').textContent = coins;
+function updateCoinDisplay() {
+    const coinAmount = document.getElementById('coinAmount');
+    if (coinAmount) coinAmount.textContent = coins;
+    
     const topCoin = document.getElementById('coinAmountTop');
     if (topCoin) topCoin.textContent = coins;
 }
-
 
 // Check if banned
 if (checkAndHandleBan()) {
