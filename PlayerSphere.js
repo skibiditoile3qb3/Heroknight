@@ -361,6 +361,20 @@ class PlayerSphere {
                 const wingWidth = this.radius * 3;
                 const wingHeight = this.radius * 3;
                 
+                // Left wing - flipped image (flip to point left)
+                this.ctx.save();
+                this.ctx.translate(this.centerX - this.radius * 0.7, this.centerY);
+                this.ctx.rotate(-flapOffset);
+                this.ctx.scale(-1, 1); // Flip horizontally to point left
+                this.ctx.drawImage(
+                    this.wingImage,
+                    0, // Start at attachment point in flipped space
+                    -wingHeight / 2,
+                    wingWidth,
+                    wingHeight
+                );
+                this.ctx.restore();
+                
                 // Right wing - original image (wing points right, attaches on right)
                 this.ctx.save();
                 this.ctx.translate(this.centerX + this.radius * 0.7, this.centerY);
@@ -368,20 +382,6 @@ class PlayerSphere {
                 this.ctx.drawImage(
                     this.wingImage,
                     0, // Start at attachment point
-                    -wingHeight / 2,
-                    wingWidth,
-                    wingHeight
-                );
-                this.ctx.restore();
-                
-                // Left wing - flipped image (flip to point left)
-                this.ctx.save();
-                this.ctx.translate(this.centerX - this.radius * 0.7, this.centerY);
-                this.ctx.rotate(-flapOffset);
-                this.ctx.scale(-1, 1); // Flip horizontally
-                this.ctx.drawImage(
-                    this.wingImage,
-                    0, // Start at attachment point in flipped space
                     -wingHeight / 2,
                     wingWidth,
                     wingHeight
