@@ -332,8 +332,9 @@
         }
 
 // Animate black hole effect
-        function updateBigSphereAnimation() {
-            if (userProfile.equippedCosmetics.effect === 'blackhole') {
+function updateBigSphereAnimation() {
+            const animatedEffects = ['blackhole', 'wings', 'glitch'];
+            if (animatedEffects.includes(userProfile.equippedCosmetics.effect)) {
                 if (bigSphereRenderer && !bigSphereRenderer.shouldAnimate) {
                     bigSphereRenderer.startAnimation(userProfile.equippedCosmetics);
                 }
@@ -398,16 +399,21 @@
                 { id: 'crown', name: 'Crown', icon: '👑' },
                 { id: 'tophat', name: 'Top Hat', icon: '🎩' },
                 { id: 'wizard', name: 'Wizard Hat', icon: '🧙' },
-                { id: 'halo', name: 'Halo', icon: '😇' }
+                { id: 'halo', name: 'Halo', icon: '😇' },
+                { id: 'santa', name: 'Santa Hat', icon: '🎅' },
+                { id: 'party', name: 'Party Hat', icon: '🎉' }
             ],
             faces: [
                 { id: 'none', name: 'None', icon: '😐' },
                 { id: 'happy', name: 'Happy', icon: '😊' },
-                { id: 'evil', name: 'Evil', icon: '😈' }
+                { id: 'evil', name: 'Evil', icon: '😈' },
+                { id: 'cool', name: 'Cool (Sunglasses)', icon: '😎' }
             ],
             effects: [
                 { id: 'none', name: 'None', icon: '❌' },
-                { id: 'blackhole', name: 'Black Holes', icon: '🌑' }
+                { id: 'blackhole', name: 'Black Holes', icon: '🌑' },
+                { id: 'wings', name: 'Black Wings', icon: '🖤' },
+                { id: 'glitch', name: 'Glitch Effect', icon: '⚡' }
             ]
         };
 
