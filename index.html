@@ -324,9 +324,7 @@
 #playerSphere {
     display: block;
     margin: 0 auto 10px;
-    /* The canvas is 2.5x bigger but we display it at original size */
-    width: 150px !important;
-    height: 150px !important;
+    /* No width/height restrictions - let it be its natural size */
 }
     </style>
     <script src="PlayerSphere.js"></script>
@@ -504,7 +502,7 @@ let playerSphereRenderer = null;
 
 function drawPlayerSphere() {
     if (!playerSphereRenderer) {
-        playerSphereRenderer = new PlayerSphere('playerSphere', 1000);
+        playerSphereRenderer = new PlayerSphere('playerSphere', 200);
     }
     
     const cosmetics = userProfile.equippedCosmetics || {
