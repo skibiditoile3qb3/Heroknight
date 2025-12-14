@@ -43,7 +43,7 @@ class PlayerSphere {
         
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // Draw effects first (behind sphere)
+        // Draw effects first (behind sphere) - including wings
         if (effect === 'blackhole' || effect === 'wings') {
             this.drawEffect(effect);
         }
@@ -361,27 +361,27 @@ class PlayerSphere {
                 const wingWidth = this.radius * 3;
                 const wingHeight = this.radius * 3;
                 
-                // Left wing - flipped image (flip to point left)
+                // Left wing - needs to point LEFT, so flip the right-pointing image
                 this.ctx.save();
                 this.ctx.translate(this.centerX - this.radius * 0.7, this.centerY);
                 this.ctx.rotate(-flapOffset);
-                this.ctx.scale(-1, 1); // Flip horizontally to point left
+                this.ctx.scale(-1, 1); // Flip to make it point left
                 this.ctx.drawImage(
                     this.wingImage,
-                    0, // Start at attachment point in flipped space
+                    -wingWidth, // Draw from negative to extend left after flip
                     -wingHeight / 2,
                     wingWidth,
                     wingHeight
                 );
                 this.ctx.restore();
                 
-                // Right wing - original image (wing points right, attaches on right)
+                // Right wing - use original that points RIGHT
                 this.ctx.save();
                 this.ctx.translate(this.centerX + this.radius * 0.7, this.centerY);
                 this.ctx.rotate(flapOffset);
                 this.ctx.drawImage(
                     this.wingImage,
-                    0, // Start at attachment point
+                    0, // Draw from 0 to extend right
                     -wingHeight / 2,
                     wingWidth,
                     wingHeight
