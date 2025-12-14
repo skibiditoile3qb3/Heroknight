@@ -78,7 +78,7 @@ class PlayerSphere {
         this.ctx.fill();
     }
     
-    drawFace(face) {
+drawFace(face) {
         const eyeSize = this.radius * 0.1;
         const eyeY = this.centerY - this.radius * 0.26;
         const eyeOffsetX = this.radius * 0.33;
@@ -98,6 +98,7 @@ class PlayerSphere {
             this.ctx.strokeStyle = '#000';
             this.ctx.lineWidth = this.radius * 0.066;
             this.ctx.stroke();
+            
         } else if (face === 'evil') {
             // Eyes
             this.ctx.fillStyle = '#f00';
@@ -112,11 +113,48 @@ class PlayerSphere {
             this.ctx.strokeStyle = '#f00';
             this.ctx.lineWidth = this.radius * 0.066;
             this.ctx.stroke();
+            
+        } else if (face === 'cool') {
+            // Sunglasses
+            this.ctx.fillStyle = '#000';
+            this.ctx.strokeStyle = '#333';
+            this.ctx.lineWidth = this.radius * 0.04;
+            
+            // Left lens
+            this.ctx.beginPath();
+            this.ctx.arc(this.centerX - eyeOffsetX, eyeY, eyeSize * 1.5, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Right lens
+            this.ctx.beginPath();
+            this.ctx.arc(this.centerX + eyeOffsetX, eyeY, eyeSize * 1.5, 0, Math.PI * 2);
+            this.ctx.fill();
+            this.ctx.stroke();
+            
+            // Bridge
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = this.radius * 0.06;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.centerX - eyeOffsetX + eyeSize * 1.5, eyeY);
+            this.ctx.lineTo(this.centerX + eyeOffsetX - eyeSize * 1.5, eyeY);
+            this.ctx.stroke();
+            
+            // Smirk
+            this.ctx.strokeStyle = '#000';
+            this.ctx.lineWidth = this.radius * 0.05;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.centerX - this.radius * 0.3, this.centerY + this.radius * 0.2);
+            this.ctx.quadraticCurveTo(
+                this.centerX, this.centerY + this.radius * 0.35,
+                this.centerX + this.radius * 0.2, this.centerY + this.radius * 0.25
+            );
+            this.ctx.stroke();
         }
     }
     
-    drawHat(hat) {
-        const scale = this.radius / 30; // Scale factor based on original 30px radius
+drawHat(hat) {
+        const scale = this.radius / 30;
         
         if (hat === 'crown') {
             this.ctx.fillStyle = '#ffd700';
@@ -138,8 +176,19 @@ class PlayerSphere {
             points.forEach(p => this.ctx.lineTo(p[0], p[1]));
             this.ctx.closePath();
             this.ctx.fill();
+            
+            // Add jewels
+            this.ctx.fillStyle = '#ff0000';
+            this.ctx.beginPath();
+            this.ctx.arc(this.centerX, this.centerY - this.radius * 0.96, this.radius * 0.1, 0, Math.PI * 2);
+            this.ctx.fill();
+            
         } else if (hat === 'tophat') {
-            this.ctx.fillStyle = '#1a1a1a';
+            // Top hat with white outline to stand out
+            this.ctx.fillStyle = '#000';
+            this.ctx.strokeStyle = '#fff';
+            this.ctx.lineWidth = this.radius * 0.06;
+            
             // Top part
             this.ctx.fillRect(
                 this.centerX - this.radius * 0.5,
@@ -147,6 +196,13 @@ class PlayerSphere {
                 this.radius,
                 this.radius * 0.26
             );
+            this.ctx.strokeRect(
+                this.centerX - this.radius * 0.5,
+                this.centerY - this.radius * 1.16,
+                this.radius,
+                this.radius * 0.26
+            );
+            
             // Brim
             this.ctx.fillRect(
                 this.centerX - this.radius * 0.66,
@@ -154,28 +210,108 @@ class PlayerSphere {
                 this.radius * 1.33,
                 this.radius * 0.16
             );
+            this.ctx.strokeRect(
+                this.centerX - this.radius * 0.66,
+                this.centerY - this.radius * 0.9,
+                this.radius * 1.33,
+                this.radius * 0.16
+            );
+            
         } else if (hat === 'wizard') {
+            // Wizard hat with stars
             this.ctx.fillStyle = '#6b46c1';
+            this.ctx.strokeStyle = '#a855f7';
+            this.ctx.lineWidth = this.radius * 0.05;
+            
             this.ctx.beginPath();
             this.ctx.moveTo(this.centerX, this.centerY - this.radius * 1.16);
             this.ctx.lineTo(this.centerX - this.radius * 0.5, this.centerY - this.radius * 0.83);
             this.ctx.lineTo(this.centerX + this.radius * 0.5, this.centerY - this.radius * 0.83);
             this.ctx.closePath();
             this.ctx.fill();
-        } else if (hat === 'halo') {
-            this.ctx.strokeStyle = '#ffd700';
-            this.ctx.lineWidth = this.radius * 0.1;
-            this.ctx.beginPath();
-            this.ctx.arc(this.centerX, this.centerY - this.radius * 1.06, this.radius * 0.4, 0, Math.PI * 2);
             this.ctx.stroke();
+            
+            // Add moon/star
+            this.ctx.fillStyle = '#ffd700';
+            this.ctx.font = `${this.radius * 0.4}px Arial`;
+            this.ctx.textAlign = 'center';
+            this.ctx.fillText('★', this.centerX, this.centerY - this.radius * 0.93);
+            
+        } else if (hat === 'halo') {
+            // More realistic glowing halo
+            const gradient = this.ctx.createRadialGradient(
+                this.centerX, this.centerY - this.radius * 1.06,
+                this.radius * 0.3,
+                this.centerX, this.centerY - this.radius * 1.06,
+                this.radius * 0.5
+            );
+            gradient.addColorStop(0, 'rgba(255, 215, 0, 0.8)');
+            gradient.addColorStop(1, 'rgba(255, 215, 0, 0)');
+            
+            this.ctx.fillStyle = gradient;
+            this.ctx.beginPath();
+            this.ctx.arc(this.centerX, this.centerY - this.radius * 1.06, this.radius * 0.5, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+            // Inner bright ring
+            this.ctx.strokeStyle = '#ffd700';
+            this.ctx.lineWidth = this.radius * 0.12;
+            this.ctx.beginPath();
+            this.ctx.arc(this.centerX, this.centerY - this.radius * 1.06, this.radius * 0.35, 0, Math.PI * 2);
+            this.ctx.stroke();
+            
+        } else if (hat === 'santa') {
+            // Santa hat
+            this.ctx.fillStyle = '#dc143c';
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.centerX, this.centerY - this.radius * 1.2);
+            this.ctx.lineTo(this.centerX - this.radius * 0.5, this.centerY - this.radius * 0.7);
+            this.ctx.lineTo(this.centerX + this.radius * 0.4, this.centerY - this.radius * 0.7);
+            this.ctx.closePath();
+            this.ctx.fill();
+            
+            // White trim
+            this.ctx.fillStyle = '#fff';
+            this.ctx.fillRect(this.centerX - this.radius * 0.5, this.centerY - this.radius * 0.75, this.radius * 0.9, this.radius * 0.15);
+            
+            // Pom pom
+            this.ctx.beginPath();
+            this.ctx.arc(this.centerX, this.centerY - this.radius * 1.2, this.radius * 0.15, 0, Math.PI * 2);
+            this.ctx.fill();
+            
+        } else if (hat === 'party') {
+            // Party hat
+            const gradient = this.ctx.createLinearGradient(
+                this.centerX - this.radius * 0.4,
+                this.centerY - this.radius * 1.2,
+                this.centerX + this.radius * 0.4,
+                this.centerY - this.radius * 0.7
+            );
+            gradient.addColorStop(0, '#ff0080');
+            gradient.addColorStop(0.5, '#00ff80');
+            gradient.addColorStop(1, '#0080ff');
+            
+            this.ctx.fillStyle = gradient;
+            this.ctx.beginPath();
+            this.ctx.moveTo(this.centerX, this.centerY - this.radius * 1.3);
+            this.ctx.lineTo(this.centerX - this.radius * 0.45, this.centerY - this.radius * 0.7);
+            this.ctx.lineTo(this.centerX + this.radius * 0.45, this.centerY - this.radius * 0.7);
+            this.ctx.closePath();
+            this.ctx.fill();
+            
+            // Pom pom
+            this.ctx.fillStyle = '#ffff00';
+            this.ctx.beginPath();
+            this.ctx.arc(this.centerX, this.centerY - this.radius * 1.3, this.radius * 0.12, 0, Math.PI * 2);
+            this.ctx.fill();
         }
     }
     
-    drawEffect(effect) {
+drawEffect(effect) {
         if (effect === 'blackhole') {
             const time = Date.now() / 1000;
-            const orbitRadius = this.radius * 1.5;
-            const holeRadius = this.radius * 0.26;
+            const orbitRadius = this.radius * 1.8; // Increased from 1.5
+            const holeRadius = this.radius * 0.3; // Slightly bigger
             
             for (let i = 0; i < 3; i++) {
                 const angle = time + (i * Math.PI * 2 / 3);
@@ -184,13 +320,118 @@ class PlayerSphere {
                 
                 const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, holeRadius);
                 gradient.addColorStop(0, '#000');
+                gradient.addColorStop(0.6, '#1a0033');
                 gradient.addColorStop(1, 'transparent');
                 this.ctx.fillStyle = gradient;
                 this.ctx.beginPath();
                 this.ctx.arc(x, y, holeRadius, 0, Math.PI * 2);
                 this.ctx.fill();
             }
+            
+        } else if (effect === 'wings') {
+            const time = Date.now() / 1000;
+            const flapOffset = Math.sin(time * 3) * 0.15; // Wing flapping animation
+            
+            // Left wing
+            this.drawWing(
+                this.centerX - this.radius * 0.8,
+                this.centerY,
+                -1,
+                flapOffset
+            );
+            
+            // Right wing
+            this.drawWing(
+                this.centerX + this.radius * 0.8,
+                this.centerY,
+                1,
+                flapOffset
+            );
+            
+        } else if (effect === 'glitch') {
+            const time = Date.now();
+            
+            // Random glitch effect every 100ms
+            if (time % 200 < 50) {
+                const glitchOffsetX = (Math.random() - 0.5) * this.radius * 0.4;
+                const glitchOffsetY = (Math.random() - 0.5) * this.radius * 0.4;
+                
+                // Red channel
+                this.ctx.globalCompositeOperation = 'screen';
+                this.ctx.fillStyle = 'rgba(255, 0, 0, 0.5)';
+                this.ctx.fillRect(
+                    glitchOffsetX,
+                    glitchOffsetY,
+                    this.size,
+                    this.size
+                );
+                
+                // Blue channel
+                this.ctx.fillStyle = 'rgba(0, 255, 255, 0.5)';
+                this.ctx.fillRect(
+                    -glitchOffsetX,
+                    -glitchOffsetY,
+                    this.size,
+                    this.size
+                );
+                
+                this.ctx.globalCompositeOperation = 'source-over';
+                
+                // Scanlines
+                for (let i = 0; i < this.size; i += 4) {
+                    this.ctx.fillStyle = 'rgba(0, 255, 0, 0.1)';
+                    this.ctx.fillRect(0, i, this.size, 2);
+                }
+            }
         }
+    }
+    
+    drawWing(x, y, direction, flapOffset) {
+        const wingWidth = this.radius * 1.2;
+        const wingHeight = this.radius * 1.5;
+        
+        // Save context
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.rotate(direction * flapOffset);
+        
+        // Wing shadow/fill
+        this.ctx.fillStyle = '#000';
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, -wingHeight * 0.3);
+        this.ctx.bezierCurveTo(
+            direction * wingWidth * 0.5, -wingHeight * 0.5,
+            direction * wingWidth, -wingHeight * 0.3,
+            direction * wingWidth * 0.8, 0
+        );
+        this.ctx.bezierCurveTo(
+            direction * wingWidth, wingHeight * 0.3,
+            direction * wingWidth * 0.5, wingHeight * 0.5,
+            0, wingHeight * 0.3
+        );
+        this.ctx.closePath();
+        this.ctx.fill();
+        
+        // Wing outline
+        this.ctx.strokeStyle = '#fff';
+        this.ctx.lineWidth = this.radius * 0.08;
+        this.ctx.stroke();
+        
+        // Inner wing details
+        this.ctx.strokeStyle = '#888';
+        this.ctx.lineWidth = this.radius * 0.04;
+        for (let i = 1; i <= 3; i++) {
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, -wingHeight * 0.3 * (i / 3));
+            this.ctx.bezierCurveTo(
+                direction * wingWidth * 0.3 * i / 3, -wingHeight * 0.4 * (i / 3),
+                direction * wingWidth * 0.6 * i / 3, -wingHeight * 0.2 * (i / 3),
+                direction * wingWidth * 0.7 * i / 3, 0
+            );
+            this.ctx.stroke();
+        }
+        
+        this.ctx.restore();
     }
     
     /**
