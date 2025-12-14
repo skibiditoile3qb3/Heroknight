@@ -222,6 +222,44 @@
         <div class="price" style="color: #a855f7;">200,000 Coins</div>
         <button id="buyBlackhole" style="background: #a855f7; border-color: #7c3aed;">Purchase</button>
     </div>
+    <div class="shop-item" style="border: 2px solid #fff;">
+        <h2>🖤 Black Wings</h2>
+        <p>Dark angelic wings that flap behind your sphere. Pure elegance!</p>
+        <div class="price">250,000 Coins</div>
+        <button id="buyWings">Purchase</button>
+    </div>
+
+    <div class="shop-item" style="border: 2px solid #00ff00;">
+        <h2>⚡ Glitch Effect</h2>
+        <p>Reality-bending glitch effect with RGB distortion and scanlines!</p>
+        <div class="price">300,000 Coins</div>
+        <button id="buyGlitch" style="background: #00ff00; color: #000; border-color: #00cc00;">Purchase</button>
+    </div>
+
+    <!-- New Hats -->
+    <div class="shop-item">
+        <h2>🎅 Santa Hat</h2>
+        <p>Ho ho ho! Festive red and white Santa hat.</p>
+        <div class="price">45,000 Coins</div>
+        <button id="buySanta">Purchase</button>
+    </div>
+
+    <div class="shop-item">
+        <h2>🎉 Party Hat</h2>
+        <p>Rainbow gradient party hat with a yellow pom pom!</p>
+        <div class="price">40,000 Coins</div>
+        <button id="buyParty">Purchase</button>
+    </div>
+
+    <!-- New Face -->
+    <div class="shop-item">
+        <h2>😎 Cool Face (Sunglasses)</h2>
+        <p>Black sunglasses with a smirk. Too cool for school!</p>
+        <div class="price">35,000 Coins</div>
+        <button id="buyCool">Purchase</button>
+    </div>
+</div>
+            
 </div>
     </div>
 
@@ -462,6 +500,17 @@ document.getElementById('buyEvil').addEventListener('click', () => buyCosmetic('
 
 // Effects
 document.getElementById('buyBlackhole').addEventListener('click', () => buyCosmetic('effects', 'blackhole', 200000, 'buyBlackhole'));
+document.getElementById('buyWings').addEventListener('click', () => buyCosmetic('effects', 'wings', 250000, 'buyWings'));
+document.getElementById('buyGlitch').addEventListener('click', () => buyCosmetic('effects', 'glitch', 300000, 'buyGlitch'));
+
+// New hats
+document.getElementById('buySanta').addEventListener('click', () => buyCosmetic('hats', 'santa', 45000, 'buySanta'));
+document.getElementById('buyParty').addEventListener('click', () => buyCosmetic('hats', 'party', 40000, 'buyParty'));
+
+// New face
+document.getElementById('buyCool').addEventListener('click', () => buyCosmetic('faces', 'cool', 35000, 'buyCool'));
+
+checkOwnedCosmetics();
 
 // Disable already owned items
 function checkOwnedCosmetics() {
@@ -503,9 +552,29 @@ function checkOwnedCosmetics() {
         document.getElementById('buyEvil').disabled = true;
         document.getElementById('buyEvil').textContent = 'Already Owned';
     }
-    if (owned.effects.includes('blackhole')) {
+if (owned.effects.includes('blackhole')) {
         document.getElementById('buyBlackhole').disabled = true;
         document.getElementById('buyBlackhole').textContent = 'Already Owned';
+    }
+    if (owned.effects.includes('wings')) {
+        document.getElementById('buyWings').disabled = true;
+        document.getElementById('buyWings').textContent = 'Already Owned';
+    }
+    if (owned.effects.includes('glitch')) {
+        document.getElementById('buyGlitch').disabled = true;
+        document.getElementById('buyGlitch').textContent = 'Already Owned';
+    }
+    if (owned.hats.includes('santa')) {
+        document.getElementById('buySanta').disabled = true;
+        document.getElementById('buySanta').textContent = 'Already Owned';
+    }
+    if (owned.hats.includes('party')) {
+        document.getElementById('buyParty').disabled = true;
+        document.getElementById('buyParty').textContent = 'Already Owned';
+    }
+    if (owned.faces.includes('cool')) {
+        document.getElementById('buyCool').disabled = true;
+        document.getElementById('buyCool').textContent = 'Already Owned';
     }
 }
 
