@@ -460,34 +460,36 @@ function getUserProfile() {
             if (!profile.status) {
                 profile.status = 'player';
             }
-            if (!profile.equippedCosmetics) {
-                profile.equippedCosmetics = {
-                    color: 'default',
-                    hat: 'none',
-                    face: 'none',
-                    effect: 'none'
-                };
-            }
-            if (!profile.ownedCosmetics) {
-                profile.ownedCosmetics = {
-                    colors: ['default'],
-                    hats: ['none'],
-                    faces: ['none'],
-                    effects: ['none']
-                };
-            }
+if (!profile.equippedCosmetics) {
+    profile.equippedCosmetics = {
+        color: 'default',
+        hat: 'none',
+        face: 'none',
+        effect: 'none',
+        sword: 'none'
+    };
+}
+if (!profile.ownedCosmetics) {
+    profile.ownedCosmetics = {
+        colors: ['default'],
+        hats: ['none'],
+        faces: ['none'],
+        effects: ['none'],
+        swords: ['none']
+    };
+}
             return profile;
         }
     } catch(e) {}
     const newUsername = 'guest' + Math.floor(Math.random() * 1000000).toString().padStart(6, '0');
     return { 
-        unlockedGames: [], 
-        adsDisabled: false, 
-        username: newUsername, 
-        status: 'player',
-        equippedCosmetics: { color: 'default', hat: 'none', face: 'none', effect: 'none' },
-        ownedCosmetics: { colors: ['default'], hats: ['none'], faces: ['none'], effects: ['none'] }
-    };
+    unlockedGames: [], 
+    adsDisabled: false, 
+    username: newUsername, 
+    status: 'player',
+    equippedCosmetics: { color: 'default', hat: 'none', face: 'none', effect: 'none', sword: 'none' },
+    ownedCosmetics: { colors: ['default'], hats: ['none'], faces: ['none'], effects: ['none'], swords: ['none'] }
+};
 }
 
         function saveUserProfile(profile) {
@@ -1206,18 +1208,106 @@ if (checkAndHandleBan()) {
             loadGame('slots');
         });
 
-        window.addEventListener('message', (event) => {
-            if (event.data.type === 'getCoins') {
-                event.source.postMessage({
-                    type: 'coinsData',
-                    coins: coins
-                }, '*');
-            } else if (event.data.type === 'updateCoins') {
-                coins = event.data.coins;
-                setCoins(coins);
-                updateCoinDisplay();
+window.addEventListener('message', (event) => {
+    if (event.data.type === 'getCoins') {
+        event.source.postMessage({
+            type: 'coinsData',
+            coins: coins
+        }, '*');
+    } else if (event.data.type === 'updateCoins') {
+        const newCoins = event.data.coins;
+        const oldCoins = coins;
+        
+        // Calculate profit/loss
+        const difference = newCoins - oldCoins;
+        
+        // Apply sword multiplier ONLY to profits (positive differences)
+        if (difference > 0) {
+            const swordMultiplier = getSwordMultiplier();
+            const bonusProfit = difference * (swordMultiplier - 1);
+            coins = newCoins + bonusProfit;
+            
+            // Show notification if there's a bonus
+            if (bonusProfit > 0) {
+                showSwordBonus(bonusProfit, swordMultiplier);
             }
-        });
+        } else {
+            // No multiplier on losses
+            coins = newCoins;
+        }
+        
+        setCoins(coins);
+        updateCoinDisplay();
+    }
+});
+
+// Get sword multiplier
+function getSwordMultiplier() {
+    try {
+        const sword = userProfile?.equippedCosmetics?.sword || 'none';
+        
+        if (sword === 'stone') return 1.2;
+        if (sword === 'dragon') return 2.0;
+        return 1.0;
+    } catch(e) {
+        return 1.0;
+    }
+}
+
+// Show visual feedback for sword bonus
+function showSwordBonus(bonus, multiplier) {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed;
+        top: 80px;
+        right: 20px;
+        background: linear-gradient(135deg, #ff4500 0%, #ff8c00 100%);
+        border: 2px solid #ffd700;
+        border-radius: 12px;
+        padding: 15px 25px;
+        z-index: 10001;
+        color: #fff;
+        font-weight: bold;
+        font-size: 16px;
+        box-shadow: 0 4px 15px rgba(255, 69, 0, 0.4);
+        animation: slideInRight 0.3s ease-out, fadeOutRight 0.3s ease-in 2.7s;
+    `;
+    
+    const swordEmoji = multiplier === 2.0 ? '🐉' : '⚔️';
+    notification.innerHTML = `${swordEmoji} Sword Bonus: +${Math.floor(bonus)} coins!`;
+    
+    document.body.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Add CSS animations for sword bonus
+const swordStyle = document.createElement('style');
+swordStyle.textContent = `
+    @keyframes slideInRight {
+        from { 
+            opacity: 0; 
+            transform: translateX(100px);
+        }
+        to { 
+            opacity: 1; 
+            transform: translateX(0);
+        }
+    }
+    @keyframes fadeOutRight {
+        from { 
+            opacity: 1; 
+            transform: translateX(0);
+        }
+        to { 
+            opacity: 0; 
+            transform: translateX(100px);
+        }
+    }
+`;
+document.head.appendChild(swordStyle);
 
         document.getElementById('devInput').addEventListener('input', (e) => {
     const code = e.target.value;
