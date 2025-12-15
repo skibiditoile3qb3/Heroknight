@@ -263,11 +263,13 @@
         const _0x9c3d = 'X2NvaW5EYXRh';
         const _0x3e8a = 'X3RvdGFsQWN0aXZlVGltZQ==';
 
-        function getUserProfile() {
+        ffunction getUserProfile() {
             try {
                 const stored = localStorage.getItem('userProfile');
                 if (stored) {
                     const profile = JSON.parse(stored);
+                    
+                    // Ensure equippedCosmetics exists
                     if (!profile.equippedCosmetics) {
                         profile.equippedCosmetics = {
                             color: 'default',
@@ -277,6 +279,8 @@
                             sword: 'none'
                         };
                     }
+                    
+                    // Ensure ownedCosmetics exists
                     if (!profile.ownedCosmetics) {
                         profile.ownedCosmetics = {
                             colors: ['default'],
@@ -286,9 +290,20 @@
                             swords: ['none']
                         };
                     }
+                    if (!profile.ownedCosmetics.colors) profile.ownedCosmetics.colors = ['default'];
+                    if (!profile.ownedCosmetics.hats) profile.ownedCosmetics.hats = ['none'];
+                    if (!profile.ownedCosmetics.faces) profile.ownedCosmetics.faces = ['none'];
+                    if (!profile.ownedCosmetics.effects) profile.ownedCosmetics.effects = ['none'];
+                    if (!profile.ownedCosmetics.swords) profile.ownedCosmetics.swords = ['none'];
+                    
+                    // Save the updated profile
+                    saveUserProfile(profile);
+                    
                     return profile;
                 }
-            } catch(e) {}
+            } catch(e) {
+                console.error('Error loading profile:', e);
+            }
             return { 
                 username: 'guest000000',
                 status: 'player',
