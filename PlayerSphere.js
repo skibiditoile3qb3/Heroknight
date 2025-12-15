@@ -305,6 +305,7 @@ class PlayerSphere {
             } 
           
     }
+    }
     startAnimation(cosmetics) {
         this.shouldAnimate = true;
         this.cosmetics = cosmetics;
