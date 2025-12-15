@@ -448,57 +448,89 @@ document.getElementById('passwordInput').addEventListener('keypress', (e) => {
         const _0x8d4b = 'X3VzZWRDb2Rlcw==';
         const _0x6f9a = 'X2JhbkRhdGE=';
         
+function generateGuestUsername() {
+    const num = Math.floor(100000 + Math.random() * 900000); // 6 digits
+    return 'guest' + num;
+}
 
 function getUserProfile() {
-            try {
-                const stored = localStorage.getItem('userProfile');
-                if (stored) {
-                    const profile = JSON.parse(stored);
-                    
-                    // Ensure equippedCosmetics exists
-                    if (!profile.equippedCosmetics) {
-                        profile.equippedCosmetics = {
-                            color: 'default',
-                            hat: 'none',
-                            face: 'none',
-                            effect: 'none',
-                            sword: 'none'
-                        };
-                    }
-                    
-                    // Ensure ownedCosmetics exists
-                    if (!profile.ownedCosmetics) {
-                        profile.ownedCosmetics = {
-                            colors: ['default'],
-                            hats: ['none'],
-                            faces: ['none'],
-                            effects: ['none'],
-                            swords: ['none']
-                        };
-                    }
-                    
-                    // Ensure all cosmetic arrays exist
-                    if (!profile.ownedCosmetics.colors) profile.ownedCosmetics.colors = ['default'];
-                    if (!profile.ownedCosmetics.hats) profile.ownedCosmetics.hats = ['none'];
-                    if (!profile.ownedCosmetics.faces) profile.ownedCosmetics.faces = ['none'];
-                    if (!profile.ownedCosmetics.effects) profile.ownedCosmetics.effects = ['none'];
-                    if (!profile.ownedCosmetics.swords) profile.ownedCosmetics.swords = ['none'];
-                    
-                    // Save the updated profile
-                    saveUserProfile(profile);
-                    
-                    return profile;
-                }
-            } catch(e) {
-                console.error('Error loading profile:', e);
+    try {
+        const stored = localStorage.getItem('userProfile');
+
+        if (stored) {
+            const profile = JSON.parse(stored);
+
+            // ----- CORE -----
+            if (!profile.username) profile.username = generateGuestUsername();
+            if (!profile.status) profile.status = 'player';
+
+            // ----- UNLOCKED GAMES -----
+            if (!Array.isArray(profile.unlockedGames)) {
+                profile.unlockedGames = [];
             }
-            return { 
-                username: 'guest000000',
-                status: 'player',
-                equippedCosmetics: { color: 'default', hat: 'none', face: 'none', effect: 'none', sword: 'none' },
-                ownedCosmetics: { colors: ['default'], hats: ['none'], faces: ['none'], effects: ['none'], swords: ['none'] }
-            };
+
+            // ----- EQUIPPED COSMETICS -----
+            if (!profile.equippedCosmetics) {
+                profile.equippedCosmetics = {
+                    color: 'default',
+                    hat: 'none',
+                    face: 'none',
+                    effect: 'none',
+                    sword: 'none'
+                };
+            }
+
+            // ----- OWNED COSMETICS -----
+            if (!profile.ownedCosmetics) {
+                profile.ownedCosmetics = {
+                    colors: ['default'],
+                    hats: ['none'],
+                    faces: ['none'],
+                    effects: ['none'],
+                    swords: ['none']
+                };
+            }
+
+            // ----- ENSURE ARRAYS -----
+            if (!Array.isArray(profile.ownedCosmetics.colors)) profile.ownedCosmetics.colors = ['default'];
+            if (!Array.isArray(profile.ownedCosmetics.hats)) profile.ownedCosmetics.hats = ['none'];
+            if (!Array.isArray(profile.ownedCosmetics.faces)) profile.ownedCosmetics.faces = ['none'];
+            if (!Array.isArray(profile.ownedCosmetics.effects)) profile.ownedCosmetics.effects = ['none'];
+            if (!Array.isArray(profile.ownedCosmetics.swords)) profile.ownedCosmetics.swords = ['none'];
+
+            saveUserProfile(profile);
+            return profile;
         }
+    } catch (e) {
+        console.error('Error loading profile:', e);
+    }
+
+    // =============================
+    // FIRST-TIME USER
+    // =============================
+    const newProfile = {
+        username: generateGuestUsername(), // 🎲 RANDOM
+        status: 'player',
+        unlockedGames: [],
+        equippedCosmetics: {
+            color: 'default',
+            hat: 'none',
+            face: 'none',
+            effect: 'none',
+            sword: 'none'
+        },
+        ownedCosmetics: {
+            colors: ['default'],
+            hats: ['none'],
+            faces: ['none'],
+            effects: ['none'],
+            swords: ['none']
+        }
+    };
+
+    saveUserProfile(newProfile);
+    return newProfile;
+}
 
         function saveUserProfile(profile) {
             try {
