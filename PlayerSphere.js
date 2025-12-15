@@ -27,17 +27,6 @@ class PlayerSphere {
                 this.draw(this.cosmetics);
             }
         };
-
-        // Preload dragon sword image
-this.dragonSwordImage = new Image();
-this.dragonSwordImage.src = 'media/dragonsword.png';
-this.dragonSwordLoaded = false;
-this.dragonSwordImage.onload = () => {
-    this.dragonSwordLoaded = true;
-    if (this.shouldAnimate) {
-        this.draw(this.cosmetics);
-    }
-};
     }
     
 draw(cosmetics = {}) {
@@ -354,15 +343,7 @@ draw(cosmetics = {}) {
         this.ctx.fillRect(-swordWidth * 0.1, swordHeight * 0.35, swordWidth * 0.2, swordHeight * 0.15);
         
     } else if (sword === 'dragon') {
-        if (this.dragonSwordLoaded) {
-            this.ctx.drawImage(
-                this.dragonSwordImage,
-                -swordWidth * 0.3,
-                -swordHeight * 0.5,
-                swordWidth * 0.6,
-                swordHeight
-            );
-        } else {
+        
             const gradient = this.ctx.createLinearGradient(0, -swordHeight * 0.45, 0, swordHeight * 0.35);
             gradient.addColorStop(0, '#ff4500');
             gradient.addColorStop(1, '#ff8c00');
