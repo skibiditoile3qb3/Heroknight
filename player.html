@@ -354,8 +354,8 @@
 
 // Animate black hole effect
 function updateBigSphereAnimation() {
-            const animatedEffects = ['blackhole', 'wings', 'glitch'];
-            if (animatedEffects.includes(userProfile.equippedCosmetics.effect)) {
+    const animatedEffects = ['blackhole', 'wings', 'glitch', 'mystical-aura'];
+    if (animatedEffects.includes(userProfile.equippedCosmetics.effect)) {
                 if (bigSphereRenderer && !bigSphereRenderer.shouldAnimate) {
                     bigSphereRenderer.startAnimation(userProfile.equippedCosmetics);
                 }
@@ -429,11 +429,13 @@ function updateBigSphereAnimation() {
                 { id: 'evil', name: 'Evil', icon: '😈' },
                 { id: 'cool', name: 'Cool (Sunglasses)', icon: '😎' }
             ],
-            effects: [
+           effects: [
                 { id: 'none', name: 'None', icon: '❌' },
                 { id: 'blackhole', name: 'Black Holes', icon: '🌑' },
-                { id: 'wings', name: 'Black Wings', icon: '🖤' }
+                { id: 'wings', name: 'Black Wings', icon: '🖤' },
+                { id: 'mystical-aura', name: 'Mystical Aura', icon: '✨' }
             ],
+
             swords: [
                 { id: 'none', name: 'None', icon: '❌' },
                 { id: 'stick', name: 'Stick Sword', icon: '🦯' },
