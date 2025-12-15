@@ -246,6 +246,31 @@
         <div class="price">50,000 Coins</div>
         <button id="buyCool">Purchase</button>
     </div>
+
+<div style="margin-top: 40px; padding-top: 40px; border-top: 1px solid #333;">
+    <h1 style="text-align: center; margin-bottom: 30px; font-size: 28px;">⚔️ SWORDS</h1>
+    
+    <div class="shop-item">
+        <h2>🪵 Stick Sword</h2>
+        <p>A simple wooden stick. Hey, it's better than nothing!</p>
+        <div class="price">10,000 Coins</div>
+        <button id="buyStickSword">Purchase</button>
+    </div>
+
+    <div class="shop-item">
+        <h2>⚔️ Stone Sword</h2>
+        <p>Forged from solid stone. Increases coin PROFIT by 1.2x!</p>
+        <div class="price">100,000 Coins</div>
+        <button id="buyStoneSword">Purchase</button>
+    </div>
+
+    <div class="shop-item" style="border: 2px solid #ff4500;">
+        <h2>🐉 Dragon Sword</h2>
+        <p>Legendary blade forged in dragon fire. Doubles all coin PROFIT!</p>
+        <div class="price" style="color: #ff4500;">600,000 Coins</div>
+        <button id="buyDragonSword" style="background: #ff4500; border-color: #ff6347;">Purchase</button>
+    </div>
+</div>
 </div>
             
 </div>
@@ -444,7 +469,8 @@ if (!userProfile.ownedCosmetics) {
         colors: ['default'],
         hats: ['none'],
         faces: ['none'],
-        effects: ['none']
+        effects: ['none'],
+        swords: ['none']
     };
     saveUserProfile(userProfile);
 }
@@ -495,6 +521,11 @@ document.getElementById('buyParty').addEventListener('click', () => buyCosmetic(
 
 // New face
 document.getElementById('buyCool').addEventListener('click', () => buyCosmetic('faces', 'cool', 35000, 'buyCool'));
+
+// Swords
+document.getElementById('buyStickSword').addEventListener('click', () => buyCosmetic('swords', 'stick', 10000, 'buyStickSword'));
+document.getElementById('buyStoneSword').addEventListener('click', () => buyCosmetic('swords', 'stone', 100000, 'buyStoneSword'));
+document.getElementById('buyDragonSword').addEventListener('click', () => buyCosmetic('swords', 'dragon', 600000, 'buyDragonSword'));
 
 checkOwnedCosmetics();
 
@@ -553,6 +584,18 @@ if (owned.effects.includes('blackhole')) {
     if (owned.faces.includes('cool')) {
         document.getElementById('buyCool').disabled = true;
         document.getElementById('buyCool').textContent = 'Already Owned';
+    }
+    if (owned.swords.includes('stick')) {
+        document.getElementById('buyStickSword').disabled = true;
+        document.getElementById('buyStickSword').textContent = 'Already Owned';
+    }
+    if (owned.swords.includes('stone')) {
+        document.getElementById('buyStoneSword').disabled = true;
+        document.getElementById('buyStoneSword').textContent = 'Already Owned';
+    }
+    if (owned.swords.includes('dragon')) {
+        document.getElementById('buyDragonSword').disabled = true;
+        document.getElementById('buyDragonSword').textContent = 'Already Owned';
     }
 }
 
