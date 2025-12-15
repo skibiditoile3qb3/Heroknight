@@ -325,30 +325,7 @@
         let userProfile = getUserProfile();
 
         document.getElementById('coinAmount').textContent = coins;
-
-        // Check if ads already removed
-        if (userProfile.adsDisabled) {
-            const item = document.getElementById('adRemovalItem');
-            item.classList.add('purchased');
-            item.querySelector('h2').textContent = '✅ Ads Already Removed';
-            item.querySelector('p').textContent = 'You have already purchased ad removal. Enjoy your ad-free experience!';
-            item.querySelector('.price').textContent = 'OWNED';
-            document.getElementById('buyAdRemoval').disabled = true;
-            document.getElementById('buyAdRemoval').textContent = 'Already Purchased';
-        }
-
-        // Check if visualizer already purchased
-        if (userProfile.visualizerEnabled) {
-            const item = document.getElementById('visualizerItem');
-            item.classList.add('purchased');
-            item.querySelector('h2').textContent = '✅ Visualizer Owned';
-            item.querySelector('p').textContent = 'You own the Gaming Visualizer! It will appear automatically when playing games. Press U to open settings.';
-            item.querySelector('.price').textContent = 'OWNED';
-            document.getElementById('buyVisualizer').disabled = true;
-            document.getElementById('buyVisualizer').textContent = 'Already Purchased';
-        }
-
-        // Ad Removal Purchase
+// Ad Removal Purchase
         document.getElementById('buyAdRemoval').addEventListener('click', () => {
             if (coins >= 20000) {
                 if (confirm('Purchase ad removal for 20,000 coins?')) {
@@ -441,192 +418,121 @@
                 alert('❌ Not enough coins! You need 100,000 coins.');
             }
         });
-// Mystical Rank Purchase
-document.getElementById('buyMysticalRank').addEventListener('click', () => {
-    if (userProfile.status === 'mystical') {
-        alert('❌ You already have this rank!');
-        return;
-    }
-    
-    if (coins >= 500000) {
-        if (confirm('Purchase Mystical rank for 500,000 coins?\n\n✨ BENEFITS:\n• Earn 100 coins per 30 seconds (vs 30)\n• Exclusive Mystical Aura effect\n• Loss Protection: 50% refund on losses up to 10k (once per day)')) {
-            coins -= 500000;
-            setCoins(coins);
-            userProfile.status = 'mystical';
-            
-            // Initialize cosmetics if needed
-            if (!userProfile.ownedCosmetics) {
-                userProfile.ownedCosmetics = {
-                    colors: ['default'],
-                    hats: ['none'],
-                    faces: ['none'],
-                    effects: ['none'],
-                    swords: ['none']
-                };
-            }
-            
-            // Auto-give and equip mystical aura
-            if (!userProfile.ownedCosmetics.effects.includes('mystical-aura')) {
-                userProfile.ownedCosmetics.effects.push('mystical-aura');
-            }
-            if (!userProfile.equippedCosmetics) {
-                userProfile.equippedCosmetics = {
-                    color: 'default',
-                    hat: 'none',
-                    face: 'none',
-                    effect: 'mystical-aura',
-                    sword: 'none'
-                };
-            } else {
-                userProfile.equippedCosmetics.effect = 'mystical-aura';
-            }
-            
-            saveUserProfile(userProfile);
-            alert('✅ Success! You are now Mystical rank with exclusive aura!\n\n🎮 Earn 3x more coins while playing\n✨ Mystical Aura automatically equipped\n🛡️ Loss Protection activated');
-            window.location.reload();
-        }
-    } else {
-        alert('❌ Not enough coins! You need 500,000 coins.');
-    }
-});
 
-        // Initialize cosmetics in profile if not exists
-if (!userProfile.ownedCosmetics) {
-    userProfile.ownedCosmetics = {
-        colors: ['default'],
-        hats: ['none'],
-        faces: ['none'],
-        effects: ['none'],
-        swords: ['none']
-    };
-    saveUserProfile(userProfile);
-}
-
-// Helper function to buy cosmetic
-function buyCosmetic(type, item, cost, buttonId) {
-    if (coins >= cost) {
-        if (confirm(`Purchase ${item} for ${cost.toLocaleString()} coins?`)) {
-            if (userProfile.ownedCosmetics[type].includes(item)) {
-                alert('❌ You already own this!');
+        // Mystical Rank Purchase
+        document.getElementById('buyMysticalRank').addEventListener('click', () => {
+            if (userProfile.status === 'mystical') {
+                alert('❌ You already have this rank!');
                 return;
             }
-            coins -= cost;
-            setCoins(coins);
-            userProfile.ownedCosmetics[type].push(item);
+            
+            if (coins >= 500000) {
+                if (confirm('Purchase Mystical rank for 500,000 coins?\n\n✨ BENEFITS:\n• Earn 100 coins per 30 seconds (vs 30)\n• Exclusive Mystical Aura effect\n• Loss Protection: 50% refund on losses up to 10k (once per day)')) {
+                    coins -= 500000;
+                    setCoins(coins);
+                    userProfile.status = 'mystical';
+                    
+                    // Initialize cosmetics if needed
+                    if (!userProfile.ownedCosmetics) {
+                        userProfile.ownedCosmetics = {
+                            colors: ['default'],
+                            hats: ['none'],
+                            faces: ['none'],
+                            effects: ['none'],
+                            swords: ['none']
+                        };
+                    }
+                    
+                    // Auto-give and equip mystical aura
+                    if (!userProfile.ownedCosmetics.effects.includes('mystical-aura')) {
+                        userProfile.ownedCosmetics.effects.push('mystical-aura');
+                    }
+                    if (!userProfile.equippedCosmetics) {
+                        userProfile.equippedCosmetics = {
+                            color: 'default',
+                            hat: 'none',
+                            face: 'none',
+                            effect: 'mystical-aura',
+                            sword: 'none'
+                        };
+                    } else {
+                        userProfile.equippedCosmetics.effect = 'mystical-aura';
+                    }
+                    
+                    saveUserProfile(userProfile);
+                    alert('✅ Success! You are now Mystical rank with exclusive aura!\n\n🎮 Earn 3x more coins while playing\n✨ Mystical Aura automatically equipped\n🛡️ Loss Protection activated');
+                    window.location.reload();
+                }
+            } else {
+                alert('❌ Not enough coins! You need 500,000 coins.');
+            }
+        });
+
+        // Initialize cosmetics in profile if not exists
+        if (!userProfile.ownedCosmetics) {
+            userProfile.ownedCosmetics = {
+                colors: ['default'],
+                hats: ['none'],
+                faces: ['none'],
+                effects: ['none'],
+                swords: ['none']
+            };
             saveUserProfile(userProfile);
-            alert(`✅ Successfully purchased ${item}!`);
-            document.getElementById(buttonId).disabled = true;
-            document.getElementById(buttonId).textContent = 'Already Owned';
-            document.getElementById('coinAmount').textContent = coins;
         }
-    } else {
-        alert(`❌ Not enough coins! You need ${cost.toLocaleString()} coins.`);
-    }
-}
 
-// Colors
-document.getElementById('buySunset').addEventListener('click', () => buyCosmetic('colors', 'sunset', 25000, 'buySunset'));
-document.getElementById('buyOcean').addEventListener('click', () => buyCosmetic('colors', 'ocean', 25000, 'buyOcean'));
-document.getElementById('buyGalaxy').addEventListener('click', () => buyCosmetic('colors', 'galaxy', 35000, 'buyGalaxy'));
+        // Helper function to buy cosmetic
+        function buyCosmetic(type, item, cost, buttonId) {
+            if (coins >= cost) {
+                if (confirm(`Purchase ${item} for ${cost.toLocaleString()} coins?`)) {
+                    if (userProfile.ownedCosmetics[type].includes(item)) {
+                        alert('❌ You already own this!');
+                        return;
+                    }
+                    coins -= cost;
+                    setCoins(coins);
+                    userProfile.ownedCosmetics[type].push(item);
+                    saveUserProfile(userProfile);
+                    alert(`✅ Successfully purchased ${item}!`);
+                    document.getElementById(buttonId).disabled = true;
+                    document.getElementById(buttonId).textContent = 'Already Owned';
+                    document.getElementById('coinAmount').textContent = coins;
+                }
+            } else {
+                alert(`❌ Not enough coins! You need ${cost.toLocaleString()} coins.`);
+            }
+        }
 
-// Hats
-document.getElementById('buyCrown').addEventListener('click', () => buyCosmetic('hats', 'crown', 40000, 'buyCrown'));
-document.getElementById('buyTophat').addEventListener('click', () => buyCosmetic('hats', 'tophat', 35000, 'buyTophat'));
-document.getElementById('buyWizard').addEventListener('click', () => buyCosmetic('hats', 'wizard', 45000, 'buyWizard'));
+        // Colors
+        document.getElementById('buySunset').addEventListener('click', () => buyCosmetic('colors', 'sunset', 25000, 'buySunset'));
+        document.getElementById('buyOcean').addEventListener('click', () => buyCosmetic('colors', 'ocean', 25000, 'buyOcean'));
+        document.getElementById('buyGalaxy').addEventListener('click', () => buyCosmetic('colors', 'galaxy', 30000, 'buyGalaxy'));
 
-// Faces
-document.getElementById('buyHappy').addEventListener('click', () => buyCosmetic('faces', 'happy', 20000, 'buyHappy'));
-document.getElementById('buyEvil').addEventListener('click', () => buyCosmetic('faces', 'evil', 30000, 'buyEvil'));
+        // Hats
+        document.getElementById('buyCrown').addEventListener('click', () => buyCosmetic('hats', 'crown', 20000, 'buyCrown'));
+        document.getElementById('buyTophat').addEventListener('click', () => buyCosmetic('hats', 'tophat', 15000, 'buyTophat'));
+        document.getElementById('buyWizard').addEventListener('click', () => buyCosmetic('hats', 'wizard', 25000, 'buyWizard'));
 
-// Effects
-document.getElementById('buyBlackhole').addEventListener('click', () => buyCosmetic('effects', 'blackhole', 200000, 'buyBlackhole'));
-document.getElementById('buyWings').addEventListener('click', () => buyCosmetic('effects', 'wings', 250000, 'buyWings'));
+        // Faces
+        document.getElementById('buyHappy').addEventListener('click', () => buyCosmetic('faces', 'happy', 20000, 'buyHappy'));
+        document.getElementById('buyEvil').addEventListener('click', () => buyCosmetic('faces', 'evil', 30000, 'buyEvil'));
 
-// New hats
-document.getElementById('buySanta').addEventListener('click', () => buyCosmetic('hats', 'santa', 45000, 'buySanta'));
-document.getElementById('buyParty').addEventListener('click', () => buyCosmetic('hats', 'party', 40000, 'buyParty'));
+        // Effects
+        document.getElementById('buyBlackhole').addEventListener('click', () => buyCosmetic('effects', 'blackhole', 200000, 'buyBlackhole'));
+        document.getElementById('buyWings').addEventListener('click', () => buyCosmetic('effects', 'wings', 350000, 'buyWings'));
 
-// New face
-document.getElementById('buyCool').addEventListener('click', () => buyCosmetic('faces', 'cool', 35000, 'buyCool'));
+        // New hats
+        document.getElementById('buySanta').addEventListener('click', () => buyCosmetic('hats', 'santa', 45000, 'buySanta'));
+        document.getElementById('buyParty').addEventListener('click', () => buyCosmetic('hats', 'party', 40000, 'buyParty'));
 
-// Swords
-document.getElementById('buyStickSword').addEventListener('click', () => buyCosmetic('swords', 'stick', 10000, 'buyStickSword'));
-document.getElementById('buyStoneSword').addEventListener('click', () => buyCosmetic('swords', 'stone', 100000, 'buyStoneSword'));
-document.getElementById('buyDragonSword').addEventListener('click', () => buyCosmetic('swords', 'dragon', 600000, 'buyDragonSword'));
+        // New face
+        document.getElementById('buyCool').addEventListener('click', () => buyCosmetic('faces', 'cool', 50000, 'buyCool'));
 
-checkOwnedCosmetics();
+        // Swords
+        document.getElementById('buyStickSword').addEventListener('click', () => buyCosmetic('swords', 'stick', 10000, 'buyStickSword'));
+        document.getElementById('buyStoneSword').addEventListener('click', () => buyCosmetic('swords', 'stone', 100000, 'buyStoneSword'));
+        document.getElementById('buyDragonSword').addEventListener('click', () => buyCosmetic('swords', 'dragon', 600000, 'buyDragonSword'));
 
-// Disable already owned items
-function checkOwnedCosmetics() {
-    const owned = userProfile.ownedCosmetics;
-    
-    if (owned.colors.includes('sunset')) {
-        document.getElementById('buySunset').disabled = true;
-        document.getElementById('buySunset').textContent = 'Already Owned';
-    }
-    if (owned.colors.includes('ocean')) {
-        document.getElementById('buyOcean').disabled = true;
-        document.getElementById('buyOcean').textContent = 'Already Owned';
-    }
-    if (owned.colors.includes('galaxy')) {
-        document.getElementById('buyGalaxy').disabled = true;
-        document.getElementById('buyGalaxy').textContent = 'Already Owned';
-    }
-    if (owned.hats.includes('crown')) {
-        document.getElementById('buyCrown').disabled = true;
-        document.getElementById('buyCrown').textContent = 'Already Owned';
-    }
-    if (owned.hats.includes('tophat')) {
-        document.getElementById('buyTophat').disabled = true;
-        document.getElementById('buyTophat').textContent = 'Already Owned';
-    }
-    if (owned.hats.includes('wizard')) {
-        document.getElementById('buyWizard').disabled = true;
-        document.getElementById('buyWizard').textContent = 'Already Owned';
-    }
-    if (owned.faces.includes('happy')) {
-        document.getElementById('buyHappy').disabled = true;
-        document.getElementById('buyHappy').textContent = 'Already Owned';
-    }
-    if (owned.faces.includes('evil')) {
-        document.getElementById('buyEvil').disabled = true;
-        document.getElementById('buyEvil').textContent = 'Already Owned';
-    }
-if (owned.effects.includes('blackhole')) {
-        document.getElementById('buyBlackhole').disabled = true;
-        document.getElementById('buyBlackhole').textContent = 'Already Owned';
-    }
-    if (owned.effects.includes('wings')) {
-        document.getElementById('buyWings').disabled = true;
-        document.getElementById('buyWings').textContent = 'Already Owned';
-    }
-    if (owned.hats.includes('santa')) {
-        document.getElementById('buySanta').disabled = true;
-        document.getElementById('buySanta').textContent = 'Already Owned';
-    }
-    if (owned.hats.includes('party')) {
-        document.getElementById('buyParty').disabled = true;
-        document.getElementById('buyParty').textContent = 'Already Owned';
-    }
-    if (owned.faces.includes('cool')) {
-        document.getElementById('buyCool').disabled = true;
-        document.getElementById('buyCool').textContent = 'Already Owned';
-    }
-    if (owned.swords.includes('stick')) {
-        document.getElementById('buyStickSword').disabled = true;
-        document.getElementById('buyStickSword').textContent = 'Already Owned';
-    }
-    if (owned.swords.includes('stone')) {
-        document.getElementById('buyStoneSword').disabled = true;
-        document.getElementById('buyStoneSword').textContent = 'Already Owned';
-    }
-    if (owned.swords.includes('dragon')) {
-        document.getElementById('buyDragonSword').disabled = true;
-        document.getElementById('buyDragonSword').textContent = 'Already Owned';
-    }
-}
-
-checkOwnedCosmetics();
+        checkOwnedCosmetics();
     </script>
 </body>
 </html>
