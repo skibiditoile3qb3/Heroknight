@@ -361,7 +361,6 @@ draw(cosmetics = {}) {
             this.ctx.fillRect(-swordWidth * 0.35, swordHeight * 0.32, swordWidth * 0.7, swordHeight * 0.08);
             this.ctx.fillStyle = '#8b0000';
             this.ctx.fillRect(-swordWidth * 0.12, swordHeight * 0.35, swordWidth * 0.24, swordHeight * 0.15);
-        }
     }
     
     this.ctx.restore();
