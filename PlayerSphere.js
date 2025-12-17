@@ -56,23 +56,45 @@ draw(cosmetics = {}) {
             this.radius
         );
         
-        switch(color) {
-            case 'sunset':
-                gradient.addColorStop(0, '#ff6b6b');
-                gradient.addColorStop(1, '#ff9a3c');
-                break;
-            case 'ocean':
-                gradient.addColorStop(0, '#4cc9f0');
-                gradient.addColorStop(1, '#0077b6');
-                break;
-            case 'galaxy':
-                gradient.addColorStop(0, '#c77dff');
-                gradient.addColorStop(1, '#3c096c');
-                break;
-            default:
-                gradient.addColorStop(0, '#888');
-                gradient.addColorStop(1, '#333');
-        }
+switch(color) {
+    case 'sunset':
+        gradient.addColorStop(0, '#ff6b6b');
+        gradient.addColorStop(1, '#ff9a3c');
+        break;
+    case 'ocean':
+        gradient.addColorStop(0, '#4cc9f0');
+        gradient.addColorStop(1, '#0077b6');
+        break;
+    case 'galaxy':
+        gradient.addColorStop(0, '#c77dff');
+        gradient.addColorStop(1, '#3c096c');
+        break;
+    case 'blood':
+        gradient.addColorStop(0, '#ff0000');
+        gradient.addColorStop(1, '#8b0000');
+        break;
+    case 'quartz':
+        gradient.addColorStop(0, '#ffffff');
+        gradient.addColorStop(1, '#cccccc');
+        break;
+    case 'ruby':
+        gradient.addColorStop(0, '#e0115f');
+        gradient.addColorStop(1, '#0d0d0d');
+        break;
+    case 'obsidian':
+        gradient.addColorStop(0, '#ffd36a'); // soft gold highlight
+        gradient.addColorStop(0.45, '#2b1a0f');
+        gradient.addColorStop(1, '#050505');
+        break;
+    case 'opaline':
+        gradient.addColorStop(0, '#e5e5e5');
+        gradient.addColorStop(0.5, '#2f2f2f');
+        gradient.addColorStop(1, '#050505');
+        break;
+    default:
+        gradient.addColorStop(0, '#888');
+        gradient.addColorStop(1, '#333');
+}
         
         this.ctx.fillStyle = gradient;
         this.ctx.beginPath();
