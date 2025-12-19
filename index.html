@@ -197,24 +197,49 @@
             height: 100%;
             border: none;
         }
-        #gameFrame.mobile-game {
-            width: 100%;
-            height: 100%;
-            border: none;
-            background: #0a0a0a;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #gameFrame.mobile-game iframe {
-            max-width: 400px;
-            max-height: 700px;
-            width: 100%;
-            height: 100%;
-            border: 2px solid #333;
-            border-radius: 12px;
-        }
+#gameFrame.mobile-game {
+    width: 100%;
+    height: 100%;
+    border: none;
+    background: #0a0a0a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Phone-style container */
+.phone-container {
+    width: 375px;
+    height: 667px;
+    max-width: 90vw;
+    max-height: 85vh;
+    background: #1a1a1a;
+    border: 8px solid #2a2a2a;
+    border-radius: 36px;
+    box-shadow: 0 0 60px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    position: relative;
+}
+
+/* Notch at top (optional, for realism) */
+.phone-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 24px;
+    background: #0a0a0a;
+    border-radius: 0 0 16px 16px;
+    z-index: 10;
+}
+
+.phone-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
         #adOverlay {
             display: none;
             position: fixed;
@@ -1248,9 +1273,16 @@ activityCheckInterval = setInterval(() => {
             } else if (game === 'eaglercraft-1.8') {
                 document.getElementById('gameFrame').src = 'https://eaglercraft1-8.github.io/';
             } else if (game === 'clash-royale') {
-                const frame = document.getElementById('gameFrame');
-                frame.classList.add('mobile-game');
-                frame.src = 'https://www.greenfoot.org/scenarios/27793?embed=true';
+                const gameView = document.getElementById('gameView');
+                gameView.innerHTML = `
+                    <button id="backBtn">← BACK</button>
+                    <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #0a0a0a;">
+                        <div class="phone-container">
+                            <iframe src="https://www.greenfoot.org/scenarios/27793?embed=true"></iframe>
+                        </div>
+                    </div>
+                `;
+                document.getElementById('backBtn').addEventListener('click', backToMain);
             } else if (game === 'slope-multiplayer') {
                 document.getElementById('gameFrame').src = 'https://gswitch3.github.io/g7/slope-2-multiplayer';
             } else {
@@ -1265,10 +1297,18 @@ activityCheckInterval = setInterval(() => {
 
 function backToMain() {
     document.getElementById('mainView').style.display = 'flex';
-    document.getElementById('gameView').style.display = 'none';
-    const frame = document.getElementById('gameFrame');
-    frame.classList.remove('mobile-game'); // Clean up the class
-    frame.src = '';
+    const gameView = document.getElementById('gameView');
+    gameView.style.display = 'none';
+    
+    // Restore original gameView structure
+    gameView.innerHTML = `
+        <button id="backBtn">← BACK</button>
+        <iframe id="gameFrame"></iframe>
+    `;
+    
+    // Re-attach back button event
+    document.getElementById('backBtn').addEventListener('click', backToMain);
+    
     document.body.style.setProperty('--visualizer-active', '0');
     gameIsPlaying = false;
 }
