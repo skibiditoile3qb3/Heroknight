@@ -175,16 +175,21 @@
             color: #d69e2e;
             margin-top: 4px;
         }
-        #gameView {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            background: #000;
-            z-index: 100;
-        }
+#gameView {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #000;
+    z-index: 100;
+}
+      #gameView.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}  
         #backBtn {
             position: fixed;
             top: 15px;
@@ -1216,6 +1221,7 @@ activityCheckInterval = setInterval(() => {
         function loadGame(game) {
             document.getElementById('mainView').style.display = 'none';
             document.getElementById('gameView').style.display = 'block';
+            gameView.classList.add('active')
             
             if (game === 'mines') {
                 document.getElementById('gameFrame').src = 'mines.html';
@@ -1255,7 +1261,9 @@ activityCheckInterval = setInterval(() => {
 
 function backToMain() {
     document.getElementById('mainView').style.display = 'flex';
-    document.getElementById('gameView').style.display = 'none';
+    const gameView = document.getElementById('gameView');
+    gameView.style.display = 'none';
+    gameView.classList.remove('active'); // Add this line
     const frame = document.getElementById('gameFrame');
     frame.classList.remove('mobile-game');
     frame.src = '';
