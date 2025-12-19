@@ -197,6 +197,24 @@
             height: 100%;
             border: none;
         }
+        #gameFrame.mobile-game {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #0a0a0a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #gameFrame.mobile-game iframe {
+            max-width: 400px;
+            max-height: 700px;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #333;
+            border-radius: 12px;
+        }
         #adOverlay {
             display: none;
             position: fixed;
@@ -1230,7 +1248,9 @@ activityCheckInterval = setInterval(() => {
             } else if (game === 'eaglercraft-1.8') {
                 document.getElementById('gameFrame').src = 'https://eaglercraft1-8.github.io/';
             } else if (game === 'clash-royale') {
-                document.getElementById('gameFrame').src = 'https://www.greenfoot.org/scenarios/27793?embed=true';
+                const frame = document.getElementById('gameFrame');
+                frame.classList.add('mobile-game');
+                frame.src = 'https://www.greenfoot.org/scenarios/27793?embed=true';
             } else if (game === 'slope-multiplayer') {
                 document.getElementById('gameFrame').src = 'https://gswitch3.github.io/g7/slope-2-multiplayer';
             } else {
@@ -1243,14 +1263,15 @@ activityCheckInterval = setInterval(() => {
             }
         }
 
-        function backToMain() {
-            document.getElementById('mainView').style.display = 'flex';
-            document.getElementById('gameView').style.display = 'none';
-            document.getElementById('gameFrame').src = '';
-            document.body.style.setProperty('--visualizer-active', '0');
-            gameIsPlaying = false;
-        }
-
+function backToMain() {
+    document.getElementById('mainView').style.display = 'flex';
+    document.getElementById('gameView').style.display = 'none';
+    const frame = document.getElementById('gameFrame');
+    frame.classList.remove('mobile-game'); // Clean up the class
+    frame.src = '';
+    document.body.style.setProperty('--visualizer-active', '0');
+    gameIsPlaying = false;
+}
         displayGames(games);
 
         document.getElementById('searchBox').addEventListener('input', (e) => {
